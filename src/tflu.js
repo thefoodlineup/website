@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.5.0
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.5.1
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -593,6 +593,7 @@
     var optin = false;
     $$('input, select, textarea', form).forEach(function (i) {
       if (!i.name || i.type === 'submit' || i.disabled) return;
+      if (/^(cf-|g-recaptcha|h-captcha)/.test(i.name)) return; // spamcheck van Webflow, niet voor HubSpot
       if (i.type === 'radio' && !i.checked) return;
       if (i.type === 'checkbox') {
         if (i.name === 'web_nieuwsbrief_optin') optin = i.checked;
@@ -1013,6 +1014,8 @@
     if (!forms.length) return;
     window.addEventListener('submit', onSubmit, true);
     forms.forEach(function (form) {
+      // Webflow zet standaard "Example Text" als placeholder; het ontwerp heeft geen placeholders.
+      $$('input[placeholder="Example Text"]', form).forEach(function (i) { i.removeAttribute('placeholder'); });
       fillSelects(form);
       initChips(form);
       initShowIf(form);

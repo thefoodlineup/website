@@ -2,6 +2,10 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.5.1] - 2026-11-11
+
+- Formulieren: spamcheck-velden van Webflow (`cf-turnstile-response` e.d.) gaan niet mee naar HubSpot; standaard-placeholder "Example Text" verdwijnt.
+
 ## [1.5.0] - 2026-11-11
 
 - Formulieren naar HubSpot (`form[data-hs-form]`): Webflow-formulieren worden afgevangen en naar de HubSpot Forms API gestuurd. Validatie met foutmeldingen per veld (`data-error-for`), blokken tonen bij een keuze (`data-show-if`), keuzeknoppen als radio's.
