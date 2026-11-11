@@ -1543,7 +1543,7 @@
       }
       if (p.navList) tl.to(p.navList, { autoAlpha: 0, duration: 0.3, ease: 'power2.inOut' }, 0.05);
     }
-    function openPanel(name) {
+    function openPanel(name, viaKeyboard) {
       var el = panel(name); if (!el) return;
       killPanel();
       state.panel = name;
@@ -1560,7 +1560,7 @@
       if (p.back) tl.to(p.back, { autoAlpha: 1, duration: 0.25, ease: 'power2.inOut' }, 0.15);
       tl.set(el, { autoAlpha: 1, xPercent: 0, pointerEvents: 'auto' }, 0.2);
       if (f.length) tl.fromTo(f, { xPercent: 8, autoAlpha: 0 }, { xPercent: 0, autoAlpha: 1, duration: 0.3, stagger: stagger(f.length), ease: 'power3.out' }, 0.25);
-      tl.call(function () { var a = el.querySelector('a'); if (a) a.focus({ preventScroll: true }); });
+      if (viaKeyboard) tl.call(function () { var a = el.querySelector('a'); if (a) a.focus({ preventScroll: true }); });
     }
     function closePanel() {
       if (!state.panel) return;
@@ -1586,7 +1586,7 @@
       t.setAttribute('aria-haspopup', 'true');
       on(t, 'click', function (e) {
         e.preventDefault();
-        if (state.open) openPanel(t.getAttribute('data-dropdown-toggle'));
+        if (state.open) openPanel(t.getAttribute('data-dropdown-toggle'), e.detail === 0);
       });
     });
     if (p.burger) {
