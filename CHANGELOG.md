@@ -2,6 +2,10 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.4.0] - 2026-11-11
+
+- Galerij/slider: optionele voortgangsbalk (`data-gallery-bar`) en teller (`data-gallery-count`, "01 / 05"). Gebruikt door de CMS-gestuurde cases-slider op Home en Event catering.
+
 ## [1.3.0] - 2026-11-11
 
 - FAQ-overzicht (`data-faq-index`): vragen per onderwerp gegroepeerd onder een h2, zoeken, onderwerp-knoppen met aantallen, lege staat en `?onderwerp=` in de url. Voegt FAQPage-structured data toe.

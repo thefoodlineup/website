@@ -22,7 +22,7 @@ Webflow zelf (pagina's, CMS, stijlen) staat niet in deze repo, maar in de Webflo
 Altijd met een vaste versie, nooit met `@main` of `@latest`:
 
 ```html
-<script defer src="https://cdn.jsdelivr.net/gh/thefoodlineup/website@v1.3.0/src/tflu.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/gh/thefoodlineup/website@v1.4.0/src/tflu.min.js"></script>
 ```
 
 jsDelivr maakt automatisch de geminificeerde `.min.js`. Een wijziging hier komt pas live als in Webflow een nieuwe versie wordt gekoppeld en de site opnieuw wordt gepubliceerd.
@@ -41,7 +41,7 @@ jsDelivr maakt automatisch de geminificeerde `.min.js`. Een wijziging hier komt 
 | Module | Attributen | Waar |
 |---|---|---|
 | Filter + meer laden | `data-filter-group`, `data-filter-list` (+ `data-filter-page`, `data-filter-page-mobile`), `data-filter-field`, `data-filter-range`, `data-filter-key`, `data-filter-min`, `data-filter-max`, `data-filter-count`, `data-filter-shown`, `data-filter-more`, `data-filter-more-label` (+ `data-template`), `data-filter-empty`, `data-filter-reset` | /cases, /stories, /locaties |
-| Galerij | `data-gallery-track`, `data-gallery-prev`, `data-gallery-next` | case-pagina's |
+| Galerij | `data-gallery-track`, `data-gallery-prev`, `data-gallery-next`, `data-gallery-bar`, `data-gallery-count` | case-pagina's, cases-slider Home en Event catering |
 | Lijst | `data-split-list` | locatie-pagina's (Geschikt voor) |
 | FAQ-overzicht | `data-faq-index`, `data-faq-list`, `data-faq-topic`, `data-faq-search`, `data-faq-cats`, `data-faq-total`, `data-faq-empty`, `data-faq-reset` | /faq |
 | Knoppen zonder href | `a[type="button"]` | overal |

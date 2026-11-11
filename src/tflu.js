@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.3.0
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.4.0
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -234,12 +234,28 @@
    * Horizontale galerij met pijltjes
    *   [data-gallery-track]   scrollende lijst (CSS scroll-snap)
    *   [data-gallery-prev] / [data-gallery-next]
+   *   [data-gallery-bar]     optioneel: voortgangsbalk die meeschuift
+   *   [data-gallery-count]   optioneel: "01 / 05"
    * ------------------------------------------------------------------ */
+  function pad2(n) { return (n < 10 ? '0' : '') + n; }
+
   function initGalleries() {
     $$('[data-gallery-track]').forEach(function (track) {
       var section = track.closest('section') || document;
       var prev = section.querySelector('[data-gallery-prev]');
       var next = section.querySelector('[data-gallery-next]');
+      var bar = section.querySelector('[data-gallery-bar]');
+      var count = section.querySelector('[data-gallery-count]');
+      var totalSlides = track.children.length;
+      if (count) {
+        count.textContent = '';
+        var cur = document.createTextNode('01 ');
+        var tot = document.createElement('span');
+        tot.className = 'cases_count-total';
+        tot.textContent = '/ ' + pad2(totalSlides);
+        count.appendChild(cur);
+        count.appendChild(tot);
+      }
       function step() {
         var first = track.firstElementChild;
         var gap = parseFloat(getComputedStyle(track).columnGap) || 24;
@@ -249,6 +265,14 @@
         var max = track.scrollWidth - track.clientWidth - 2;
         if (prev) prev.setAttribute('aria-disabled', track.scrollLeft <= 2 ? 'true' : 'false');
         if (next) next.setAttribute('aria-disabled', track.scrollLeft >= max ? 'true' : 'false');
+        var progress = max > 0 ? Math.min(1, Math.max(0, track.scrollLeft / max)) : 0;
+        if (bar && bar.parentElement) {
+          bar.style.transform = 'translateX(' + (bar.parentElement.clientWidth - bar.offsetWidth) * progress + 'px)';
+        }
+        if (count && count.firstChild) {
+          var idx = Math.min(totalSlides, Math.round(track.scrollLeft / step()) + 1);
+          count.firstChild.textContent = pad2(idx) + ' ';
+        }
       }
       function go(dir) {
         track.scrollBy({ left: dir * step(), behavior: reduceMotion ? 'auto' : 'smooth' });
