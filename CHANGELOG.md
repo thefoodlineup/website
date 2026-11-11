@@ -2,6 +2,10 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.6.0] - 2026-11-11
+
+- Juridische pagina's: inhoudsopgave met huidige sectie, mobiel uitklapbaar ('Op deze pagina'), zoeken in de algemene voorwaarden met teller en lege melding, één artikel tegelijk open, deeplink naar `#artN` opent dat artikel.
+
 ## [1.5.5] - 2026-11-11
 
 - Formulieren: `data-hs-subscribe` geeft nieuwsbrieftoestemming mee zonder vinkje (nieuwsbriefformulier).

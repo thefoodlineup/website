@@ -49,6 +49,7 @@ jsDelivr maakt automatisch de geminificeerde `.min.js`. Een wijziging hier komt 
 | FAQ | `data-faq-list` | event catering, eventtypes, FAQ |
 | Offerte-links | `data-offerte-type` | eventtypes |
 | Formulieren → HubSpot | `data-hs-form`, `data-form`, `data-error-for`, `data-show-if`, `data-form-step`, `data-form-next`, `data-form-prev`, `data-form-summary`, `data-when`, `data-when-templates` (+ `data-tpl`), `data-options`, `data-placeholder`, `data-consent-text`, `data-hs-tracking`, `data-hs-subscribe` | /offerte-aanvragen, /contact, nieuwsbrief |
+| Juridische pagina's | `data-legal-toc`, `data-legal-count`, `data-legal-empty`, `data-legal-arts`, `data-legal-search-mount` | /privacyverklaring, /algemene-voorwaarden |
 
 ## Componenten van derden
 

@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.5.5
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.6.0
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -1056,6 +1056,128 @@
     });
   }
 
+  /* ------------------------------------------------------------------
+   * Juridische pagina's (privacyverklaring, algemene voorwaarden)
+   * [data-legal-toc]          inhoudsopgave; links naar #id's op de pagina
+   * [data-legal-count]        teller ("20 artikelen" / "3 van 20")
+   * [data-legal-empty]        melding als zoeken niets vindt
+   * [data-legal-arts]         container met <details> per artikel
+   * [data-legal-search-mount] hier komt het zoekveld (Webflow staat geen
+   *                           losse input buiten een formulier toe)
+   * Mobiel klapt de inhoudsopgave in achter een knop "Op deze pagina".
+   * ------------------------------------------------------------------ */
+  function initLegal() {
+    var toc = document.querySelector('[data-legal-toc]');
+    if (!toc) return;
+    var list = toc.querySelector('ul');
+    var links = $$('a[href^="#"]', toc);
+    var count = toc.querySelector('[data-legal-count]');
+    var empty = toc.querySelector('[data-legal-empty]');
+    var arts = $$('[data-legal-arts] details');
+    var behavior = reduceMotion ? 'auto' : 'smooth';
+
+    // Mobiele uitklapknop
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'legal_toc-toggle';
+    btn.setAttribute('aria-expanded', 'false');
+    if (list) {
+      if (!list.id) list.id = 'legal-toc-list';
+      btn.setAttribute('aria-controls', list.id);
+    }
+    btn.innerHTML = '<span>Op deze pagina</span><span class="legal_toc-toggle-meta">' +
+      (count ? '<span class="legal_toc-toggle-count">' + count.textContent.trim() + '</span>' : '') +
+      '<span class="legal_toc-toggle-icon" aria-hidden="true"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M8 2v12M2 8h12"/></svg></span></span>';
+    toc.insertBefore(btn, toc.firstChild);
+    var btnCount = btn.querySelector('.legal_toc-toggle-count');
+    function setOpen(open) {
+      toc.classList.toggle('is-open', open);
+      btn.setAttribute('aria-expanded', String(open));
+    }
+    btn.addEventListener('click', function () { setOpen(!toc.classList.contains('is-open')); });
+
+    // Eén artikel tegelijk open (zoals in het ontwerp)
+    arts.forEach(function (d) { d.setAttribute('name', 'tflu-artikelen'); });
+
+    function target(hash) {
+      if (!hash || hash.length < 2) return null;
+      try { return document.getElementById(decodeURIComponent(hash.slice(1))); } catch (e) { return null; }
+    }
+    function goTo(el) {
+      if (el.tagName === 'DETAILS') el.open = true;
+      setTimeout(function () { el.scrollIntoView({ behavior: behavior, block: 'start' }); }, 60);
+    }
+
+    toc.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('a[href^="#"]');
+      if (!a) return;
+      var el = target(a.getAttribute('href'));
+      if (!el) return;
+      e.preventDefault();
+      setOpen(false);
+      goTo(el);
+      if (history.replaceState) history.replaceState(null, '', '#' + el.id);
+    });
+
+    var start = target(location.hash);
+    if (start && start.tagName === 'DETAILS') goTo(start);
+
+    // Zoeken in de artikelen
+    var mount = document.querySelector('[data-legal-search-mount]');
+    if (mount && arts.length) {
+      var input = document.createElement('input');
+      input.type = 'search';
+      input.id = 'vw-zoek';
+      input.className = 'legal_search-input';
+      input.placeholder = 'Zoek in de voorwaarden';
+      input.autocomplete = 'off';
+      input.setAttribute('aria-label', 'Zoek in de voorwaarden');
+      input.setAttribute('enterkeyhint', 'search');
+      mount.appendChild(input);
+      mount.classList.add('is-ready');
+      var total = arts.length;
+      var texts = arts.map(function (d) { return d.textContent.toLowerCase(); });
+      input.addEventListener('input', function () {
+        var q = input.value.trim().toLowerCase();
+        var n = 0, first = null;
+        arts.forEach(function (d, i) {
+          var hit = !q || texts[i].indexOf(q) !== -1;
+          d.style.display = hit ? '' : 'none';
+          var a = toc.querySelector('a[href="#' + d.id + '"]');
+          if (a && a.parentElement) a.parentElement.style.display = hit ? '' : 'none';
+          if (hit) { n++; if (!first) first = d; }
+        });
+        var label = q ? n + ' van ' + total : total + ' artikelen';
+        if (count) count.textContent = label;
+        if (btnCount) btnCount.textContent = label;
+        if (empty) empty.style.display = n ? 'none' : 'block';
+        if (q && first) first.open = true;
+      });
+    }
+
+    // Huidige sectie markeren in de inhoudsopgave
+    var pairs = links.map(function (a) { return { a: a, el: target(a.getAttribute('href')) }; })
+      .filter(function (p) { return p.el; });
+    if (!pairs.length) return;
+    var ticking = false;
+    function mark() {
+      ticking = false;
+      var current = null;
+      pairs.forEach(function (p) {
+        if (p.el.offsetParent !== null && p.el.getBoundingClientRect().top < 180) current = p;
+      });
+      pairs.forEach(function (p) {
+        var on = p === current;
+        p.a.classList.toggle('is-current', on);
+        if (on) p.a.setAttribute('aria-current', 'location'); else p.a.removeAttribute('aria-current');
+      });
+    }
+    window.addEventListener('scroll', function () {
+      if (!ticking) { ticking = true; requestAnimationFrame(mark); }
+    }, { passive: true });
+    mark();
+  }
+
   function init() {
     document.documentElement.classList.add('tflu-js');
     if (reduceMotion) document.documentElement.classList.add('tflu-reduced-motion');
@@ -1068,6 +1190,7 @@
     initGalleries();
     initSplitLists();
     initForms();
+    initLegal();
     // Volgt in blok D: initMegaNav() (Osmo Mega Navigation + TFLU-uitbreidingen)
     // Volgt later: initAnimations() (data-animate / data-stagger / data-counter, GSAP)
   }
