@@ -22,7 +22,7 @@ Webflow zelf (pagina's, CMS, stijlen) staat niet in deze repo, maar in de Webflo
 Altijd met een vaste versie, nooit met `@main` of `@latest`:
 
 ```html
-<script defer src="https://cdn.jsdelivr.net/gh/thefoodlineup/website@v1.0.0/src/tflu.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/gh/thefoodlineup/website@v1.1.0/src/tflu.min.js"></script>
 ```
 
 jsDelivr maakt automatisch de geminificeerde `.min.js`. Een wijziging hier komt pas live als in Webflow een nieuwe versie wordt gekoppeld en de site opnieuw wordt gepubliceerd.
@@ -35,6 +35,17 @@ jsDelivr maakt automatisch de geminificeerde `.min.js`. Een wijziging hier komt 
 4. Scripts gebruiken data-attributen als haakjes (`data-animate`, `data-counter`, enz.), geen Webflow-klassen. Zo breekt er niets als een klasse wordt hernoemd.
 5. Content staat altijd in de HTML. JavaScript voegt alleen gedrag toe, zodat zoekmachines en AI-crawlers alles kunnen lezen.
 6. Respecteer `prefers-reduced-motion`.
+
+## Modules en data-attributen
+
+| Module | Attributen | Waar |
+|---|---|---|
+| Filter + meer laden | `data-filter-group`, `data-filter-list` (+ `data-filter-page`, `data-filter-page-mobile`), `data-filter-key`, `data-filter-count`, `data-filter-shown`, `data-filter-more`, `data-filter-more-label` (+ `data-template`), `data-filter-empty`, `data-filter-reset` | /cases, /stories |
+| Galerij | `data-gallery-track`, `data-gallery-prev`, `data-gallery-next` | case-pagina's |
+| Knoppen zonder href | `a[type="button"]` | overal |
+| Datums | `data-date` | stories |
+| FAQ | `data-faq-list` | event catering, eventtypes, FAQ |
+| Offerte-links | `data-offerte-type` | eventtypes |
 
 ## Componenten van derden
 
