@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.2.1
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.3.0
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -262,6 +262,149 @@
   }
 
   /* ------------------------------------------------------------------
+   * FAQ-overzicht met zoeken en onderwerpen   [data-faq-index]
+   *   [data-faq-list]      één CMS-lijst met alle vragen (op volgorde)
+   *   [data-faq-topic]     in elk item: naam van het onderwerp (verborgen)
+   *   [data-faq-search]    zoekveld
+   *   [data-faq-cats]      hier komen de onderwerp-knoppen (incl. "Alle vragen")
+   *   [data-faq-total]     "19 vragen"
+   *   [data-faq-empty]     lege staat, [data-faq-reset] zet alles terug
+   *   Vragen worden per onderwerp gegroepeerd onder een h2.
+   *   ?onderwerp=slug in de url kiest meteen een onderwerp.
+   * ------------------------------------------------------------------ */
+  function slugify(s) {
+    return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+      .replace(/&/g, ' ').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  }
+
+  function initFaqIndex() {
+    $$('[data-faq-index]').forEach(function (root) {
+      var list = root.querySelector('[data-faq-list]');
+      if (!list) return;
+      var host = list.closest('.w-dyn-list') || list;
+      var input = root.querySelector('[data-faq-search]');
+      var nav = root.querySelector('[data-faq-cats]');
+      var total = root.querySelector('[data-faq-total]');
+      var empty = root.querySelector('[data-faq-empty]');
+      var reset = root.querySelector('[data-faq-reset]');
+      var groups = [];
+      var byName = {};
+      var items = Array.prototype.slice.call(list.children);
+      var current = 'alle';
+
+      items.forEach(function (item) {
+        var t = item.querySelector('[data-faq-topic]');
+        var name = (t && t.textContent.trim()) || 'Overig';
+        if (t) t.parentNode.removeChild(t);
+        var g = byName[name];
+        if (!g) {
+          g = byName[name] = { name: name, slug: slugify(name), items: [] };
+          groups.push(g);
+        }
+        item.removeAttribute('role');
+        item._faqText = item.textContent.replace(/\s+/g, ' ').toLowerCase();
+        g.items.push(item);
+      });
+
+      groups.forEach(function (g) {
+        var sec = document.createElement('section');
+        sec.className = 'faq-index_group';
+        sec.id = g.slug;
+        sec.setAttribute('aria-labelledby', 'faq-g-' + g.slug);
+        var h = document.createElement('h2');
+        h.className = 'faq-index_group-title';
+        h.id = 'faq-g-' + g.slug;
+        h.textContent = g.name;
+        var wrap = document.createElement('div');
+        wrap.className = list.className.replace(/\bw-dyn-items\b/, '').trim();
+        g.items.forEach(function (i) { wrap.appendChild(i); });
+        sec.appendChild(h);
+        sec.appendChild(wrap);
+        host.parentNode.insertBefore(sec, host);
+        g.el = sec;
+      });
+      host.parentNode.removeChild(host);
+      if (empty) empty.parentNode.appendChild(empty);
+
+      var buttons = [];
+      function addButton(slug, label, count) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'faq-index_cat';
+        b.setAttribute('data-faq-cat', slug);
+        var l = document.createElement('span');
+        l.textContent = label;
+        var c = document.createElement('span');
+        c.className = 'faq-index_cat-count';
+        c.textContent = count;
+        b.appendChild(l);
+        b.appendChild(c);
+        b.addEventListener('click', function () { current = slug; render(); });
+        if (nav) nav.appendChild(b);
+        buttons.push(b);
+      }
+      if (nav) {
+        addButton('alle', 'Alle vragen', items.length);
+        groups.forEach(function (g) { addButton(g.slug, g.name, g.items.length); });
+      }
+
+      function render() {
+        var words = input ? input.value.toLowerCase().split(/\s+/).filter(Boolean) : [];
+        var shown = 0;
+        groups.forEach(function (g) {
+          var inCat = current === 'alle' || current === g.slug;
+          var any = false;
+          g.items.forEach(function (i) {
+            var ok = inCat && words.every(function (w) { return i._faqText.indexOf(w) >= 0; });
+            i.style.display = ok ? '' : 'none';
+            if (ok) { any = true; shown++; }
+          });
+          g.el.style.display = any ? '' : 'none';
+        });
+        buttons.forEach(function (b) {
+          var on = b.getAttribute('data-faq-cat') === current;
+          b.classList.toggle('is-active', on);
+          b.setAttribute('aria-pressed', on ? 'true' : 'false');
+        });
+        if (total) total.textContent = shown === 1 ? '1 vraag' : shown + ' vragen';
+        if (empty) empty.style.display = shown ? 'none' : 'flex';
+      }
+
+      if (input) {
+        input.type = 'search';
+        input.addEventListener('input', render);
+      }
+      if (reset) reset.addEventListener('click', function (e) {
+        e.preventDefault();
+        current = 'alle';
+        if (input) input.value = '';
+        render();
+      });
+      // Structured data (FAQPage) uit dezelfde CMS-inhoud
+      if (!document.querySelector('script[data-faq-ld]')) {
+        var ld = { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: [] };
+        items.forEach(function (i) {
+          var q = i.querySelector('summary');
+          var a = q && q.nextElementSibling;
+          if (q && a) ld.mainEntity.push({
+            '@type': 'Question', name: q.textContent.trim(),
+            acceptedAnswer: { '@type': 'Answer', text: a.textContent.replace(/\s+/g, ' ').trim() }
+          });
+        });
+        var s = document.createElement('script');
+        s.type = 'application/ld+json';
+        s.setAttribute('data-faq-ld', '');
+        s.textContent = JSON.stringify(ld);
+        document.head.appendChild(s);
+      }
+
+      var fromUrl = new URLSearchParams(location.search).get('onderwerp');
+      if (fromUrl && byName && groups.some(function (g) { return g.slug === fromUrl; })) current = fromUrl;
+      render();
+    });
+  }
+
+  /* ------------------------------------------------------------------
    * Komma-tekst als lijst   [data-split-list]
    *   "Congres, Walking dinner, Feest" -> <ul><li>Congres</li>...</ul>
    *   Styling (vinkjes) via CSS op de pagina.
@@ -288,6 +431,7 @@
     initLinkButtons();
     initDates();
     initFaq();
+    initFaqIndex();
     initOfferteLinks();
     initFilters();
     initGalleries();

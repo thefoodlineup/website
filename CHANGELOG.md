@@ -2,6 +2,10 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.3.0] - 2026-11-11
+
+- FAQ-overzicht (`data-faq-index`): vragen per onderwerp gegroepeerd onder een h2, zoeken, onderwerp-knoppen met aantallen, lege staat en `?onderwerp=` in de url. Voegt FAQPage-structured data toe.
+
 ## [1.2.1] - 2026-11-11
 
 - FAQ: links naar de pagina waar je al bent verdwijnen uit de antwoorden (bijv. "Bekijk alle locaties" op /locaties), zoals in het UI-design.
