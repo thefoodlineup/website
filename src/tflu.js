@@ -1632,6 +1632,14 @@
       '[fs-consent-element="open-preferences"]:focus-visible{outline:2px solid #F2560A;outline-offset:2px}';
     document.head.appendChild(css);
 
+    // Links 'Cookievoorkeuren aanpassen' / 'Cookies' hebben een echte href
+    // (terugvaloptie). Met Consent Pro geladen: niet navigeren, alleen de
+    // voorkeuren openen (dat doet Consent Pro zelf op dezelfde klik).
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('a[fs-consent-element="open-preferences"]');
+      if (a && window.FinsweetConsentPro && typeof window.FinsweetConsentPro.on === 'function') e.preventDefault();
+    }, true);
+
     window.addEventListener('load', function () {
       setTimeout(function () {
         if (document.querySelector('[fs-consent-instance]')) return;

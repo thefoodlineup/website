@@ -4,7 +4,7 @@ Alle wijzigingen per versie. Nieuwste bovenaan.
 
 ## [1.9.0] - 2026-11-11
 
-- Cookiebanner: overgestapt op de componenten van Consent Pro v2 (pagina /cookiebanner, in TFLU-stijl). Eigen formulierafhandeling en voorbeeldmodus verwijderd; alleen focusring en terugvaloptie blijven.
+- Cookiebanner: overgestapt op de componenten van Consent Pro v2 (pagina /cookiebanner, in TFLU-stijl). Eigen formulierafhandeling en voorbeeldmodus verwijderd; alleen focusring, terugvaloptie en het openen van de voorkeuren via links (zonder te navigeren) blijven.
 
 ## [1.8.0] - 2026-11-11
 
