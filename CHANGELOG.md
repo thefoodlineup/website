@@ -2,6 +2,10 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.5.5] - 2026-11-11
+
+- Formulieren: `data-hs-subscribe` geeft nieuwsbrieftoestemming mee zonder vinkje (nieuwsbriefformulier).
+
 ## [1.5.4] - 2026-11-11
 
 - Formulieren: verzendknop blijft bruikbaar als Webflow's spamcheck (Turnstile) niet laadt; wij versturen zelf naar HubSpot.

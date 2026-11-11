@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.5.4
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.5.5
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -616,6 +616,8 @@
     Object.keys(extra).forEach(function (k) {
       if (extra[k] && !seen[k]) fields.push({ name: k, value: extra[k] });
     });
+    // Nieuwsbriefformulier zonder vinkje: aanmelden = toestemming voor de nieuwsbrief.
+    if (form.hasAttribute('data-hs-subscribe')) optin = true;
     return { fields: fields, optin: optin };
   }
 
