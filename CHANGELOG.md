@@ -2,6 +2,10 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.2.1] - 2026-11-11
+
+- FAQ: links naar de pagina waar je al bent verdwijnen uit de antwoorden (bijv. "Bekijk alle locaties" op /locaties), zoals in het UI-design.
+
 ## [1.2.0] - 2026-11-11
 
 - Filters: meerdere groepen tegelijk (EN) via `data-filter-field`, en bereik-filters (`data-filter-range` met `data-filter-min` / `data-filter-max`) voor Locaties.

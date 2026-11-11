@@ -22,7 +22,7 @@ Webflow zelf (pagina's, CMS, stijlen) staat niet in deze repo, maar in de Webflo
 Altijd met een vaste versie, nooit met `@main` of `@latest`:
 
 ```html
-<script defer src="https://cdn.jsdelivr.net/gh/thefoodlineup/website@v1.2.0/src/tflu.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/gh/thefoodlineup/website@v1.2.1/src/tflu.min.js"></script>
 ```
 
 jsDelivr maakt automatisch de geminificeerde `.min.js`. Een wijziging hier komt pas live als in Webflow een nieuwe versie wordt gekoppeld en de site opnieuw wordt gepubliceerd.

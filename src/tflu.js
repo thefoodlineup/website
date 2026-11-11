@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.2.0
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.2.1
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -47,12 +47,47 @@
   }
 
   /* ------------------------------------------------------------------
-   * FAQ: eerste vraag open   [data-faq-list]
+   * FAQ   [data-faq-list]
+   *   - eerste vraag open
+   *   - links naar de pagina waar je al bent verdwijnen uit de antwoorden:
+   *     staat de link aan het eind van een alinea ("Benieuwd naar ...?
+   *     Bekijk alle locaties."), dan valt die slotzin (+ inleidende vraag) weg;
+   *     staat hij midden in een zin, dan blijft alleen de tekst over.
    * ------------------------------------------------------------------ */
+  function samePage(a) {
+    var p = function (s) { return s.replace(/\/+$/, '') || '/'; };
+    return a.hostname === location.hostname && p(a.pathname) === p(location.pathname);
+  }
+
+  function stripSelfLink(a) {
+    var par = a.parentNode;
+    var after = '';
+    for (var n = a.nextSibling; n; n = n.nextSibling) after += n.textContent;
+    if (/^[\s.!]*$/.test(after)) {
+      // Link sluit de alinea af: verwijder de slotzin(nen) vanaf de laatste zinsgrens.
+      var before = '';
+      for (var m = a.previousSibling; m; m = m.previousSibling) {
+        if (m.nodeType !== 3) { before = null; break; }
+        before = m.textContent + before;
+      }
+      if (before !== null) {
+        var cut = before.replace(/\s+$/, '');
+        var lead = cut.match(/^([\s\S]*[.!])\s+[^.!?]*\?$/); // inleidende vraag meenemen
+        var keep = lead ? lead[1] : (cut.match(/^([\s\S]*[.!?])\s+[^.!?]*$/) || [, ''])[1];
+        while (par.firstChild) par.removeChild(par.firstChild);
+        if (keep) par.appendChild(document.createTextNode(keep));
+        else if (par.parentNode) par.parentNode.removeChild(par);
+        return;
+      }
+    }
+    par.replaceChild(document.createTextNode(a.textContent), a);
+  }
+
   function initFaq() {
     $$('[data-faq-list]').forEach(function (list) {
       var first = list.querySelector('details');
       if (first) first.setAttribute('open', '');
+      $$('a[href]', list).filter(samePage).forEach(stripSelfLink);
     });
   }
 
