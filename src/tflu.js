@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.5.2
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.5.3
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -606,11 +606,12 @@
       seen[i.name] = true;
       fields.push({ name: i.name, value: v });
     });
-    var extra = {
+    var extra = form.getAttribute('data-hs-tracking') === 'off' ? {} : {
       web_aanmeldpagina: location.href.split('#')[0],
       web_eerste_landingspagina: store(function (s) { return s.getItem('tflu_landing'); }) || ''
     };
-    var utm = store(function (s) { return JSON.parse(s.getItem('tflu_utm') || '{}'); }) || {};
+    var utm = form.getAttribute('data-hs-tracking') === 'off' ? {} :
+      (store(function (s) { return JSON.parse(s.getItem('tflu_utm') || '{}'); }) || {});
     UTM.forEach(function (k) { if (utm[k]) extra[k] = utm[k]; });
     Object.keys(extra).forEach(function (k) {
       if (extra[k] && !seen[k]) fields.push({ name: k, value: extra[k] });

@@ -2,6 +2,10 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.5.3] - 2026-11-11
+
+- Formulieren: `data-hs-tracking="off"` stuurt geen pagina/UTM-velden mee (voor bestaande HubSpot-formulieren zonder die velden, zoals '6 smaken van 2026').
+
 ## [1.5.2] - 2026-11-11
 
 - Standaard-placeholder van Webflow ("Example text") ook in kleine letters en in tekstvakken weg.
