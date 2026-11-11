@@ -2,6 +2,10 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.5.2] - 2026-11-11
+
+- Standaard-placeholder van Webflow ("Example text") ook in kleine letters en in tekstvakken weg.
+
 ## [1.5.1] - 2026-11-11
 
 - Formulieren: spamcheck-velden van Webflow (`cf-turnstile-response` e.d.) gaan niet mee naar HubSpot; standaard-placeholder "Example Text" verdwijnt.

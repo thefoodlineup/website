@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.5.1
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.5.2
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -1015,7 +1015,9 @@
     window.addEventListener('submit', onSubmit, true);
     forms.forEach(function (form) {
       // Webflow zet standaard "Example Text" als placeholder; het ontwerp heeft geen placeholders.
-      $$('input[placeholder="Example Text"]', form).forEach(function (i) { i.removeAttribute('placeholder'); });
+      $$('[placeholder]', form).forEach(function (i) {
+        if (/^example text$/i.test(i.getAttribute('placeholder'))) i.removeAttribute('placeholder');
+      });
       fillSelects(form);
       initChips(form);
       initShowIf(form);
