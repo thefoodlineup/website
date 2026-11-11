@@ -2,6 +2,11 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.2.0] - 2026-11-11
+
+- Filters: meerdere groepen tegelijk (EN) via `data-filter-field`, en bereik-filters (`data-filter-range` met `data-filter-min` / `data-filter-max`) voor Locaties.
+- Komma-tekst als lijst met vinkjes (`data-split-list`), voor "Geschikt voor" op locatie-pagina's.
+
 ## [1.1.0] - 2026-11-11
 
 Eerste versie die Webflow laadt. Vervangt de losse inline scripts op de pagina's.

@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README).
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.2.0
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -67,28 +67,32 @@
   }
 
   /* ------------------------------------------------------------------
-   * Filter + meer laden (Cases, Stories)
+   * Filter + meer laden (Cases, Stories, Locaties)
    *
-   *   [data-filter-group="naam"]            knoppen met [data-filter="waarde"]
-   *                                         (alle / alles = alles tonen)
+   *   [data-filter-group="naam"]            knoppen met [data-filter="waarde"] (alle / alles = alles)
+   *        data-filter-field="plaats"       optioneel: welk [data-filter-key] deze groep leest
+   *                                         Meerdere groepen met dezelfde naam werken samen (EN).
+   *   knop met data-filter-range="150-500"  filtert op een bereik i.p.v. tekst
    *   [data-filter-list="naam"]             lijst; elk kind is een item
    *        data-filter-page="9"             items per keer (0 = alles)
    *        data-filter-page-mobile="6"      idem op mobiel
-   *   [data-filter-key]                     in elk item: tekst om op te filteren
+   *   [data-filter-key] / [data-filter-key="plaats"]   in elk item: tekst om op te filteren
+   *   [data-filter-min] / [data-filter-max]            in elk item: getallen voor bereik-filters
    *   [data-filter-count="naam"]            telling, data-noun-one / data-noun-many
    *   [data-filter-shown="naam"]            "6 van 12 stories"
-   *   [data-filter-more="naam"]             meer-knop (wrapper wordt verborgen)
+   *   [data-filter-more="naam"]             meer-knop
    *        [data-filter-more-label]         tekst, data-template="Toon meer cases ({rest})"
    *   [data-filter-empty="naam"]            lege staat (display: flex)
-   *   [data-filter-reset="naam"]            terug naar alles
-   *   ?type=waarde in de url kiest meteen een filter.
+   *   [data-filter-reset="naam"]            alles terug naar "alle"
+   *   ?type=waarde in de url kiest meteen een filter in de eerste groep.
    * ------------------------------------------------------------------ */
   function initFilters() {
     $$('[data-filter-list]').forEach(function (list) {
       var name = list.getAttribute('data-filter-list');
       var q = function (attr) { return document.querySelector('[' + attr + '="' + name + '"]'); };
-      var group = q('data-filter-group');
-      var chips = group ? $$('[data-filter]', group) : [];
+      var groups = $$('[data-filter-group="' + name + '"]').map(function (el) {
+        return { el: el, field: el.getAttribute('data-filter-field'), chips: $$('[data-filter]', el), chip: null };
+      });
       var items = Array.prototype.slice.call(list.children);
       var count = q('data-filter-count');
       var shown = q('data-filter-shown');
@@ -96,7 +100,6 @@
       var empty = q('data-filter-empty');
       var reset = q('data-filter-reset');
       var wrap = list.closest('.w-dyn-list') || list;
-      var current = 'alle';
       var limit;
 
       function perPage() {
@@ -105,23 +108,46 @@
         return p > 0 ? p : Infinity;
       }
       function isAll(v) { return v === 'alle' || v === 'alles' || v === '*' || v === ''; }
-      function key(item) {
-        var k = item.querySelector('[data-filter-key]');
-        return k ? k.textContent.trim().toLowerCase() : '';
+      function text(item, sel) {
+        var el = item.querySelector(sel);
+        return el ? el.textContent.trim().toLowerCase() : '';
+      }
+      function num(item, attr) {
+        var el = item.hasAttribute(attr) ? item : item.querySelector('[' + attr + ']');
+        if (!el) return NaN;
+        var v = el.getAttribute(attr);
+        return parseFloat((v || el.textContent).replace(/[^0-9.-]/g, ''));
+      }
+      function passes(item, g) {
+        if (!g.chip) return true;
+        var range = g.chip.getAttribute('data-filter-range');
+        if (range) {
+          var r = range.split('-').map(parseFloat);
+          var lo = isNaN(r[0]) ? 0 : r[0];
+          var hi = isNaN(r[1]) ? Infinity : r[1];
+          var min = num(item, 'data-filter-min');
+          var max = num(item, 'data-filter-max');
+          if (isNaN(min)) min = 0;
+          if (isNaN(max)) max = Infinity;
+          return max >= lo && min <= hi;
+        }
+        var v = (g.chip.getAttribute('data-filter') || '').toLowerCase();
+        if (isAll(v)) return true;
+        return text(item, g.field ? '[data-filter-key="' + g.field + '"]' : '[data-filter-key]') === v;
       }
       function noun(el, n) {
-        return n + ' ' + (n === 1 ? el.getAttribute('data-noun-one') || '' : el.getAttribute('data-noun-many') || '');
+        return (n + ' ' + (n === 1 ? el.getAttribute('data-noun-one') || '' : el.getAttribute('data-noun-many') || '')).trim();
       }
 
       function render() {
-        var match = items.filter(function (i) { return isAll(current) || key(i) === current; });
+        var match = items.filter(function (i) { return groups.every(function (g) { return passes(i, g); }); });
         var visible = Math.min(limit, match.length);
         items.forEach(function (i) { i.style.display = 'none'; });
         match.forEach(function (i, n) { if (n < limit) i.style.display = ''; });
         wrap.style.display = match.length ? '' : 'none';
         if (empty) empty.style.display = match.length ? 'none' : 'flex';
-        if (count) count.textContent = noun(count, match.length).trim();
-        if (shown) shown.textContent = visible + ' van ' + noun(shown, match.length).trim();
+        if (count) count.textContent = noun(count, match.length);
+        if (shown) shown.textContent = visible + ' van ' + noun(shown, match.length);
         if (more) {
           var rest = match.length - visible;
           var holder = more.parentElement && more.parentElement.children.length === 1 ? more.parentElement : more;
@@ -132,30 +158,40 @@
         }
       }
 
-      function pick(chip) {
-        current = (chip.getAttribute('data-filter') || 'alle').toLowerCase();
-        limit = perPage();
-        chips.forEach(function (c) {
+      function pick(g, chip, silent) {
+        g.chip = chip;
+        g.chips.forEach(function (c) {
           var on = c === chip;
           c.classList.toggle('is-active', on);
           c.setAttribute('aria-pressed', on ? 'true' : 'false');
         });
-        render();
+        limit = perPage();
+        if (!silent) render();
       }
 
-      chips.forEach(function (c) {
-        c.addEventListener('click', function (e) { e.preventDefault(); pick(c); });
+      groups.forEach(function (g) {
+        g.chip = g.chips.filter(function (c) { return c.getAttribute('aria-pressed') === 'true'; })[0] || g.chips[0] || null;
+        g.chips.forEach(function (c) {
+          c.addEventListener('click', function (e) { e.preventDefault(); pick(g, c); });
+        });
       });
-      if (reset) reset.addEventListener('click', function (e) { e.preventDefault(); if (chips[0]) pick(chips[0]); });
+      if (reset) reset.addEventListener('click', function (e) {
+        e.preventDefault();
+        groups.forEach(function (g) { pick(g, g.chips[0], true); });
+        render();
+      });
       if (more) more.addEventListener('click', function (e) { e.preventDefault(); limit += perPage(); render(); });
       if (mobile.addEventListener) mobile.addEventListener('change', function () { limit = perPage(); render(); });
 
       limit = perPage();
       var fromUrl = new URLSearchParams(window.location.search).get('type');
-      var start = fromUrl && chips.filter(function (c) {
-        return (c.getAttribute('data-filter') || '').toLowerCase() === fromUrl.toLowerCase();
-      })[0];
-      if (start) pick(start); else render();
+      if (fromUrl && groups[0]) {
+        var start = groups[0].chips.filter(function (c) {
+          return (c.getAttribute('data-filter') || '').toLowerCase() === fromUrl.toLowerCase();
+        })[0];
+        if (start) { pick(groups[0], start); return; }
+      }
+      render();
     });
   }
 
@@ -190,6 +226,27 @@
     });
   }
 
+  /* ------------------------------------------------------------------
+   * Komma-tekst als lijst   [data-split-list]
+   *   "Congres, Walking dinner, Feest" -> <ul><li>Congres</li>...</ul>
+   *   Styling (vinkjes) via CSS op de pagina.
+   * ------------------------------------------------------------------ */
+  function initSplitLists() {
+    $$('[data-split-list]').forEach(function (el) {
+      var parts = el.textContent.split(/[,;\n]/).map(function (s) { return s.trim(); }).filter(Boolean);
+      if (parts.length < 1) return;
+      var ul = document.createElement('ul');
+      ul.setAttribute('role', 'list');
+      parts.forEach(function (p) {
+        var li = document.createElement('li');
+        li.textContent = p.charAt(0).toUpperCase() + p.slice(1);
+        ul.appendChild(li);
+      });
+      el.textContent = '';
+      el.appendChild(ul);
+    });
+  }
+
   function init() {
     document.documentElement.classList.add('tflu-js');
     if (reduceMotion) document.documentElement.classList.add('tflu-reduced-motion');
@@ -199,6 +256,7 @@
     initOfferteLinks();
     initFilters();
     initGalleries();
+    initSplitLists();
     // Volgt in blok D: initMegaNav() (Osmo Mega Navigation + TFLU-uitbreidingen)
     // Volgt later: initAnimations() (data-animate / data-stagger / data-counter, GSAP)
   }
