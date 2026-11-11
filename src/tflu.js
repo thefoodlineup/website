@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.6.0
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.7.0
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -1178,6 +1178,445 @@
     mark();
   }
 
+  /* ------------------------------------------------------------------
+   * Mega-navigatie (Osmo Mega Navigation – Directional Hover, Ilja van Eck)
+   * Desktop (> 991px): uitklappanelen op hover/klik met richting-animatie,
+   * taalkeuze-dropdown. Mobiel (≤ 991px): burger, schuifpanelen, terugknop.
+   * Timings en easings zijn die van Osmo; aangepast aan de Webflow-opbouw
+   * (de toggle is zelf de knop) en met scroll-lock op mobiel.
+   * GSAP wordt alleen geladen als de pagina een [data-menu-wrap] heeft.
+   * ------------------------------------------------------------------ */
+  var GSAP_SRC = 'https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js';
+  function withGsap(cb) {
+    if (window.gsap) { cb(window.gsap); return; }
+    var s = document.querySelector('script[data-tflu-gsap]');
+    if (!s) {
+      s = document.createElement('script');
+      s.src = GSAP_SRC;
+      s.async = true;
+      s.setAttribute('data-tflu-gsap', '');
+      document.head.appendChild(s);
+    }
+    s.addEventListener('load', function () { if (window.gsap) cb(window.gsap); });
+  }
+
+  function initMegaNav() {
+    var root = document.querySelector('[data-menu-wrap]');
+    if (!root) return;
+    withGsap(function (gsap) {
+      var mq = window.matchMedia('(max-width: 991px)');
+      var cleanup = null;
+      function start() {
+        if (cleanup) cleanup();
+        cleanup = mq.matches ? megaNavMobile(root, gsap) : megaNavDesktop(root, gsap);
+      }
+      if (mq.addEventListener) mq.addEventListener('change', start); else mq.addListener(start);
+      start();
+    });
+  }
+
+  function megaNavParts(root) {
+    return {
+      wrapper: root.querySelector('[data-dropdown-wrapper]'),
+      container: root.querySelector('[data-dropdown-container]'),
+      bg: root.querySelector('[data-dropdown-bg]'),
+      backdrop: root.querySelector('[data-menu-backdrop]'),
+      toggles: $$('[data-dropdown-toggle]', root),
+      panels: $$('[data-nav-content]', root),
+      navList: root.querySelector('[data-nav-list]'),
+      burger: root.querySelector('[data-burger-toggle]'),
+      back: root.querySelector('[data-mobile-back]'),
+      logo: root.querySelector('[data-menu-logo]'),
+      lines: ['top', 'mid', 'bot'].map(function (id) { return root.querySelector('[data-burger-line="' + id + '"]'); })
+    };
+  }
+
+  function megaNavClear(gsap, p, root) {
+    var els = [p.wrapper, p.container, p.bg, p.backdrop, p.navList, p.back, p.logo]
+      .concat(p.panels, p.lines, $$('[data-menu-fade]', root), $$('[data-nav-list-item]', root))
+      .filter(Boolean);
+    gsap.killTweensOf(els);
+    gsap.set(els, { clearProps: 'all' });
+    root.setAttribute('data-menu-open', 'false');
+    p.panels.forEach(function (el) { el.removeAttribute('data-panel-state'); });
+    p.toggles.forEach(function (t) { t.setAttribute('aria-expanded', 'false'); t.setAttribute('data-active', 'false'); });
+  }
+
+  function megaNavDesktop(root, gsap) {
+    var p = megaNavParts(root);
+    var DUR = { bgMorph: 0.4, contentIn: 0.3, contentOut: 0.2, stagger: 0.25, backdropIn: 0.3, backdropOut: 0.2, openScale: 0.35, closeScale: 0.25 };
+    var HOVER_ENTER = 120, HOVER_LEAVE = 150;
+    var canHover = window.matchMedia('(hover: hover)').matches;
+    var state = { isOpen: false, active: null, hoverTimer: null, leaveTimer: null, tl: null };
+    function panel(name) { return root.querySelector('[data-nav-content="' + name + '"]'); }
+    function toggle(name) { return root.querySelector('[data-dropdown-toggle="' + name + '"]'); }
+    function fade(el) { return el ? el.querySelectorAll('[data-menu-fade]') : []; }
+    function index(name) { return p.toggles.indexOf(toggle(name)); }
+    function stagger(n) { return n <= 1 ? 0 : { amount: DUR.stagger }; }
+    function heightEls() { return [p.container, p.bg].filter(Boolean); }
+    function kill() {
+      if (state.tl) { state.tl.kill(); state.tl = null; }
+      gsap.killTweensOf(heightEls()); gsap.killTweensOf(p.backdrop);
+      p.panels.forEach(function (el) { gsap.killTweensOf(el); gsap.killTweensOf(fade(el)); });
+    }
+    function resetToggles() {
+      p.toggles.forEach(function (t) { t.setAttribute('data-active', 'false'); t.setAttribute('aria-expanded', 'false'); });
+      p.panels.forEach(function (el) { el.removeAttribute('data-panel-state'); });
+    }
+    function setToggle(name) {
+      resetToggles();
+      var t = toggle(name); if (t) { t.setAttribute('data-active', 'true'); t.setAttribute('aria-expanded', 'true'); }
+      var el = panel(name); if (el) el.setAttribute('data-panel-state', 'active');
+    }
+    function reset() {
+      p.panels.forEach(function (el) {
+        gsap.set(el, { visibility: 'hidden', opacity: 0, pointerEvents: 'none', x: 0, y: 0, xPercent: 0 });
+        gsap.set(fade(el), { autoAlpha: 0, x: 0, y: 0, xPercent: 0 });
+      });
+      gsap.set(heightEls(), { height: 0 });
+      gsap.set(p.backdrop, { autoAlpha: 0 });
+      root.setAttribute('data-menu-open', 'false');
+      resetToggles();
+    }
+    function measure(name) {
+      var el = panel(name); if (!el) return 0;
+      var s = el.style, prev = [s.visibility, s.opacity, s.pointerEvents];
+      s.visibility = 'visible'; s.opacity = '0'; s.pointerEvents = 'none';
+      var h = el.getBoundingClientRect().height;
+      s.visibility = prev[0]; s.opacity = prev[1]; s.pointerEvents = prev[2];
+      return h;
+    }
+    function open(name) {
+      if (state.isOpen && state.active === name) return;
+      if (state.isOpen) { switchTo(state.active, name); return; }
+      var h = measure(name); if (!h) return;
+      kill(); reset();
+      var el = panel(name), f = fade(el);
+      state.isOpen = true; state.active = name;
+      root.setAttribute('data-menu-open', 'true'); setToggle(name);
+      var tl = gsap.timeline(); state.tl = tl;
+      tl.to(p.backdrop, { autoAlpha: 1, duration: DUR.backdropIn, ease: 'power2.out' }, 0);
+      tl.to(heightEls(), { height: h, duration: DUR.openScale, ease: 'power3.out' }, 0);
+      tl.set(el, { visibility: 'visible', opacity: 1, pointerEvents: 'auto' }, 0.05);
+      if (f.length) tl.fromTo(f, { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, duration: DUR.contentIn, stagger: stagger(f.length), ease: 'power3.out' }, 0.1);
+    }
+    function close() {
+      if (!state.isOpen) return;
+      var el = panel(state.active), f = fade(el);
+      kill(); resetToggles();
+      var tl = gsap.timeline({ onComplete: function () { state.isOpen = false; state.active = null; state.tl = null; reset(); } });
+      state.tl = tl;
+      if (f.length) tl.to(f, { autoAlpha: 0, y: -4, duration: DUR.contentOut * 0.7, ease: 'power2.in' }, 0);
+      tl.to(heightEls(), { height: 0, duration: DUR.closeScale, ease: 'power2.in' }, 0.05);
+      tl.to(p.backdrop, { autoAlpha: 0, duration: DUR.backdropOut, ease: 'power2.out' }, 0);
+      if (el) tl.set(el, { visibility: 'hidden', opacity: 0, pointerEvents: 'none' });
+    }
+    function switchTo(from, to) {
+      var dir = index(to) > index(from) ? 1 : -1;
+      var fromEl = panel(from), toEl = panel(to); if (!fromEl || !toEl) return;
+      var ff = fade(fromEl), tf = fade(toEl), h = measure(to); if (!h) return;
+      kill();
+      p.panels.forEach(function (el) {
+        gsap.set(el, { visibility: 'hidden', opacity: 0, pointerEvents: 'none', xPercent: 0 });
+        gsap.set(fade(el), { autoAlpha: 0, x: 0, y: 0 });
+      });
+      gsap.set(fromEl, { visibility: 'visible', opacity: 1, pointerEvents: 'auto', x: 0 });
+      if (ff.length) gsap.set(ff, { autoAlpha: 1, x: 0, y: 0 });
+      gsap.set(p.backdrop, { autoAlpha: 1 });
+      state.active = to; setToggle(to);
+      var tl = gsap.timeline(); state.tl = tl;
+      if (ff.length) tl.to(ff, { autoAlpha: 0, x: dir * -30, duration: DUR.contentOut, ease: 'power2.in' }, 0);
+      tl.set(fromEl, { visibility: 'hidden', opacity: 0, pointerEvents: 'none', xPercent: 0 }, DUR.contentOut);
+      if (ff.length) tl.set(ff, { x: 0 }, DUR.contentOut);
+      tl.to(heightEls(), { height: h, duration: DUR.bgMorph, ease: 'power3.out' }, 0.05);
+      tl.set(toEl, { visibility: 'visible', opacity: 1, pointerEvents: 'auto', xPercent: 0 }, DUR.contentOut * 0.5);
+      if (tf.length) tl.fromTo(tf, { autoAlpha: 0, x: dir * 30 }, { autoAlpha: 1, x: 0, duration: DUR.contentIn, stagger: stagger(tf.length), ease: 'power3.out' }, DUR.contentOut * 0.6);
+    }
+    function focusFirst(name) {
+      setTimeout(function () { var el = panel(name), a = el && el.querySelector('a'); if (a) a.focus(); }, 80);
+    }
+
+    var offs = [];
+    function on(el, ev, fn) { if (!el) return; el.addEventListener(ev, fn); offs.push(function () { el.removeEventListener(ev, fn); }); }
+
+    p.toggles.forEach(function (t) {
+      t.setAttribute('aria-haspopup', 'true');
+      t.setAttribute('aria-expanded', 'false');
+      if (t.tagName === 'A' && (t.getAttribute('href') || '#') === '#') t.setAttribute('role', 'button');
+      var name = t.getAttribute('data-dropdown-toggle');
+      if (canHover) {
+        on(t, 'mouseenter', function () {
+          clearTimeout(state.leaveTimer); state.leaveTimer = null; clearTimeout(state.hoverTimer);
+          state.hoverTimer = setTimeout(function () { open(name); }, state.isOpen ? 0 : HOVER_ENTER);
+        });
+        on(t, 'mouseleave', function () {
+          clearTimeout(state.hoverTimer); state.hoverTimer = null;
+          state.leaveTimer = setTimeout(close, HOVER_LEAVE);
+        });
+      }
+      on(t, 'click', function (e) {
+        e.preventDefault();
+        clearTimeout(state.hoverTimer);
+        if (state.isOpen && state.active === name) { if (e.detail === 0 || !canHover) close(); return; }
+        open(name);
+      });
+      on(t, 'keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          if (state.isOpen && state.active === name) close(); else { open(name); focusFirst(name); }
+        } else if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          if (!state.isOpen || state.active !== name) open(name);
+          focusFirst(name);
+        } else if (e.key === 'Tab' && !e.shiftKey && state.isOpen && state.active === name) {
+          var a = panel(name).querySelector('a'); if (a) { e.preventDefault(); a.focus(); }
+        }
+      });
+    });
+    on(p.wrapper, 'mouseenter', function () { clearTimeout(state.leaveTimer); state.leaveTimer = null; });
+    on(p.wrapper, 'mouseleave', function () { state.leaveTimer = setTimeout(close, HOVER_LEAVE); });
+    p.panels.forEach(function (el) {
+      on(el, 'keydown', function (e) {
+        if (!state.isOpen) return;
+        var links = $$('a', panel(state.active)), i = links.indexOf(document.activeElement);
+        if (!links.length) return;
+        if (e.key === 'ArrowDown') { e.preventDefault(); links[(i + 1) % links.length].focus(); }
+        if (e.key === 'ArrowUp') { e.preventDefault(); if (i <= 0) toggle(state.active).focus(); else links[i - 1].focus(); }
+        if (e.key === 'Tab' && !e.shiftKey && i === links.length - 1) {
+          e.preventDefault();
+          var cur = p.toggles.indexOf(toggle(state.active));
+          var next = cur < p.toggles.length - 1 ? p.toggles[cur + 1] : null;
+          close(); if (next) next.focus();
+        }
+        if (e.key === 'Tab' && e.shiftKey && i === 0) { e.preventDefault(); toggle(state.active).focus(); }
+      });
+    });
+    on(p.backdrop, 'click', close);
+    on(root, 'keydown', function (e) {
+      if (e.key !== 'Escape' || !state.isOpen) return;
+      var t = toggle(state.active); close(); if (t) t.focus();
+    });
+    on(document, 'click', function (e) { if (state.isOpen && !root.contains(e.target)) close(); });
+
+    // Taalkeuze
+    var lw = root.querySelector('[data-lang-wrap]');
+    var lb = root.querySelector('[data-lang-toggle]');
+    var ld = root.querySelector('[data-lang-drop]');
+    var lp = root.querySelector('[data-lang-panel]');
+    var li = $$('[data-lang-item]', root);
+    var lang = { open: false, hoverTimer: null, leaveTimer: null, tl: null };
+    function openLang() {
+      if (lang.open || !lw) return;
+      if (state.isOpen) close();
+      lang.open = true; lw.setAttribute('data-active', 'true'); lb.setAttribute('aria-expanded', 'true');
+      if (lang.tl) lang.tl.kill();
+      gsap.set(ld, { visibility: 'visible', pointerEvents: 'auto' });
+      var tl = gsap.timeline(); lang.tl = tl;
+      tl.to(lp, { clipPath: 'inset(0% 0% 0% 0%)', duration: DUR.openScale, ease: 'power3.out' }, 0);
+      tl.fromTo(li, { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, duration: DUR.contentIn, stagger: 0.06, ease: 'power3.out' }, 0.08);
+    }
+    function closeLang() {
+      if (!lang.open) return;
+      lang.open = false; lw.setAttribute('data-active', 'false'); lb.setAttribute('aria-expanded', 'false');
+      if (lang.tl) lang.tl.kill();
+      var tl = gsap.timeline({ onComplete: function () { gsap.set(ld, { visibility: 'hidden', pointerEvents: 'none' }); } });
+      lang.tl = tl;
+      tl.to(li, { autoAlpha: 0, y: -4, duration: 0.1, ease: 'power2.in' }, 0);
+      tl.to(lp, { clipPath: 'inset(0% 0% 100% 0%)', duration: 0.18, ease: 'power2.in' }, 0.02);
+    }
+    var langEls = [ld, lp].concat(li).filter(Boolean);
+    if (lw && lb && ld && lp) {
+      lb.setAttribute('aria-haspopup', 'true');
+      lb.setAttribute('aria-expanded', 'false');
+      if (lb.tagName === 'A') lb.setAttribute('role', 'button');
+      gsap.set(ld, { visibility: 'hidden', pointerEvents: 'none' });
+      gsap.set(lp, { clipPath: 'inset(0% 0% 100% 0%)' });
+      gsap.set(li, { autoAlpha: 0 });
+      var globe = lw.querySelector('.mega-nav__lang-globe');
+      var spin = function () {
+        if (!globe || reduceMotion || gsap.isTweening(globe)) return;
+        gsap.fromTo(globe, { rotationY: 0 }, { rotationY: 360, duration: 0.8, ease: 'power2.inOut', transformPerspective: 200, transformOrigin: '50% 50%' });
+      };
+      if (canHover) {
+        on(lw, 'mouseenter', function () { spin(); clearTimeout(lang.leaveTimer); clearTimeout(lang.hoverTimer); lang.hoverTimer = setTimeout(openLang, HOVER_ENTER); });
+        on(lw, 'mouseleave', function () { clearTimeout(lang.hoverTimer); lang.leaveTimer = setTimeout(closeLang, 60); });
+      }
+      on(lb, 'focus', spin);
+      on(lb, 'click', function (e) {
+        e.preventDefault();
+        if (lang.open) { if (e.detail === 0 || !canHover) closeLang(); } else { clearTimeout(lang.hoverTimer); openLang(); }
+      });
+      on(lb, 'keydown', function (e) {
+        if (e.key === 'ArrowDown') { e.preventDefault(); openLang(); setTimeout(function () { var a = lp.querySelector('a'); if (a) a.focus(); }, 80); }
+      });
+      on(lw, 'keydown', function (e) { if (e.key === 'Escape' && lang.open) { e.stopPropagation(); closeLang(); lb.focus(); } });
+      on(document, 'click', function (e) { if (lang.open && !lw.contains(e.target)) closeLang(); });
+      p.toggles.forEach(function (t) { on(t, 'mouseenter', closeLang); });
+    }
+
+    reset();
+    return function () {
+      offs.forEach(function (f) { f(); });
+      clearTimeout(state.hoverTimer); clearTimeout(state.leaveTimer);
+      kill(); if (lang.tl) lang.tl.kill();
+      megaNavClear(gsap, p, root);
+      gsap.set(langEls, { clearProps: 'all' });
+      if (lw) lw.setAttribute('data-active', 'false');
+    };
+  }
+
+  function megaNavMobile(root, gsap) {
+    var p = megaNavParts(root);
+    var DUR = { stagger: 0.25 };
+    var state = { open: false, panel: null, tl: null, panelTl: null };
+    var html = document.documentElement;
+    function panel(name) { return root.querySelector('[data-nav-content="' + name + '"]'); }
+    function fade(el) { return el ? el.querySelectorAll('[data-menu-fade]') : []; }
+    function items() { return p.navList ? p.navList.querySelectorAll('[data-nav-list-item]') : []; }
+    function stagger(n) { return n <= 1 ? 0 : { amount: DUR.stagger }; }
+    function killKey(k) { if (state[k]) { state[k].kill(); state[k] = null; } }
+    function killMenu() { killKey('tl'); gsap.killTweensOf([p.navList].concat(p.lines).filter(Boolean)); }
+    function killPanel() {
+      killKey('panelTl'); gsap.killTweensOf(items()); gsap.killTweensOf([p.back, p.logo].filter(Boolean));
+      p.panels.forEach(function (el) { gsap.killTweensOf(el); gsap.killTweensOf(fade(el)); });
+    }
+    function resetToggles() {
+      p.toggles.forEach(function (t) { t.setAttribute('aria-expanded', 'false'); });
+      p.panels.forEach(function (el) { el.removeAttribute('data-panel-state'); });
+    }
+    function lock(on) { html.style.overflow = on ? 'hidden' : ''; }
+    function setup() {
+      p.panels.forEach(function (el) {
+        gsap.set(el, { autoAlpha: 0, xPercent: 0, pointerEvents: 'none' });
+        gsap.set(fade(el), { xPercent: 20, autoAlpha: 0 });
+      });
+      gsap.set(items(), { xPercent: 0, y: 0, autoAlpha: 1 });
+      if (p.navList) gsap.set(p.navList, { autoAlpha: 0, x: 0 });
+      if (p.wrapper) gsap.set(p.wrapper, { pointerEvents: 'none' });
+      if (p.back) gsap.set(p.back, { autoAlpha: 0 });
+      if (p.logo) gsap.set(p.logo, { autoAlpha: 1 });
+      if (p.backdrop) gsap.set(p.backdrop, { autoAlpha: 0 });
+      resetToggles();
+    }
+    function burgerTl(toX) {
+      var tl = gsap.timeline({ defaults: { ease: 'power2.inOut' } });
+      var t = p.lines[0], m = p.lines[1], b = p.lines[2];
+      if (!t || !m || !b) return tl;
+      if (toX) {
+        tl.to(t, { y: 7, duration: 0.15 }, 0).to(b, { y: -7, duration: 0.15 }, 0)
+          .to(m, { autoAlpha: 0, duration: 0.1 }, 0.1)
+          .to(t, { rotation: 45, duration: 0.2 }, 0.15).to(b, { rotation: -45, duration: 0.2 }, 0.15);
+      } else {
+        tl.to(t, { rotation: 0, duration: 0.2 }, 0).to(b, { rotation: 0, duration: 0.2 }, 0)
+          .to(t, { y: 0, duration: 0.15 }, 0.15).to(b, { y: 0, duration: 0.15 }, 0.15)
+          .to(m, { autoAlpha: 1, duration: 0.1 }, 0.15);
+      }
+      return tl;
+    }
+    function openMenu() {
+      killMenu();
+      state.open = true;
+      root.setAttribute('data-menu-open', 'true');
+      if (p.burger) p.burger.setAttribute('aria-expanded', 'true');
+      if (p.navList) p.navList.setAttribute('data-mobile-nav', 'active');
+      lock(true);
+      var it = items();
+      var tl = gsap.timeline(); state.tl = tl;
+      tl.add(burgerTl(true), 0);
+      if (p.navList) tl.to(p.navList, { autoAlpha: 1, duration: 0.3, ease: 'power2.out' }, 0);
+      if (it.length) tl.fromTo(it, { autoAlpha: 0, y: 12 }, { autoAlpha: 1, y: 0, duration: 0.3, stagger: 0.04, ease: 'power3.out' }, 0.15);
+    }
+    function closeMenu() {
+      var had = state.panel, el = had ? panel(had) : null;
+      killMenu(); killPanel();
+      root.setAttribute('data-menu-open', 'false');
+      state.open = false; state.panel = null;
+      if (p.burger) p.burger.setAttribute('aria-expanded', 'false');
+      if (p.navList) p.navList.setAttribute('data-mobile-nav', '');
+      lock(false);
+      var tl = gsap.timeline({ onComplete: function () { state.tl = null; setup(); } });
+      state.tl = tl;
+      tl.add(burgerTl(false), 0);
+      if (el) {
+        tl.to(el, { autoAlpha: 0, duration: 0.3, ease: 'power2.inOut' }, 0.05);
+        if (p.back) tl.to(p.back, { autoAlpha: 0, duration: 0.2, ease: 'power2.in' }, 0.05);
+      }
+      if (p.navList) tl.to(p.navList, { autoAlpha: 0, duration: 0.3, ease: 'power2.inOut' }, 0.05);
+    }
+    function openPanel(name) {
+      var el = panel(name); if (!el) return;
+      killPanel();
+      state.panel = name;
+      resetToggles();
+      var t = root.querySelector('[data-dropdown-toggle="' + name + '"]');
+      if (t) t.setAttribute('aria-expanded', 'true');
+      el.setAttribute('data-panel-state', 'active');
+      el.scrollTop = 0;
+      if (p.wrapper) gsap.set(p.wrapper, { pointerEvents: 'auto' });
+      var it = items(), f = fade(el);
+      var tl = gsap.timeline(); state.panelTl = tl;
+      if (it.length) tl.to(it, { xPercent: -10, autoAlpha: 0, duration: 0.35, stagger: 0.03, ease: 'power2.in' }, 0);
+      if (p.logo) tl.to(p.logo, { autoAlpha: 0, duration: 0.2, ease: 'power2.in' }, 0);
+      if (p.back) tl.to(p.back, { autoAlpha: 1, duration: 0.25, ease: 'power2.inOut' }, 0.15);
+      tl.set(el, { autoAlpha: 1, xPercent: 0, pointerEvents: 'auto' }, 0.2);
+      if (f.length) tl.fromTo(f, { xPercent: 8, autoAlpha: 0 }, { xPercent: 0, autoAlpha: 1, duration: 0.3, stagger: stagger(f.length), ease: 'power3.out' }, 0.25);
+      tl.call(function () { var a = el.querySelector('a'); if (a) a.focus({ preventScroll: true }); });
+    }
+    function closePanel() {
+      if (!state.panel) return;
+      var name = state.panel, el = panel(name); if (!el) return;
+      killPanel(); resetToggles();
+      var it = items();
+      var tl = gsap.timeline({ onComplete: function () {
+        state.panel = null; state.panelTl = null;
+        if (p.wrapper) gsap.set(p.wrapper, { pointerEvents: 'none' });
+        var t = root.querySelector('[data-dropdown-toggle="' + name + '"]'); if (t) t.focus({ preventScroll: true });
+      } });
+      state.panelTl = tl;
+      tl.to(el, { xPercent: 20, autoAlpha: 0, duration: 0.3, ease: 'power2.in' }, 0);
+      tl.set(el, { autoAlpha: 0, pointerEvents: 'none' }, 0.25);
+      if (p.back) tl.to(p.back, { autoAlpha: 0, duration: 0.2, ease: 'power2.in' }, 0);
+      if (p.logo) tl.to(p.logo, { autoAlpha: 1, duration: 0.25, ease: 'power2.out' }, 0.15);
+      if (it.length) tl.fromTo(it, { xPercent: -20, autoAlpha: 0 }, { xPercent: 0, autoAlpha: 1, duration: 0.35, stagger: 0.03, ease: 'power3.out' }, 0.25);
+    }
+
+    var offs = [];
+    function on(el, ev, fn) { if (!el) return; el.addEventListener(ev, fn); offs.push(function () { el.removeEventListener(ev, fn); }); }
+    p.toggles.forEach(function (t) {
+      t.setAttribute('aria-haspopup', 'true');
+      on(t, 'click', function (e) {
+        e.preventDefault();
+        if (state.open) openPanel(t.getAttribute('data-dropdown-toggle'));
+      });
+    });
+    if (p.burger) {
+      if (p.burger.tagName === 'A') p.burger.setAttribute('role', 'button');
+      p.burger.setAttribute('aria-expanded', 'false');
+      if (!p.burger.getAttribute('aria-label')) p.burger.setAttribute('aria-label', 'Menu openen of sluiten');
+      on(p.burger, 'click', function (e) { e.preventDefault(); if (state.open) closeMenu(); else openMenu(); });
+    }
+    on(p.back, 'click', function (e) { e.preventDefault(); closePanel(); });
+    on(root, 'keydown', function (e) {
+      if (e.key !== 'Escape') return;
+      if (state.panel) closePanel();
+      else if (state.open) { closeMenu(); if (p.burger) p.burger.focus(); }
+    });
+    // Links naar een anker op dezelfde pagina sluiten het menu
+    $$('a[href*="#"]', root).forEach(function (a) {
+      if (a === p.burger || a.hasAttribute('data-dropdown-toggle') || (p.back && p.back.contains(a))) return;
+      on(a, 'click', function () { if (state.open) closeMenu(); });
+    });
+
+    setup();
+    return function () {
+      offs.forEach(function (f) { f(); });
+      killMenu(); killPanel(); lock(false);
+      if (p.burger) p.burger.setAttribute('aria-expanded', 'false');
+      if (p.navList) p.navList.setAttribute('data-mobile-nav', '');
+      megaNavClear(gsap, p, root);
+    };
+  }
+
   function init() {
     document.documentElement.classList.add('tflu-js');
     if (reduceMotion) document.documentElement.classList.add('tflu-reduced-motion');
@@ -1191,7 +1630,7 @@
     initSplitLists();
     initForms();
     initLegal();
-    // Volgt in blok D: initMegaNav() (Osmo Mega Navigation + TFLU-uitbreidingen)
+    initMegaNav();
     // Volgt later: initAnimations() (data-animate / data-stagger / data-counter, GSAP)
   }
 

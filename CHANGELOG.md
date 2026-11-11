@@ -2,6 +2,10 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.7.0] - 2026-11-11
+
+- Mega-navigatie (Osmo Mega Navigation – Directional Hover): uitklappanelen op desktop met hover-intent, richting-animatie en toetsenbordbediening; taalkeuze-dropdown; mobiel burgermenu met schuifpanelen, terugknop en scroll-lock. GSAP 3.13 wordt alleen geladen op pagina's met `[data-menu-wrap]`.
+
 ## [1.6.0] - 2026-11-11
 
 - Juridische pagina's: inhoudsopgave met huidige sectie, mobiel uitklapbaar ('Op deze pagina'), zoeken in de algemene voorwaarden met teller en lege melding, één artikel tegelijk open, deeplink naar `#artN` opent dat artikel.
