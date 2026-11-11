@@ -2,6 +2,10 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.8.0] - 2026-11-11
+
+- Cookiebanner (Finsweet Consent Pro): voorkeurenformulier wordt nooit door Webflow verstuurd, stijl voor de schakelaars, terugvaloptie zonder Consent Pro en een voorbeeldmodus met `?cookiebanner=preview`.
+
 ## [1.7.0] - 2026-11-11
 
 - Mega-navigatie (Osmo Mega Navigation – Directional Hover): uitklappanelen op desktop met hover-intent, richting-animatie en toetsenbordbediening; taalkeuze-dropdown; mobiel burgermenu met schuifpanelen, terugknop en scroll-lock. GSAP 3.13 wordt alleen geladen op pagina's met `[data-menu-wrap]`.

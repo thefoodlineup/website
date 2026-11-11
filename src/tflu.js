@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.7.0
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.8.0
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -1617,6 +1617,63 @@
     };
   }
 
+  /* ------------------------------------------------------------------
+   * Cookiebanner (Finsweet Consent Pro, attributen fs-consent-*)
+   * Consent Pro doet het echte werk (tonen, opslaan, GTM-events). Deze
+   * module regelt alleen wat Consent Pro niet doet:
+   * - Webflow mag het voorkeurenformulier nooit zelf versturen;
+   * - stijl voor de schakelaars (:checked kan niet in de Designer);
+   * - zonder Consent Pro: 'Cookievoorkeuren aanpassen' gaat naar #cookies;
+   * - ?cookiebanner=preview toont banner en voorkeuren ter controle van het
+   *   ontwerp (er wordt niets opgeslagen).
+   * ------------------------------------------------------------------ */
+  function initConsent() {
+    var comp = document.querySelector('[fs-consent-instance]');
+    if (!comp) return;
+
+    var css = document.createElement('style');
+    css.textContent =
+      '.consent_switch-input:checked{background-color:#F2560A;background-position:100% 50%}' +
+      '.consent_switch-input:focus-visible,.consent_button:focus-visible,.consent_button-outline:focus-visible,' +
+      '.consent_close:focus-visible,.consent_fixed:focus-visible{outline:2px solid #F2560A;outline-offset:2px}' +
+      '@media screen and (max-width:767px){.consent_buttons .is-accept{order:-1}}';
+    document.head.appendChild(css);
+
+    $$('form[fs-consent-element="form"]', comp).forEach(function (form) {
+      // Op het formulier zelf: Consent Pro (luistert op het formulier) werkt
+      // nog, Webflow (luistert op document) krijgt de submit niet te zien.
+      form.addEventListener('submit', function (e) { e.preventDefault(); e.stopPropagation(); });
+    });
+
+    var preview = /[?&]cookiebanner=preview\b/.test(location.search);
+    window.addEventListener('load', function () {
+      setTimeout(function () {
+        if (window.FinsweetConsentPro && !Array.isArray(window.FinsweetConsentPro)) return;
+        $$('[data-consent-open]').forEach(function (a) { a.setAttribute('href', '#cookies'); });
+        if (preview) consentPreview(comp);
+      }, 1500);
+    });
+  }
+
+  function consentPreview(comp) {
+    var banner = comp.querySelector('[fs-consent-element="banner"]');
+    var prefs = comp.querySelector('[fs-consent-element="preferences"]');
+    var fixed = comp.querySelector('[fs-consent-element="fixed-preferences"]');
+    function show(el, on) { if (el) el.style.display = on ? 'block' : 'none'; }
+    function done() { show(banner, false); show(prefs, false); show(fixed, true); }
+    show(banner, true);
+    document.addEventListener('click', function (e) {
+      var el = e.target.closest && e.target.closest('[fs-consent-element]');
+      if (!el) return;
+      var t = el.getAttribute('fs-consent-element');
+      if (t === 'allow' || t === 'deny') { e.preventDefault(); done(); }
+      else if (t === 'open-preferences' || t === 'fixed-preferences') { e.preventDefault(); show(prefs, true); }
+      else if (t === 'close') { e.preventDefault(); show(prefs, false); }
+    });
+    var form = comp.querySelector('form[fs-consent-element="form"]');
+    if (form) form.addEventListener('submit', function () { done(); });
+  }
+
   function init() {
     document.documentElement.classList.add('tflu-js');
     if (reduceMotion) document.documentElement.classList.add('tflu-reduced-motion');
@@ -1631,6 +1688,7 @@
     initForms();
     initLegal();
     initMegaNav();
+    initConsent();
     // Volgt later: initAnimations() (data-animate / data-stagger / data-counter, GSAP)
   }
 
