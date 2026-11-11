@@ -2,6 +2,10 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.9.0] - 2026-11-11
+
+- Cookiebanner: overgestapt op de componenten van Consent Pro v2 (pagina /cookiebanner, in TFLU-stijl). Eigen formulierafhandeling en voorbeeldmodus verwijderd; alleen focusring en terugvaloptie blijven.
+
 ## [1.8.0] - 2026-11-11
 
 - Cookiebanner (Finsweet Consent Pro): voorkeurenformulier wordt nooit door Webflow verstuurd, stijl voor de schakelaars, terugvaloptie zonder Consent Pro en een voorbeeldmodus met `?cookiebanner=preview`.
