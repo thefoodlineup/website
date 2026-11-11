@@ -2,6 +2,13 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.5.0] - 2026-11-11
+
+- Formulieren naar HubSpot (`form[data-hs-form]`): Webflow-formulieren worden afgevangen en naar de HubSpot Forms API gestuurd. Validatie met foutmeldingen per veld (`data-error-for`), blokken tonen bij een keuze (`data-show-if`), keuzeknoppen als radio's.
+- Meegestuurd: pagina, eerste landingspagina en UTM's van het bezoek (sessie), HubSpot-cookie als die er is, nieuwsbrieftoestemming als het vinkje aan staat. `dataLayer`-event `tflu_form_submit`.
+- Offerteformulier (`data-form="offerte"`): twee stappen, maand/later/jaar/datum-keuze (`data-when`, opmaak uit `data-when-templates`), samenvatting (`data-form-summary`), `?type=` kiest het type event.
+- Contactformulier: `<select data-options="A|B">` vult zijn opties, `?onderwerp=` kiest een onderwerp.
+
 ## [1.4.0] - 2026-11-11
 
 - Galerij/slider: optionele voortgangsbalk (`data-gallery-bar`) en teller (`data-gallery-count`, "01 / 05"). Gebruikt door de CMS-gestuurde cases-slider op Home en Event catering.
