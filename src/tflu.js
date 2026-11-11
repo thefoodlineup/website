@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.5.3
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.5.4
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -1009,6 +1009,24 @@
     });
   }
 
+  // Webflow zet de verzendknop uit tot zijn eigen spamcheck (Turnstile) klaar is.
+  // Wij versturen zelf naar HubSpot, dus de knop blijft gewoon bruikbaar.
+  function keepSubmitEnabled(form) {
+    var btn = form.querySelector('[type="submit"]');
+    if (!btn) return;
+    var label = btn.value;
+    function fix() {
+      if (form._busy) return;
+      if (btn.disabled) btn.disabled = false;
+      if (btn.classList.contains('w-form-loading')) btn.classList.remove('w-form-loading');
+      if (btn.value !== label && !form._busy) btn.value = label;
+    }
+    fix();
+    if (window.MutationObserver) {
+      new MutationObserver(fix).observe(btn, { attributes: true, attributeFilter: ['disabled', 'class', 'value'] });
+    }
+  }
+
   function initForms() {
     var forms = $$('form[data-hs-form]');
     rememberVisit();
@@ -1019,6 +1037,7 @@
       $$('[placeholder]', form).forEach(function (i) {
         if (/^example text$/i.test(i.getAttribute('placeholder'))) i.removeAttribute('placeholder');
       });
+      keepSubmitEnabled(form);
       fillSelects(form);
       initChips(form);
       initShowIf(form);

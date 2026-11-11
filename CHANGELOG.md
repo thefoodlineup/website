@@ -2,6 +2,10 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.5.4] - 2026-11-11
+
+- Formulieren: verzendknop blijft bruikbaar als Webflow's spamcheck (Turnstile) niet laadt; wij versturen zelf naar HubSpot.
+
 ## [1.5.3] - 2026-11-11
 
 - Formulieren: `data-hs-tracking="off"` stuurt geen pagina/UTM-velden mee (voor bestaande HubSpot-formulieren zonder die velden, zoals '6 smaken van 2026').
