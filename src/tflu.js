@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.25.0
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.25.1
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -2415,10 +2415,13 @@
     function offset() {
       var nav = document.querySelector('[data-nav-bar], .navbar_component, .nav_component, nav');
       var b = nav ? Math.max(0, nav.getBoundingClientRect().bottom) : 0;
-      return b + (window.innerWidth < 768 ? 24 : 48);
+      return b + (window.innerWidth < 768 ? 32 : 64);
     }
     function go(el, smooth) {
-      var y = blockFor(el).getBoundingClientRect().top + window.pageYOffset - offset();
+      // offsetTop i.p.v. getBoundingClientRect: de inschuif-animatie verschuift elementen tijdelijk
+      var b = blockFor(el), top = 0, n = b;
+      while (n) { top += n.offsetTop; n = n.offsetParent; }
+      var y = top - offset();
       window.scrollTo({ top: Math.max(0, y), behavior: smooth && !reduceMotion ? 'smooth' : 'auto' });
     }
     document.addEventListener('click', function (e) {

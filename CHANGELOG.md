@@ -2,6 +2,10 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.25.1] - 2026-11-12
+
+- Ankerlinks: positie zonder de tijdelijke verschuiving van de inschuif-animatie; iets meer ruimte onder de navigatie (64px desktop, 32px mobiel).
+
 ## [1.25.0] - 2026-11-12
 
 - Ankerlinks binnen de pagina scrollen naar het begin van het blok (label boven de kop meegerekend), met ruimte onder de vaste navigatie. Bijv. 'Wat is B Corp?' op Impact.
