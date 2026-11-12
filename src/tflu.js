@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.14.0
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.15.0
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -244,6 +244,19 @@
   function pad2(n) { return (n < 10 ? '0' : '') + n; }
 
   function initGalleries() {
+    if ($$('[data-gallery-track]').length && !document.getElementById('tflu-gallery')) {
+      var st = document.createElement('style');
+      st.id = 'tflu-gallery';
+      st.textContent =
+        '[data-gallery-prev],[data-gallery-next]{transition:background-color .3s ease,color .3s ease,opacity .3s ease,transform .3s cubic-bezier(.22,1,.36,1)}' +
+        '[data-gallery-prev][aria-disabled="true"],[data-gallery-next][aria-disabled="true"]{opacity:.35;pointer-events:none;cursor:default}' +
+        '[data-gallery-track].is-draggable{cursor:grab;user-select:none;-webkit-user-select:none}' +
+        '[data-gallery-track].is-dragging{cursor:grabbing;scroll-snap-type:none!important;scroll-behavior:auto!important}' +
+        '[data-gallery-track].is-dragging *{cursor:grabbing}' +
+        '[data-gallery-track] img{-webkit-user-drag:none}' +
+        '[data-gallery-count]{font-variant-numeric:tabular-nums}';
+      document.head.appendChild(st);
+    }
     $$('[data-gallery-track]').forEach(function (track) {
       var section = track.closest('section') || document;
       var prev = section.querySelector('[data-gallery-prev]');
@@ -265,28 +278,98 @@
         var gap = parseFloat(getComputedStyle(track).columnGap) || 24;
         return first ? first.getBoundingClientRect().width + gap : track.clientWidth * 0.8;
       }
+      // Bereik van zichtbare kaarten, zoals in het UI-design: "01–03"
+      function visibleRange() {
+        var box = track.getBoundingClientRect(), a = 0, b = 0;
+        [].forEach.call(track.children, function (c, i) {
+          var r = c.getBoundingClientRect();
+          if (r.width === 0) return;
+          var inView = Math.min(r.right, box.right) - Math.max(r.left, box.left);
+          if (inView >= r.width * 0.9) { if (!a) a = i + 1; b = i + 1; }
+        });
+        if (!a) { a = b = Math.min(totalSlides, Math.round(track.scrollLeft / step()) + 1); }
+        return a === b ? pad2(a) : pad2(a) + '–' + pad2(b);
+      }
       function update() {
         var max = track.scrollWidth - track.clientWidth - 2;
-        if (prev) prev.setAttribute('aria-disabled', track.scrollLeft <= 2 ? 'true' : 'false');
-        if (next) next.setAttribute('aria-disabled', track.scrollLeft >= max ? 'true' : 'false');
+        var atStart = track.scrollLeft <= 2, atEnd = track.scrollLeft >= max;
+        [[prev, atStart], [next, atEnd]].forEach(function (p) {
+          if (!p[0]) return;
+          p[0].setAttribute('aria-disabled', p[1] ? 'true' : 'false');
+          p[0].setAttribute('tabindex', p[1] ? '-1' : '0');
+        });
         var progress = max > 0 ? Math.min(1, Math.max(0, track.scrollLeft / max)) : 0;
         if (bar && bar.parentElement) {
           bar.style.transform = 'translateX(' + (bar.parentElement.clientWidth - bar.offsetWidth) * progress + 'px)';
         }
-        if (count && count.firstChild) {
-          var idx = Math.min(totalSlides, Math.round(track.scrollLeft / step()) + 1);
-          count.firstChild.textContent = pad2(idx) + ' ';
-        }
+        if (count && count.firstChild) count.firstChild.textContent = visibleRange() + ' ';
       }
       function go(dir) {
         track.scrollBy({ left: dir * step(), behavior: reduceMotion ? 'auto' : 'smooth' });
       }
-      if (prev) prev.addEventListener('click', function (e) { e.preventDefault(); go(-1); });
-      if (next) next.addEventListener('click', function (e) { e.preventDefault(); go(1); });
+      if (prev) prev.addEventListener('click', function (e) { e.preventDefault(); if (prev.getAttribute('aria-disabled') !== 'true') go(-1); });
+      if (next) next.addEventListener('click', function (e) { e.preventDefault(); if (next.getAttribute('aria-disabled') !== 'true') go(1); });
+
+      // Slepen met de muis (grab). Touch scrollt al native.
+      track.classList.add('is-draggable');
+      var drag = null, moved = false;
+      track.addEventListener('pointerdown', function (e) {
+        if (e.pointerType !== 'mouse' || e.button !== 0) return;
+        drag = { x: e.clientX, left: track.scrollLeft }; moved = false;
+      });
+      window.addEventListener('pointermove', function (e) {
+        if (!drag) return;
+        var dx = e.clientX - drag.x;
+        if (!moved && Math.abs(dx) > 5) {
+          moved = true;
+          track.classList.add('is-dragging'); // zet scroll-snap tijdelijk uit
+        }
+        if (moved) { track.scrollLeft = drag.left - dx; e.preventDefault(); }
+      });
+      window.addEventListener('pointerup', function (e) {
+        if (!drag) return;
+        var dx = e.clientX - drag.x, start = drag.left;
+        drag = null;
+        if (!moved) return;
+        track.classList.remove('is-dragging');
+        // Naar de dichtstbijzijnde kaart in de sleeprichting (drempel 60px, zoals in het design)
+        var s = step(), base = Math.round(start / s);
+        var target = dx < -60 ? base + Math.max(1, Math.round(-dx / s)) : dx > 60 ? base - Math.max(1, Math.round(dx / s)) : base;
+        track.scrollTo({ left: Math.max(0, target * s), behavior: reduceMotion ? 'auto' : 'smooth' });
+      });
+      // Na slepen geen klik op de case-link
+      track.addEventListener('click', function (e) {
+        if (moved) { e.preventDefault(); e.stopPropagation(); moved = false; }
+      }, true);
+      track.addEventListener('dragstart', function (e) { e.preventDefault(); });
       track.addEventListener('scroll', update, { passive: true });
       window.addEventListener('resize', update);
       update();
     });
+  }
+
+  /* ------------------------------------------------------------------
+   * Quote onder de cases-slider (homepage)
+   *   CMS-lijst op Cases, filter "Quote op homepage" aan, max. 1.
+   *   Geen case aangevinkt = hele quoteblok weg. Lege velden (naam,
+   *   functie, bedrijf) vallen weg; de rest krijgt komma's ertussen.
+   * ------------------------------------------------------------------ */
+  function initHomeQuote() {
+    var box = document.querySelector('.home-cases_quote');
+    if (!box) return;
+    var st = document.createElement('style');
+    st.id = 'tflu-quote';
+    st.textContent =
+      '.home-cases_quote .w-dyn-empty{display:none}' +
+      '.home-cases_quote .testimonial_caption{display:flex;flex-wrap:wrap;align-items:baseline}' +
+      '.home-cases_quote .testimonial_caption>.w-dyn-bind-empty{display:none}' +
+      '.home-cases_quote [data-quote-part]{font:inherit;color:inherit}' +
+      '.home-cases_quote .testimonial_caption>:not(.w-dyn-bind-empty)~[data-quote-part]:not(.w-dyn-bind-empty)::before{content:", ";white-space:pre}' +
+      // Zonder naam: de eerste zichtbare regel (functie of bedrijf) krijgt het gewicht van de naam
+      '.home-cases_quote .testimonial_name.w-dyn-bind-empty+[data-quote-part]:not(.w-dyn-bind-empty),' +
+      '.home-cases_quote .testimonial_name.w-dyn-bind-empty+[data-quote-part].w-dyn-bind-empty+[data-quote-part]{font-weight:700}';
+    document.head.appendChild(st);
+    if (!box.querySelector('.w-dyn-item')) box.style.display = 'none';
   }
 
   /* ------------------------------------------------------------------
@@ -1724,18 +1807,24 @@
       '.mega-nav__bar-cta{--tflu-wipe:var(--brand--orange)}.mega-nav__bar-cta.is--secondary{--tflu-wipe:var(--brand--navy)}',
       'input.button{transition:background-color var(--tflu-fast) ease,border-color var(--tflu-fast) ease,color var(--tflu-fast) ease}',
       // Pijl in knoppen en links: 4px vooruit (terugpijl 4px terug)
-      '.button svg:last-child,.mega-nav__bar-cta svg:last-child,.link-more svg:last-child,.cta_contact-link svg:last-child,.mega-nav__panel-more svg:last-child,' +
+      '.button svg:last-child,.mega-nav__bar-cta svg:last-child,.link-more svg:last-child,.mega-nav__panel-more svg:last-child,' +
         '.faq_more svg:last-child,.case-related_link svg:last-child,.locations-empty_link svg:last-child,.event-card_more svg:last-child,.mega-nav__card-cta svg:last-child{transition:transform var(--tflu-fast) ' + e + '}',
       '.button:hover svg:last-child,.button:focus-visible svg:last-child,.mega-nav__bar-cta:hover svg:last-child,.link-more:hover svg:last-child,.link-more:focus-visible svg:last-child,' +
-        '.cta_contact-link:hover svg:last-child,.mega-nav__panel-more:hover svg:last-child,.faq_more:hover svg:last-child,.case-related_link:hover svg:last-child,' +
+        '.mega-nav__panel-more:hover svg:last-child,.faq_more:hover svg:last-child,.case-related_link:hover svg:last-child,' +
         '.locations-empty_link:hover svg:last-child,.event-card:hover .event-card_more svg:last-child,.mega-nav__card:hover .mega-nav__card-cta svg:last-child{transform:translateX(4px);transition-duration:.25s}',
       '.mega-nav__bar-link.is--back svg{transition:transform var(--tflu-fast) ' + e + '}.mega-nav__bar-link.is--back:hover svg{transform:translateX(-4px)}',
       // Tekstlinks met pijl: lijn groeit van links (niet onder de pijl)
-      '.link-more,.cta_contact-link,.faq_more,.case-related_link,.locations-empty_link{position:relative}',
-      '.link-more::after,.cta_contact-link::after,.faq_more::after,.case-related_link::after,.locations-empty_link::after{content:"";position:absolute;left:0;right:1.5rem;bottom:-.375rem;height:2px;' +
+      '.link-more,.faq_more,.case-related_link,.locations-empty_link{position:relative}',
+      '.link-more::after,.faq_more::after,.case-related_link::after,.locations-empty_link::after{content:"";position:absolute;left:0;right:1.5rem;bottom:-.375rem;height:2px;' +
         'background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform var(--tflu-fast) ' + e + ';pointer-events:none}',
-      '.link-more:hover::after,.link-more:focus-visible::after,.cta_contact-link:hover::after,.cta_contact-link:focus-visible::after,.faq_more:hover::after,.case-related_link:hover::after,' +
+      '.link-more:hover::after,.link-more:focus-visible::after,.faq_more:hover::after,.case-related_link:hover::after,' +
         '.locations-empty_link:hover::after{transform:scaleX(1);transition-duration:.25s}',
+      // Contactlinks (telefoon, e-mail): lijn alleen onder de tekst, het icoon staat stil
+      '.cta_contact-text{position:relative}.cta_contact-text::after{content:"";position:absolute;left:0;right:0;bottom:-.375rem;height:2px;background:currentColor;' +
+        'transform:scaleX(0);transform-origin:left;transition:transform var(--tflu-fast) ' + e + ';pointer-events:none}',
+      '.cta_contact-link:hover .cta_contact-text::after,.cta_contact-link:focus-visible .cta_contact-text::after{transform:scaleX(1);transition-duration:.25s}',
+      // Footer: klikbare tekst wordt geel bij hover (menu, contact, juridisch, credit)
+      '.footer_link:hover,.footer_link:focus-visible,.footer_legal-link:hover,.footer_legal-link:focus-visible,.footer_credit:hover,.footer_credit:focus-visible{color:var(--brand--yellow)}',
       // Megamenu: lijn alleen onder de tekst van 'Alle …' en de kaart-CTA (de pijl beweegt apart)
       '.mega-nav__panel-more>span:first-child,.mega-nav__card-cta>span:first-child{position:relative}',
       '.mega-nav__panel-more>span:first-child::after,.mega-nav__card-cta>span:first-child::after{content:"";position:absolute;left:0;right:0;bottom:-.25rem;height:2px;background:currentColor;' +
@@ -1767,7 +1856,7 @@
       '.location-card .case-card_arrow{transition:opacity .35s ease,transform .5s ' + e + '}',
       '.location-card:hover .case-card_arrow,.location-card:focus-visible .case-card_arrow{opacity:1;transform:none}',
       // Eventtegels: pijl komt rechts van de titel tevoorschijn en schuift iets op (samen met de beeldzoom)
-      '.event-tile_title .event-tile_go{position:static;display:inline-flex;align-items:center;vertical-align:middle;width:1.375rem;height:1.375rem;margin-left:.75rem;' +
+      '.event-tile_title .event-tile_go{position:static;display:inline-flex;align-items:center;vertical-align:middle;width:1.375rem;height:1.375rem;margin-left:.75rem;padding:0;background:none!important;border:0;border-radius:0;box-shadow:none;color:inherit;' +
         'opacity:0;transform:translateX(-.75rem);transition:opacity .35s ease,transform .5s ' + e + '}',
       '.event-tile_title .event-tile_go svg{width:100%;height:100%;display:block}',
       '.event-tile:hover .event-tile_go,.event-tile:focus-visible .event-tile_go{opacity:1;transform:none}',
@@ -1855,6 +1944,18 @@
     $$('.event-tile').forEach(function (t) {
       var go = t.querySelector('.event-tile_go'), title = t.querySelector('.event-tile_title');
       if (go && title && !title.contains(go)) { go.setAttribute('aria-hidden', 'true'); title.appendChild(go); }
+    });
+    // Tekst van de contactlinks in een span, zodat de hoverlijn niet onder het icoon loopt
+    $$('.cta_contact-link').forEach(function (a) {
+      if (a.querySelector('.cta_contact-text')) return;
+      [].slice.call(a.childNodes).forEach(function (n) {
+        if (n.nodeType === 3 && n.textContent.trim()) {
+          var sp = document.createElement('span');
+          sp.className = 'cta_contact-text';
+          sp.textContent = n.textContent.trim();
+          a.replaceChild(sp, n);
+        }
+      });
     });
     var css = document.createElement('style');
     css.id = 'tflu-motion';
@@ -2067,6 +2168,7 @@
     initOfferteLinks();
     initFilters();
     initGalleries();
+    initHomeQuote();
     initSplitLists();
     initInlineSignup();
     initForms();

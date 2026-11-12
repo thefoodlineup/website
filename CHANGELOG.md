@@ -2,6 +2,14 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.15.0] - 2026-11-12
+
+- Cases-slider (en andere galerijen): slepen met de muis (grab), pijlen half doorzichtig en niet klikbaar als je niet verder kunt, teller toont het bereik van de zichtbare kaarten zoals in het UI-design ("01–03 / 05").
+- Homepage-quote komt uit het CMS: de case met "Quote op homepage" aan levert quote, naam, functie en bedrijf; staat er niets aan, dan verdwijnt het blok.
+- Eventtegels: pijl zonder achtergrond.
+- Contactlinks (telefoon, e-mail): hoverlijn alleen onder de tekst, icoon staat stil.
+- Footer: klikbare tekst (menu, contact, juridisch, credit) wordt geel bij hover.
+
 ## [1.14.0] - 2026-11-12
 
 - Blok F, beweging: één hover-systeem volgens het UI-design (schuine vulling op knoppen, groeiende lijn onder tekstlinks, pijl 4px vooruit, trage beeldzoom op kaarten, kaarten zonder beeld 6px omhoog, stapnummers oranje), inkomen bij scrollen per blok en per kaart (kort na elkaar) en tellers voor grote cijfers. Niets beweegt wat bij het laden al in beeld staat; 'minder beweging' zet alles uit.
