@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.15.1
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.16.0
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -251,7 +251,7 @@
         '[data-gallery-prev],[data-gallery-next]{transition:background-color .3s ease,color .3s ease,opacity .3s ease,transform .3s cubic-bezier(.22,1,.36,1)}' +
         '[data-gallery-prev][aria-disabled="true"],[data-gallery-next][aria-disabled="true"]{opacity:.35;pointer-events:none;cursor:default}' +
         '[data-gallery-track].is-draggable{cursor:grab;user-select:none;-webkit-user-select:none}' +
-        '[data-gallery-track].is-dragging{cursor:grabbing;scroll-snap-type:none!important;scroll-behavior:auto!important}' +
+        '[data-gallery-track].is-dragging{cursor:grabbing}[data-gallery-track].is-dragging,[data-gallery-track].is-gliding{scroll-snap-type:none!important;scroll-behavior:auto!important}' +
         '[data-gallery-track].is-dragging *{cursor:grabbing}' +
         '[data-gallery-track] img{-webkit-user-drag:none}' +
         '[data-gallery-count]{font-variant-numeric:tabular-nums}';
@@ -315,7 +315,7 @@
       var drag = null, moved = false;
       track.addEventListener('pointerdown', function (e) {
         if (e.pointerType !== 'mouse' || e.button !== 0) return;
-        drag = { x: e.clientX, left: track.scrollLeft }; moved = false;
+        glideId++; drag = { x: e.clientX, left: track.scrollLeft }; moved = false;
       });
       window.addEventListener('pointermove', function (e) {
         if (!drag) return;
@@ -331,12 +331,28 @@
         var dx = e.clientX - drag.x, start = drag.left;
         drag = null;
         if (!moved) return;
-        track.classList.remove('is-dragging');
         // Naar de dichtstbijzijnde kaart in de sleeprichting (drempel 60px, zoals in het design)
         var s = step(), base = Math.round(start / s);
         var target = dx < -60 ? base + Math.max(1, Math.round(-dx / s)) : dx > 60 ? base - Math.max(1, Math.round(dx / s)) : base;
-        track.scrollTo({ left: Math.max(0, target * s), behavior: reduceMotion ? 'auto' : 'smooth' });
+        var max = track.scrollWidth - track.clientWidth;
+        glide(Math.min(max, Math.max(0, target * s)));
       });
+      // Zacht uitlopen naar de kaart (ease-out, ca. 0,7 s); scroll-snap staat zolang uit
+      var glideId = 0;
+      function glide(to) {
+        var from = track.scrollLeft, dist = to - from, id = ++glideId;
+        track.classList.remove('is-dragging');
+        if (reduceMotion || Math.abs(dist) < 1) { track.scrollLeft = to; update(); return; }
+        var dur = Math.min(900, 450 + Math.abs(dist) * 0.6), t0 = performance.now();
+        track.classList.add('is-gliding');
+        (function frame(now) {
+          if (id !== glideId) return;
+          var p = Math.min(1, (now - t0) / dur), k = 1 - Math.pow(1 - p, 4);
+          track.scrollLeft = from + dist * k;
+          if (p < 1) requestAnimationFrame(frame);
+          else { track.classList.remove('is-gliding'); update(); }
+        })(t0);
+      }
       // Na slepen geen klik op de case-link
       track.addEventListener('click', function (e) {
         if (moved) { e.preventDefault(); e.stopPropagation(); moved = false; }
@@ -1803,6 +1819,8 @@
       '.button.is-light{--tflu-wipe:#fff}',
       // Outline-knop: vulling in de themakleur, tekst in de achtergrondkleur (navy op licht, wit op donker)
       '.button.is-secondary:hover,.button.is-secondary:focus-visible{color:var(--_theme---theme--background)}',
+      // Op een donkere vulling (navy) is de tekst en pijl altijd wit, ook in lichte secties (zoals in het UI-design)
+      '.button.tflu-wipe-dark.tflu-wipe-dark:hover,.button.tflu-wipe-dark.tflu-wipe-dark:focus-visible{color:#fff}',
       '.button.is-navy{--tflu-wipe:var(--brand--orange)}.button.is-navy:hover,.button.is-navy:focus-visible{border-color:var(--brand--orange);color:#fff}',
       '.mega-nav__bar-cta{--tflu-wipe:var(--brand--orange)}.mega-nav__bar-cta.is--secondary{--tflu-wipe:var(--brand--navy)}',
       'input.button{transition:background-color var(--tflu-fast) ease,border-color var(--tflu-fast) ease,color var(--tflu-fast) ease}',
@@ -1857,6 +1875,11 @@
         '.event-tile:hover .event-tile_image,.event-tile:focus-visible .event-tile_image,.event-card:hover .event-card_image,.event-card:focus-visible .event-card_image{transform:scale(1.06)}',
       '.location-card .case-card_arrow{transition:opacity .35s ease,transform .5s ' + e + '}',
       '.location-card:hover .case-card_arrow,.location-card:focus-visible .case-card_arrow{opacity:1;transform:none}',
+      // Casekaarten: pijl rechts van de titel, in de titelkleur, samen met de beeldzoom
+      '.case-card_title .tflu-title-arrow{display:inline-block;vertical-align:middle;width:.8em;height:.8em;margin-left:.4em;margin-top:-.12em;color:inherit;background:none;' +
+        'opacity:0;transform:translateX(-.5em);transition:opacity .35s ease,transform .5s ' + e + '}',
+      '.case-card_title .tflu-title-arrow svg{display:block;width:100%;height:100%}',
+      '.case-card:hover .tflu-title-arrow,.case-card:focus-visible .tflu-title-arrow{opacity:1;transform:none}',
       // Eventtegels: pijl komt rechts van de titel tevoorschijn en schuift iets op (samen met de beeldzoom)
       '.event-tile_title .event-tile_go{position:static;display:inline-flex;align-items:center;vertical-align:middle;width:1.375rem;height:1.375rem;margin-left:.75rem;padding:0;background:none!important;border:0;border-radius:0;box-shadow:none;color:inherit;' +
         'opacity:0;transform:translateX(-.75rem);transition:opacity .35s ease,transform .5s ' + e + '}',
@@ -1946,6 +1969,25 @@
     $$('.event-tile').forEach(function (t) {
       var go = t.querySelector('.event-tile_go'), title = t.querySelector('.event-tile_title');
       if (go && title && !title.contains(go)) { go.setAttribute('aria-hidden', 'true'); title.appendChild(go); }
+    });
+    // Casekaarten zonder eigen pijl: pijl naast de titel
+    $$('.case-card').forEach(function (c) {
+      var t = c.querySelector('.case-card_title');
+      if (!t || c.querySelector('.case-card_arrow,.tflu-title-arrow')) return;
+      var sp = document.createElement('span');
+      sp.className = 'tflu-title-arrow';
+      sp.setAttribute('aria-hidden', 'true');
+      sp.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+      t.appendChild(sp);
+    });
+    // Knoppen met een donkere vulling (navy): hovertekst wit
+    $$('a.button,button.button').forEach(function (b) {
+      if (b.matches('.is-light,.is-navy')) return;
+      var c = getComputedStyle(b).getPropertyValue('--_theme---theme--button-secondary').trim();
+      var m = /^#([0-9a-f]{6})$/i.exec(c);
+      if (!m) return;
+      var n = parseInt(m[1], 16), r = n >> 16, g = (n >> 8) & 255, bl = n & 255;
+      if (0.2126 * r + 0.7152 * g + 0.0722 * bl < 110) b.classList.add('tflu-wipe-dark');
     });
     // Tekst van de contactlinks in een span, zodat de hoverlijn niet onder het icoon loopt
     $$('.cta_contact-link').forEach(function (a) {

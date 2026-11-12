@@ -2,6 +2,12 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.16.0] - 2026-11-12
+
+- Casekaarten: bij hover verschijnt een pijl rechts van de titel (titelkleur, geen achtergrond), samen met de beeldzoom.
+- Cases-slider: na loslaten loopt de slider zacht uit naar de dichtstbijzijnde kaart (ease-out) in plaats van te verspringen.
+- Knoppen in lichte secties: bij hover op de navy vulling zijn tekst en pijl wit (was lichtblauw, zelfde kleur als de sectie).
+
 ## [1.15.1] - 2026-11-12
 
 - Footer-credit: kleinere afstand tussen "Website door" en het NorthFifty-logo; logo zelf in de verhoudingen van de NorthFifty-huisstijl (beeldmerk op kaphoogte, kleinere afstand tot het woordmerk, niet meer afgesneden).
