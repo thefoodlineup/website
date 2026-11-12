@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.18.2
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.18.3
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -1953,9 +1953,6 @@
       '.event-tile:hover .event-tile_go,.event-tile:focus-visible .event-tile_go{opacity:1;transform:none}',
       // Kaarten zonder beeld: 6px omhoog met schaduw
       '.notfound-links_card{transition:transform .5s ' + e + ',box-shadow .5s ease}',
-      // Genummerde stappen
-      '.aanpak-steps_number,.event-process_number{transition:background-color .35s ease,border-color .35s ease,color .35s ease}',
-      '.aanpak-steps_item:hover .aanpak-steps_number,.event-process_item:hover .event-process_number{color:var(--brand--orange)}',
       // Inkomen bij scrollen (alleen als het script draait)
       '.tflu-js [data-reveal="wait"]{opacity:0;transform:translate3d(0,1.5rem,0)}',
       '.tflu-js [data-reveal="in"]{opacity:1;transform:none;transition:opacity .7s ease var(--tflu-delay,0s),transform var(--tflu-slow) ' + e + ' var(--tflu-delay,0s)}',

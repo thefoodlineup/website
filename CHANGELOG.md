@@ -2,6 +2,10 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.18.3] - 2026-11-12
+
+- Stapnummers (Onze aanpak, 'This is how we roll'): geen kleurwissel meer bij hover; de rondjes en cijfers staan stil.
+
 ## [1.18.2] - 2026-11-12
 
 - Chips (filters op Cases/Stories/Locaties en 'Ook voor' op eventtype-pagina's): bij hover navy achtergrond met witte tekst.
