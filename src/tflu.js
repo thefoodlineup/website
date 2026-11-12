@@ -1764,9 +1764,13 @@
       '.case-card:hover .case-card_image,.case-card:focus-visible .case-card_image,.story-card:hover .story-card_image,.story-card:focus-visible .story-card_image,' +
         '.stories-featured_card:hover .story-card_image,.location-card:hover .location-card_image,.location-card:focus-visible .location-card_image,' +
         '.event-tile:hover .event-tile_image,.event-tile:focus-visible .event-tile_image,.event-card:hover .event-card_image,.event-card:focus-visible .event-card_image{transform:scale(1.06)}',
-      '.location-card .case-card_arrow,.event-tile_go{transition:opacity .35s ease,transform .5s ' + e + '}',
+      '.location-card .case-card_arrow{transition:opacity .35s ease,transform .5s ' + e + '}',
       '.location-card:hover .case-card_arrow,.location-card:focus-visible .case-card_arrow{opacity:1;transform:none}',
-      '.event-tile_content{transition:transform .5s ' + e + '}.event-tile:hover .event-tile_content,.event-tile:focus-visible .event-tile_content{transform:translateY(-8px)}',
+      // Eventtegels: pijl komt rechts van de titel tevoorschijn en schuift iets op (samen met de beeldzoom)
+      '.event-tile_title .event-tile_go{position:static;display:inline-flex;align-items:center;vertical-align:middle;width:1.375rem;height:1.375rem;margin-left:.75rem;' +
+        'opacity:0;transform:translateX(-.75rem);transition:opacity .35s ease,transform .5s ' + e + '}',
+      '.event-tile_title .event-tile_go svg{width:100%;height:100%;display:block}',
+      '.event-tile:hover .event-tile_go,.event-tile:focus-visible .event-tile_go{opacity:1;transform:none}',
       // Kaarten zonder beeld: 6px omhoog met schaduw
       '.notfound-links_card{transition:transform .5s ' + e + ',box-shadow .5s ease}',
       // Genummerde stappen
@@ -1847,6 +1851,11 @@
   }
 
   function initMotion() {
+    // Pijl van de eventtegels naast de titel zetten (staat in Webflow los en verborgen)
+    $$('.event-tile').forEach(function (t) {
+      var go = t.querySelector('.event-tile_go'), title = t.querySelector('.event-tile_title');
+      if (go && title && !title.contains(go)) { go.setAttribute('aria-hidden', 'true'); title.appendChild(go); }
+    });
     var css = document.createElement('style');
     css.id = 'tflu-motion';
     css.textContent = motionCss();
