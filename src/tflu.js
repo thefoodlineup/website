@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.24.0
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.25.0
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -2402,6 +2402,45 @@
     document.head.appendChild(st);
   }
 
+  /* Ankerlinks binnen de pagina (bijv. 'Wat is B Corp?' op Impact): scroll naar het begin van het
+   * blok (label boven de kop meegerekend) met ruimte onder de vaste navigatie, i.p.v. Webflow's eigen scroll.
+   */
+  function initAnchors() {
+    function blockFor(el) {
+      var head = el.closest('.section-header');
+      if (head) return head;
+      var prev = el.previousElementSibling;
+      return prev && /text-style-label/.test(prev.className) ? prev : el;
+    }
+    function offset() {
+      var nav = document.querySelector('[data-nav-bar], .navbar_component, .nav_component, nav');
+      var b = nav ? Math.max(0, nav.getBoundingClientRect().bottom) : 0;
+      return b + (window.innerWidth < 768 ? 24 : 48);
+    }
+    function go(el, smooth) {
+      var y = blockFor(el).getBoundingClientRect().top + window.pageYOffset - offset();
+      window.scrollTo({ top: Math.max(0, y), behavior: smooth && !reduceMotion ? 'smooth' : 'auto' });
+    }
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('a[href*="#"]');
+      if (!a || a.closest('.legal_toc, .legal_arts, [data-no-anchor]')) return;
+      var href = a.getAttribute('href') || '';
+      var i = href.indexOf('#');
+      if (i < 0 || href.length - i < 2) return;
+      var path = href.slice(0, i);
+      if (path && path.replace(/\/$/, '') !== location.pathname.replace(/\/$/, '')) return;
+      var el; try { el = document.getElementById(decodeURIComponent(href.slice(i + 1))); } catch (x) { el = null; }
+      if (!el || el.tagName === 'DETAILS') return;
+      e.preventDefault(); e.stopImmediatePropagation();
+      go(el, true);
+      if (history.replaceState) history.replaceState(null, '', '#' + el.id);
+    }, true);
+    if (location.hash.length > 1) {
+      var t; try { t = document.getElementById(decodeURIComponent(location.hash.slice(1))); } catch (x) { t = null; }
+      if (t && t.tagName !== 'DETAILS' && !t.closest('.legal_arts')) setTimeout(function () { go(t, false); }, 120);
+    }
+  }
+
   function init() {
     document.documentElement.classList.add('tflu-js');
     if (reduceMotion) document.documentElement.classList.add('tflu-reduced-motion');
@@ -2424,6 +2463,7 @@
     initShare();
     initStoryMeta();
     initLineup();
+    initAnchors();
     initMotion();
   }
 
