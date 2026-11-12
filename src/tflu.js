@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.18.0
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.18.1
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -108,7 +108,7 @@
     st.textContent =
       '.faq_item .faq_icon svg{transition:transform .45s cubic-bezier(.22,1,.36,1)!important;transform:none!important}' +
       '.faq_item.is-open .faq_icon svg{transform:rotate(45deg)!important}' +
-      '.faq_item .faq_answer{overflow:hidden}' +
+      '.faq_item .faq_answer{overflow:hidden;box-sizing:border-box}' +
       '.faq_item summary{list-style:none}.faq_item summary::-webkit-details-marker{display:none}';
     document.head.appendChild(st);
     var dur = reduceMotion ? 0 : 450, ease = 'cubic-bezier(.22,1,.36,1)';
@@ -118,9 +118,10 @@
       d.classList.toggle('is-open', open);
       if (!a || !dur || !a.animate) { d.open = open; return; }
       if (open) d.open = true;
-      var h = a.scrollHeight;
-      var from = open ? { height: '0px', opacity: 0 } : { height: h + 'px', opacity: 1 };
-      var to = open ? { height: h + 'px', opacity: 1 } : { height: '0px', opacity: 0 };
+      var h = a.scrollHeight, cs = getComputedStyle(a), pt = cs.paddingTop, pb = cs.paddingBottom;
+      var shut = { height: '0px', paddingTop: '0px', paddingBottom: '0px', opacity: 0 };
+      var full = { height: h + 'px', paddingTop: pt, paddingBottom: pb, opacity: 1 };
+      var from = open ? shut : full, to = open ? full : shut;
       d._anim = a.animate([from, to], { duration: dur, easing: ease });
       d._anim.onfinish = function () { d._anim = null; if (!open) d.open = false; };
     }
