@@ -2,6 +2,11 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.18.0] - 2026-11-12
+
+- Knoppen op een donkere sectie (bijv. 'Dit kun je verwachten' op Event catering): bij hover een witte vulling met navy tekst en pijl, zoals in het UI-design. Op lichte secties blijft het navy met wit.
+- FAQ: vragen klappen soepel open en dicht (hoogte en tekst lopen mee, 0,45 s), het plusje draait mee naar een kruisje en terug; in één lijst staat één vraag open.
+
 ## [1.17.0] - 2026-11-12
 
 - Laatste losse links in het hover-systeem: terug-links (story, vacature) krijgen de lijn onder de tekst en de pijl 4px terug; deelknoppen worden oranje zoals de social-knoppen; de pijlknop van een vacaturerij keert om naar wit; belknop in het offerteformulier krijgt de lijn alleen onder het nummer; losse tekstlinks worden oranje (op donker: geel).

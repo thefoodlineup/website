@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.17.0
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.18.0
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -92,6 +92,51 @@
       var first = list.querySelector('details');
       if (first) first.setAttribute('open', '');
       $$('a[href]', list).filter(samePage).forEach(stripSelfLink);
+    });
+  }
+
+  /* ------------------------------------------------------------------
+   * Soepel open- en dichtklappen van <details> (FAQ, voorwaarden)
+   *   Hoogte en opacity van het antwoord lopen mee; het plusje draait
+   *   45 graden naar een kruisje. In één lijst staat maar één vraag open.
+   * ------------------------------------------------------------------ */
+  function initAccordions() {
+    var items = $$('details.faq_item');
+    if (!items.length) return;
+    var st = document.createElement('style');
+    st.id = 'tflu-accordion';
+    st.textContent =
+      '.faq_item .faq_icon svg{transition:transform .45s cubic-bezier(.22,1,.36,1)!important;transform:none!important}' +
+      '.faq_item.is-open .faq_icon svg{transform:rotate(45deg)!important}' +
+      '.faq_item .faq_answer{overflow:hidden}' +
+      '.faq_item summary{list-style:none}.faq_item summary::-webkit-details-marker{display:none}';
+    document.head.appendChild(st);
+    var dur = reduceMotion ? 0 : 450, ease = 'cubic-bezier(.22,1,.36,1)';
+    function animate(d, open) {
+      var a = d.querySelector('.faq_answer');
+      if (d._anim) { d._anim.cancel(); d._anim = null; }
+      d.classList.toggle('is-open', open);
+      if (!a || !dur || !a.animate) { d.open = open; return; }
+      if (open) d.open = true;
+      var h = a.scrollHeight;
+      var from = open ? { height: '0px', opacity: 0 } : { height: h + 'px', opacity: 1 };
+      var to = open ? { height: h + 'px', opacity: 1 } : { height: '0px', opacity: 0 };
+      d._anim = a.animate([from, to], { duration: dur, easing: ease });
+      d._anim.onfinish = function () { d._anim = null; if (!open) d.open = false; };
+    }
+    items.forEach(function (d) {
+      if (d.open) d.classList.add('is-open');
+      var sum = d.querySelector('summary');
+      if (!sum) return;
+      sum.addEventListener('click', function (e) {
+        e.preventDefault();
+        var open = !d.classList.contains('is-open');
+        if (open) {
+          var group = d.parentElement.closest('[data-faq-list],.w-dyn-items,[class*="faq_list"]') || d.parentElement;
+          $$('details.faq_item.is-open', group).forEach(function (o) { if (o !== d) animate(o, false); });
+        }
+        animate(d, open);
+      });
     });
   }
 
@@ -1821,6 +1866,7 @@
       // Outline-knop: vulling in de themakleur, tekst in de achtergrondkleur (navy op licht, wit op donker)
       '.button.is-secondary:hover,.button.is-secondary:focus-visible{color:var(--_theme---theme--background)}',
       // Op een donkere vulling (navy) is de tekst en pijl altijd wit, ook in lichte secties (zoals in het UI-design)
+      '.button.tflu-on-dark{--tflu-wipe:#fff}.button.tflu-on-dark.tflu-on-dark:hover,.button.tflu-on-dark.tflu-on-dark:focus-visible{color:var(--brand--navy);border-color:#fff}',
       '.button.tflu-wipe-dark.tflu-wipe-dark:hover,.button.tflu-wipe-dark.tflu-wipe-dark:focus-visible{color:#fff}',
       '.button.is-navy{--tflu-wipe:var(--brand--orange)}.button.is-navy:hover,.button.is-navy:focus-visible{border-color:var(--brand--orange);color:#fff}',
       '.mega-nav__bar-cta{--tflu-wipe:var(--brand--orange)}.mega-nav__bar-cta.is--secondary{--tflu-wipe:var(--brand--navy)}',
@@ -1997,14 +2043,24 @@
       sp.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
       t.appendChild(sp);
     });
-    // Knoppen met een donkere vulling (navy): hovertekst wit
+    // Hover-contrast van knoppen: op een donkere sectie vult de knop wit (tekst en pijl navy),
+    // op een lichte sectie navy (tekst en pijl wit). Zo is de knop altijd zichtbaar, ook bij hover.
+    function lum(str) {
+      var m = /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?/.exec(str || '');
+      if (!m || (m[4] !== undefined && +m[4] === 0)) return null;
+      return 0.2126 * m[1] + 0.7152 * m[2] + 0.0722 * m[3];
+    }
+    function bgUnder(el) {
+      for (var e = el.parentElement; e; e = e.parentElement) {
+        var l = lum(getComputedStyle(e).backgroundColor);
+        if (l !== null) return l;
+      }
+      return 255;
+    }
     $$('a.button,button.button').forEach(function (b) {
       if (b.matches('.is-light,.is-navy')) return;
-      var c = getComputedStyle(b).getPropertyValue('--_theme---theme--button-secondary').trim();
-      var m = /^#([0-9a-f]{6})$/i.exec(c);
-      if (!m) return;
-      var n = parseInt(m[1], 16), r = n >> 16, g = (n >> 8) & 255, bl = n & 255;
-      if (0.2126 * r + 0.7152 * g + 0.0722 * bl < 110) b.classList.add('tflu-wipe-dark');
+      if (bgUnder(b) < 110) b.classList.add('tflu-on-dark');
+      else b.classList.add('tflu-wipe-dark');
     });
     // Tekst van links met icoon in een span, zodat de hoverlijn alleen onder de tekst loopt
     $$('.cta_contact-link,.link-back,.vacancy-aside_link').forEach(function (a) {
@@ -2225,6 +2281,7 @@
     initLinkButtons();
     initDates();
     initFaq();
+    initAccordions();
     initFaqIndex();
     initOfferteLinks();
     initFilters();
