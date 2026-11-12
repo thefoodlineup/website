@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.15.0
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.15.1
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -367,7 +367,7 @@
       '.home-cases_quote .testimonial_caption>:not(.w-dyn-bind-empty)~[data-quote-part]:not(.w-dyn-bind-empty)::before{content:", ";white-space:pre}' +
       // Zonder naam: de eerste zichtbare regel (functie of bedrijf) krijgt het gewicht van de naam
       '.home-cases_quote .testimonial_name.w-dyn-bind-empty+[data-quote-part]:not(.w-dyn-bind-empty),' +
-      '.home-cases_quote .testimonial_name.w-dyn-bind-empty+[data-quote-part].w-dyn-bind-empty+[data-quote-part]{font-weight:700}';
+      '.home-cases_quote .testimonial_name.w-dyn-bind-empty+[data-quote-part].w-dyn-bind-empty+[data-quote-part]{font-weight:600}';
     document.head.appendChild(st);
     if (!box.querySelector('.w-dyn-item')) box.style.display = 'none';
   }
@@ -1824,6 +1824,8 @@
         'transform:scaleX(0);transform-origin:left;transition:transform var(--tflu-fast) ' + e + ';pointer-events:none}',
       '.cta_contact-link:hover .cta_contact-text::after,.cta_contact-link:focus-visible .cta_contact-text::after{transform:scaleX(1);transition-duration:.25s}',
       // Footer: klikbare tekst wordt geel bij hover (menu, contact, juridisch, credit)
+      // Credit 'Website door' + NorthFifty-logo: rustige woordafstand (logo zelf: beeldmerk-woordmerk 0,39 x kaphoogte)
+      '.footer_credit{column-gap:.5em}',
       '.footer_link:hover,.footer_link:focus-visible,.footer_legal-link:hover,.footer_legal-link:focus-visible,.footer_credit:hover,.footer_credit:focus-visible{color:var(--brand--yellow)}',
       // Megamenu: lijn alleen onder de tekst van 'Alle …' en de kaart-CTA (de pijl beweegt apart)
       '.mega-nav__panel-more>span:first-child,.mega-nav__card-cta>span:first-child{position:relative}',

@@ -2,6 +2,11 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.15.1] - 2026-11-12
+
+- Footer-credit: kleinere afstand tussen "Website door" en het NorthFifty-logo; logo zelf in de verhoudingen van de NorthFifty-huisstijl (beeldmerk op kaphoogte, kleinere afstand tot het woordmerk, niet meer afgesneden).
+- Homepage-quote: bedrijfsnaam zonder persoonsnaam krijgt hetzelfde gewicht als de naam.
+
 ## [1.15.0] - 2026-11-12
 
 - Cases-slider (en andere galerijen): slepen met de muis (grab), pijlen half doorzichtig en niet klikbaar als je niet verder kunt, teller toont het bereik van de zichtbare kaarten zoals in het UI-design ("01–03 / 05").
