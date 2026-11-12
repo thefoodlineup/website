@@ -2,6 +2,10 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.24.0] - 2026-11-12
+
+- Line-up: inforegel via schuingedrukte regel, 'Naam — omschrijving' met naam vet, vervolgregels onder een gang ingesprongen, en lijsten met alleen namen (meer dan 6) compact in twee kolommen.
+
 ## [1.23.1] - 2026-11-12
 
 - Line-up: gang-labels in navy in plaats van donkeroranje (geen nieuwe merkkleur).

@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.23.1
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.24.0
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -2318,14 +2318,35 @@
     document.head.appendChild(el);
   }
 
-  /* Line-up (case-detail): een menu-item met meerdere regels (Shift+Enter in de rich text)
-   * wordt netjes opgemaakt. Eerste regel zonder dubbele punt = metaregel (bijv. 'Week 1 · chef Michiel'),
-   * regels als 'Amuse: geroosterde aubergine' = gang (label) + gerecht. Items met één regel blijven zoals ze zijn.
+  /* Line-up (case-detail), afspraak voor de rich text:
+   * - Genummerde lijst; elk item begint met een vetgedrukte naam (gang, foodstation of gerecht).
+   * - Daarna optioneel: één regel schuingedrukt = info (bijv. 'Week 1 · chef Michiel'),
+   *   regels met Shift+Enter: 'Amuse: geroosterde aubergine' = gang + gerecht,
+   *   'Naam — omschrijving' = naam vet + omschrijving.
+   * - Alleen namen (meer dan 6 items, geen omschrijving) = compacte lijst in twee kolommen.
    */
   function initLineup() {
+    var any = false;
+    function fill(el, text) {
+      var m = text.match(/^(.+?)\s+—\s+(.+)$/);
+      if (m) {
+        var n = document.createElement('span'); n.className = 'lu-name'; n.textContent = m[1];
+        el.appendChild(n); el.appendChild(document.createTextNode(' — ' + m[2]));
+      } else el.appendChild(document.createTextNode(text));
+    }
+    $$('.case-lineup_rich ol').forEach(function (ol) {
+      var lis = $$(':scope > li', ol);
+      var namesOnly = lis.length > 6 && lis.every(function (li) {
+        var st = li.querySelector('strong');
+        return st && li.textContent.replace(st.textContent, '').trim() === '';
+      });
+      if (namesOnly) { ol.classList.add('lu-compact'); any = true; }
+    });
     $$('.case-lineup_rich ol li').forEach(function (li) {
-      if (!li.querySelector('br') || li.querySelector('.lu-lines')) return;
+      if (li.querySelector('.lu-lines')) return;
       var strong = li.querySelector('strong');
+      var hasBr = !!li.querySelector('br'), hasEm = !!li.querySelector('em');
+      if (!hasBr && !hasEm) return;
       var lines = [[]], started = !strong;
       Array.prototype.slice.call(li.childNodes).forEach(function (n) {
         if (n === strong) { started = true; return; }
@@ -2334,37 +2355,50 @@
         lines[lines.length - 1].push(n);
       });
       var wrap = document.createElement('div'); wrap.className = 'lu-lines';
-      lines.forEach(function (nodes, i) {
+      var labelled = false, metaDone = false;
+      lines.forEach(function (nodes) {
         var tmp = document.createElement('span');
         nodes.forEach(function (n) { tmp.appendChild(n); });
         var text = tmp.textContent.replace(/\s+/g, ' ').trim();
         if (!text) return;
-        var m = text.match(/^([^:]{1,18}):\s*(.+)$/);
-        if (m && tmp.children.length === 0) {
-          var row = document.createElement('div'); row.className = 'lu-row';
-          var lab = document.createElement('span'); lab.className = 'lu-label'; lab.textContent = m[1];
-          var dish = document.createElement('span'); dish.className = 'lu-dish'; dish.textContent = m[2];
-          row.appendChild(lab); row.appendChild(dish); wrap.appendChild(row);
-        } else if (i === 0) {
-          tmp.className = 'lu-meta'; li.insertBefore(tmp, strong ? strong.nextSibling : li.firstChild);
-        } else {
-          var r = document.createElement('div'); r.className = 'lu-row is-plain';
-          while (tmp.firstChild) r.appendChild(tmp.firstChild); wrap.appendChild(r);
+        var em = tmp.querySelector('em');
+        if (!metaDone && !wrap.children.length && em && em.textContent.trim() === text) {
+          var meta = document.createElement('span'); meta.className = 'lu-meta'; meta.textContent = text;
+          li.insertBefore(meta, wrap.parentNode ? wrap : null); metaDone = true; return;
         }
+        var row = document.createElement('div'), m = text.match(/^([^:—]{1,22}):\s*(.+)$/);
+        if (m) {
+          row.className = 'lu-row'; labelled = true;
+          var lab = document.createElement('span'); lab.className = 'lu-label'; lab.textContent = m[1];
+          var dish = document.createElement('span'); dish.className = 'lu-dish'; fill(dish, m[2]);
+          row.appendChild(lab); row.appendChild(dish);
+        } else {
+          row.className = 'lu-row ' + (labelled ? 'is-cont' : 'is-plain');
+          var d2 = document.createElement('span'); d2.className = 'lu-dish'; fill(d2, text);
+          if (labelled) row.appendChild(document.createElement('span'));
+          row.appendChild(d2);
+        }
+        wrap.appendChild(row);
       });
       if (wrap.children.length) li.appendChild(wrap);
-      li.classList.add('is-multi');
+      li.classList.add('is-multi'); any = true;
     });
-    if (!document.querySelector('.case-lineup_rich li.is-multi') || document.getElementById('tflu-lineup')) return;
+    if (!any || document.getElementById('tflu-lineup')) return;
     var st = document.createElement('style'); st.id = 'tflu-lineup';
     st.textContent =
       '.case-lineup_rich li .lu-meta{display:block;margin:0 0 .875rem;font-size:.8125rem;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:#4A4970}' +
       '.case-lineup_rich li .lu-lines{display:grid;gap:.5rem}' +
-      '.case-lineup_rich li .lu-row{display:grid;grid-template-columns:5rem 1fr;column-gap:1rem;align-items:baseline}' +
+      '.case-lineup_rich li .lu-row{display:grid;grid-template-columns:6.5rem 1fr;column-gap:1rem;align-items:baseline}' +
       '.case-lineup_rich li .lu-row.is-plain{grid-template-columns:1fr}' +
       '.case-lineup_rich li .lu-label{font-size:.8125rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--brand--navy,#25245A)}' +
       '.case-lineup_rich li .lu-dish{color:#3E3D66}' +
-      '@media (max-width:767px){.case-lineup_rich li .lu-row{grid-template-columns:4.25rem 1fr;column-gap:.75rem}}';
+      '.case-lineup_rich li .lu-name{font-weight:600;color:var(--brand--navy,#25245A)}' +
+      '.case-lineup_rich ol.lu-compact{display:grid;grid-template-columns:1fr 1fr;column-gap:2.5rem}' +
+      '.case-lineup_rich ol.lu-compact li{padding-top:1.125rem;padding-bottom:1.125rem;padding-left:4rem}' +
+      '.case-lineup_rich ol.lu-compact li::before{top:1.125rem;font-size:1.75rem}' +
+      '.case-lineup_rich ol.lu-compact li strong{margin-bottom:0;font-size:1.375rem}' +
+      '.case-lineup_rich ol.lu-compact li:nth-last-child(2):nth-child(odd){border-bottom:0}' +
+      '@media (max-width:767px){.case-lineup_rich li .lu-row{grid-template-columns:5.25rem 1fr;column-gap:.75rem}.case-lineup_rich ol.lu-compact{grid-template-columns:1fr}.case-lineup_rich ol.lu-compact li{padding-left:3.25rem}}';
     document.head.appendChild(st);
   }
 
