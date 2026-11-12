@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.16.1
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.17.0
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -1842,6 +1842,21 @@
       '.cta_contact-text{position:relative}.cta_contact-text::after{content:"";position:absolute;left:0;right:0;bottom:-.375rem;height:2px;background:currentColor;' +
         'transform:scaleX(0);transform-origin:left;transition:transform var(--tflu-fast) ' + e + ';pointer-events:none}',
       '.cta_contact-link:hover .cta_contact-text::after,.cta_contact-link:focus-visible .cta_contact-text::after{transform:scaleX(1);transition-duration:.25s}',
+      // Terug-links (story, vacature): lijn onder de tekst, pijl 4px terug
+      '.link-back .cta_contact-text,.vacancy-aside_link .cta_contact-text,.form_call-link>span{position:relative}',
+      '.link-back .cta_contact-text::after,.vacancy-aside_link .cta_contact-text::after,.form_call-link>span::after{content:"";position:absolute;left:0;right:0;bottom:-.25rem;height:2px;background:currentColor;' +
+        'transform:scaleX(0);transform-origin:left;transition:transform var(--tflu-fast) ' + e + ';pointer-events:none}',
+      '.link-back:hover .cta_contact-text::after,.link-back:focus-visible .cta_contact-text::after,.vacancy-aside_link:hover .cta_contact-text::after,.form_call-link:hover>span::after,.form_call-link:focus-visible>span::after{transform:scaleX(1);transition-duration:.25s}',
+      '.link-back svg{transition:transform var(--tflu-fast) ' + e + '}.link-back:hover svg,.link-back:focus-visible svg{transform:translateX(-4px)}',
+      // Deelknoppen: zelfde als de social-knoppen in de footer
+      '.share_button{transition:background-color .3s ease,border-color .3s ease,color .3s ease}.share_button:hover,.share_button:focus-visible{background-color:var(--brand--orange);border-color:var(--brand--orange);color:#fff}',
+      // Vacaturerij: beeldloze rij, pijlknop keert om (zoals in het UI-design)
+      '.vacancy-row_go{transition:background-color .3s ease,color .3s ease,border-color .3s ease}.vacancy-row:hover .vacancy-row_go,.vacancy-row:focus-visible .vacancy-row_go{background-color:#fff;color:var(--brand--navy);border-color:#fff}',
+      '.vacancy-row .vacancy-row_go svg{transition:transform var(--tflu-fast) ' + e + '}.vacancy-row:hover .vacancy-row_go svg{transform:translateX(3px)}',
+      // Losse tekstlinks (in tekst, formulieren, e-mail): oranje bij hover, zoals overal in het UI-design
+      '.form_consent-link,.form_text-button,.vacancy-contact_email,main p a:not([class]),main li a:not([class]){transition:color var(--tflu-fast) ease}',
+      '.form_consent-link:hover,.form_text-button:hover,.vacancy-contact_email:hover,main p a:not([class]):hover,main li a:not([class]):hover{color:var(--brand--orange)}',
+      '.werken-vacatures_note a:hover,.werken-vacatures_note a:focus-visible{color:var(--brand--yellow)}',
       // Footer: klikbare tekst wordt geel bij hover (menu, contact, juridisch, credit)
       // Credit 'Website door' + NorthFifty-logo: rustige woordafstand (logo zelf: beeldmerk-woordmerk 0,39 x kaphoogte)
       '.footer_credit{column-gap:.5em}',
@@ -1991,8 +2006,8 @@
       var n = parseInt(m[1], 16), r = n >> 16, g = (n >> 8) & 255, bl = n & 255;
       if (0.2126 * r + 0.7152 * g + 0.0722 * bl < 110) b.classList.add('tflu-wipe-dark');
     });
-    // Tekst van de contactlinks in een span, zodat de hoverlijn niet onder het icoon loopt
-    $$('.cta_contact-link').forEach(function (a) {
+    // Tekst van links met icoon in een span, zodat de hoverlijn alleen onder de tekst loopt
+    $$('.cta_contact-link,.link-back,.vacancy-aside_link').forEach(function (a) {
       if (a.querySelector('.cta_contact-text')) return;
       [].slice.call(a.childNodes).forEach(function (n) {
         if (n.nodeType === 3 && n.textContent.trim()) {

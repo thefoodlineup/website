@@ -2,6 +2,10 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.17.0] - 2026-11-12
+
+- Laatste losse links in het hover-systeem: terug-links (story, vacature) krijgen de lijn onder de tekst en de pijl 4px terug; deelknoppen worden oranje zoals de social-knoppen; de pijlknop van een vacaturerij keert om naar wit; belknop in het offerteformulier krijgt de lijn alleen onder het nummer; losse tekstlinks worden oranje (op donker: geel).
+
 ## [1.16.1] - 2026-11-12
 
 - Event-type-kaarten (Event catering): bij hover groeit een lijn onder 'Meer info' (zoals bij de megamenukaarten en tekstlinks), naast de beeldzoom en de pijl.
