@@ -2,6 +2,10 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.20.1] - 2026-11-12
+
+- 'Geschikt voor'-vinkje is echt vierkant (2rem × 2rem, 32 px bij standaard lettergrootte); de oude flex-basis van 24px maakte het smaller.
+
 ## [1.20.0] - 2026-11-12
 
 - Locatiedetail, ruimtetabel zoals het UI-design: aantal in Anton (groot, navy), 'personen' klein ernaast, zaalnaam iets groter, lijn onder de kop en onder de laatste rij.

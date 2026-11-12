@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.20.0
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.20.1
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -1953,7 +1953,7 @@
       // Locatiedetail 'Geschikt voor': navy vierkantje met witte vink (UI-design), geen oranje rondje
       '.location-suits_list{gap:.875rem}',
       '.location-suits_list li{gap:.75rem;font-size:1.125rem}',
-      '.location-suits_list li::before{width:2rem;height:2rem;border-radius:0;background-color:var(--brand--navy,#25245A);background-size:1.125rem auto;background-repeat:no-repeat;background-position:50% 50%;' +
+      '.location-suits_list li::before{flex:0 0 2rem;width:2rem;height:2rem;min-width:2rem;box-sizing:border-box;aspect-ratio:1;border-radius:0;background-color:var(--brand--navy,#25245A);background-size:1.125rem auto;background-repeat:no-repeat;background-position:50% 50%;' +
         "background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 18' fill='none' stroke='%23fff' stroke-width='2.6'%3E%3Cpath d='M3.5 9.5l3.5 3.5 7.5-8'/%3E%3C/svg%3E\")}",
       '.case-card_title .tflu-title-arrow{display:inline-block;vertical-align:middle;width:.8em;height:.8em;margin-left:.4em;margin-top:-.12em;color:inherit;background:none;' +
         'opacity:0;transform:translateX(-.5em);transition:opacity .35s ease,transform .5s ' + e + '}',
