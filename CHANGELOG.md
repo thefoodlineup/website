@@ -2,6 +2,10 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.23.1] - 2026-11-12
+
+- Line-up: gang-labels in navy in plaats van donkeroranje (geen nieuwe merkkleur).
+
 ## [1.23.0] - 2026-11-12
 
 - Line-up op case-detail: menu-items met meerdere regels (Shift+Enter) krijgen een metaregel en per gang een label (Amuse, Voor, Hoofd, Dessert) naast het gerecht.

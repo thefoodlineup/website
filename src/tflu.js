@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.23.0
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.23.1
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -2362,7 +2362,7 @@
       '.case-lineup_rich li .lu-lines{display:grid;gap:.5rem}' +
       '.case-lineup_rich li .lu-row{display:grid;grid-template-columns:5rem 1fr;column-gap:1rem;align-items:baseline}' +
       '.case-lineup_rich li .lu-row.is-plain{grid-template-columns:1fr}' +
-      '.case-lineup_rich li .lu-label{font-size:.8125rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#C2410C}' +
+      '.case-lineup_rich li .lu-label{font-size:.8125rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--brand--navy,#25245A)}' +
       '.case-lineup_rich li .lu-dish{color:#3E3D66}' +
       '@media (max-width:767px){.case-lineup_rich li .lu-row{grid-template-columns:4.25rem 1fr;column-gap:.75rem}}';
     document.head.appendChild(st);
