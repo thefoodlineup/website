@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.22.0
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.23.0
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -1952,6 +1952,8 @@
       ".section_location-rooms .location-rooms_list li::after{margin-left:.4rem;font-family:Outfit,sans-serif;font-size:.9375rem;font-weight:500;color:#4A4970}",
       // Kruimelpad: 36px tot de kop op desktop (24px gap + 12px), vloeiend naar de mobiele afstand (gap 14px, kruimelpad 44px hoog)
       '.breadcrumb_component{margin-bottom:clamp(0rem,calc(1.143vw - .2786rem),.75rem)}',
+      // Label met wieber: geen standaard alinea-marge, anders staat de wieber niet op één lijn met de tekst
+      '.text-style-label>p{margin:0}',
       // Onze aanpak 'Onze belofte': alleen een oranje vink (22px), geen rondje of vlak (UI-design)
       '.aanpak-promise_item{gap:clamp(.75rem,calc(.704rem + .1905vw),.875rem);padding-top:clamp(.8125rem,calc(.743rem + .2857vw),1rem);padding-bottom:clamp(.8125rem,calc(.743rem + .2857vw),1rem);' +
         'font-size:clamp(1.0625rem,calc(1.039rem + .0952vw),1.125rem);font-weight:500;line-height:1.4}',
@@ -2316,6 +2318,56 @@
     document.head.appendChild(el);
   }
 
+  /* Line-up (case-detail): een menu-item met meerdere regels (Shift+Enter in de rich text)
+   * wordt netjes opgemaakt. Eerste regel zonder dubbele punt = metaregel (bijv. 'Week 1 · chef Michiel'),
+   * regels als 'Amuse: geroosterde aubergine' = gang (label) + gerecht. Items met één regel blijven zoals ze zijn.
+   */
+  function initLineup() {
+    $$('.case-lineup_rich ol li').forEach(function (li) {
+      if (!li.querySelector('br') || li.querySelector('.lu-lines')) return;
+      var strong = li.querySelector('strong');
+      var lines = [[]], started = !strong;
+      Array.prototype.slice.call(li.childNodes).forEach(function (n) {
+        if (n === strong) { started = true; return; }
+        if (!started) return;
+        if (n.nodeName === 'BR') { lines.push([]); n.parentNode.removeChild(n); return; }
+        lines[lines.length - 1].push(n);
+      });
+      var wrap = document.createElement('div'); wrap.className = 'lu-lines';
+      lines.forEach(function (nodes, i) {
+        var tmp = document.createElement('span');
+        nodes.forEach(function (n) { tmp.appendChild(n); });
+        var text = tmp.textContent.replace(/\s+/g, ' ').trim();
+        if (!text) return;
+        var m = text.match(/^([^:]{1,18}):\s*(.+)$/);
+        if (m && tmp.children.length === 0) {
+          var row = document.createElement('div'); row.className = 'lu-row';
+          var lab = document.createElement('span'); lab.className = 'lu-label'; lab.textContent = m[1];
+          var dish = document.createElement('span'); dish.className = 'lu-dish'; dish.textContent = m[2];
+          row.appendChild(lab); row.appendChild(dish); wrap.appendChild(row);
+        } else if (i === 0) {
+          tmp.className = 'lu-meta'; li.insertBefore(tmp, strong ? strong.nextSibling : li.firstChild);
+        } else {
+          var r = document.createElement('div'); r.className = 'lu-row is-plain';
+          while (tmp.firstChild) r.appendChild(tmp.firstChild); wrap.appendChild(r);
+        }
+      });
+      if (wrap.children.length) li.appendChild(wrap);
+      li.classList.add('is-multi');
+    });
+    if (!document.querySelector('.case-lineup_rich li.is-multi') || document.getElementById('tflu-lineup')) return;
+    var st = document.createElement('style'); st.id = 'tflu-lineup';
+    st.textContent =
+      '.case-lineup_rich li .lu-meta{display:block;margin:0 0 .875rem;font-size:.8125rem;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:#4A4970}' +
+      '.case-lineup_rich li .lu-lines{display:grid;gap:.5rem}' +
+      '.case-lineup_rich li .lu-row{display:grid;grid-template-columns:5rem 1fr;column-gap:1rem;align-items:baseline}' +
+      '.case-lineup_rich li .lu-row.is-plain{grid-template-columns:1fr}' +
+      '.case-lineup_rich li .lu-label{font-size:.8125rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#C2410C}' +
+      '.case-lineup_rich li .lu-dish{color:#3E3D66}' +
+      '@media (max-width:767px){.case-lineup_rich li .lu-row{grid-template-columns:4.25rem 1fr;column-gap:.75rem}}';
+    document.head.appendChild(st);
+  }
+
   function init() {
     document.documentElement.classList.add('tflu-js');
     if (reduceMotion) document.documentElement.classList.add('tflu-reduced-motion');
@@ -2337,6 +2389,7 @@
     initSchema();
     initShare();
     initStoryMeta();
+    initLineup();
     initMotion();
   }
 

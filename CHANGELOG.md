@@ -2,6 +2,11 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.23.0] - 2026-11-12
+
+- Line-up op case-detail: menu-items met meerdere regels (Shift+Enter) krijgen een metaregel en per gang een label (Amuse, Voor, Hoofd, Dessert) naast het gerecht.
+- Labels met wieber: alinea in het label zonder marge, zodat wieber en tekst op één lijn staan (o.a. oproepblok 'Jouw event').
+
 ## [1.22.0] - 2026-11-12
 
 - Kruimelpad: op desktop 36px tot de kop (was 24px), vloeiend aflopend naar de mobiele afstand. Geldt op alle pagina's met een kruimelpad.
