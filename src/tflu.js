@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.18.3
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.19.0
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -1942,6 +1942,7 @@
       '.location-card .case-card_arrow{transition:opacity .35s ease,transform .5s ' + e + '}',
       '.location-card:hover .case-card_arrow,.location-card:focus-visible .case-card_arrow{opacity:1;transform:none}',
       // Casekaarten: pijl rechts van de titel, in de titelkleur, samen met de beeldzoom
+      '.tflu-glue{white-space:nowrap}.tflu-glue>.case-card_arrow{margin-left:.35em}',
       '.case-card_title .tflu-title-arrow{display:inline-block;vertical-align:middle;width:.8em;height:.8em;margin-left:.4em;margin-top:-.12em;color:inherit;background:none;' +
         'opacity:0;transform:translateX(-.5em);transition:opacity .35s ease,transform .5s ' + e + '}',
       '.case-card_title .tflu-title-arrow svg{display:block;width:100%;height:100%}',
@@ -2043,6 +2044,27 @@
       sp.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
       t.appendChild(sp);
     });
+    // Pijl naast een titel zit vast aan het laatste woord (zoals in het UI-design):
+    // bij een lange titel gaat het laatste woord mee naar de volgende regel, de pijl staat nooit alleen.
+    function glue(title, arrow) {
+      if (!title || !arrow || arrow.parentElement && arrow.parentElement.classList.contains('tflu-glue')) return;
+      var walker = document.createTreeWalker(title, NodeFilter.SHOW_TEXT, null), n, last = null;
+      while ((n = walker.nextNode())) { if (n.textContent.trim() && !arrow.contains(n)) last = n; }
+      var span = document.createElement('span');
+      span.className = 'tflu-glue';
+      if (last) {
+        var txt = last.textContent.replace(/\s+$/, ''), cut = txt.search(/\S+$/);
+        last.textContent = txt.slice(0, cut);
+        span.appendChild(document.createTextNode(txt.slice(cut)));
+        last.parentNode.insertBefore(span, last.nextSibling);
+      } else {
+        title.appendChild(span);
+      }
+      span.appendChild(arrow);
+    }
+    $$('.location-card').forEach(function (c) { glue(c.querySelector('.location-card_title'), c.querySelector('.case-card_arrow')); });
+    $$('.case-card').forEach(function (c) { glue(c.querySelector('.case-card_title'), c.querySelector('.tflu-title-arrow')); });
+    $$('.event-tile').forEach(function (c) { glue(c.querySelector('.event-tile_title'), c.querySelector('.event-tile_go')); });
     // Hover-contrast van knoppen: op een donkere sectie vult de knop wit (tekst en pijl navy),
     // op een lichte sectie navy (tekst en pijl wit). Zo is de knop altijd zichtbaar, ook bij hover.
     function lum(str) {

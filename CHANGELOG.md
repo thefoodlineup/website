@@ -2,6 +2,11 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.19.0] - 2026-11-12
+
+- Pijl naast een titel (locatiekaarten, casekaarten, eventtegels) zit vast aan het laatste woord: bij lange titels valt de pijl niet meer los onder de titel.
+- Locatiekaarten (Webflow-stijl): capaciteit staat onderaan de kaart, zodat die regel in elke rij op één lijn staat.
+
 ## [1.18.3] - 2026-11-12
 
 - Stapnummers (Onze aanpak, 'This is how we roll'): geen kleurwissel meer bij hover; de rondjes en cijfers staan stil.
