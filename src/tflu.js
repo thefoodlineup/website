@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.20.2
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.21.0
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -1950,6 +1950,11 @@
       '.section_location-rooms .location-rooms_list li:last-child{border-bottom:1px solid rgba(37,36,90,.2)}',
       ".section_location-rooms .location-rooms_list li strong{white-space:normal;font-family:Outfit,sans-serif;font-size:clamp(1.0625rem,calc(1.016rem + .1905vw),1.1875rem);font-weight:600;line-height:1.3}",
       ".section_location-rooms .location-rooms_list li::after{margin-left:.4rem;font-family:Outfit,sans-serif;font-size:.9375rem;font-weight:500;color:#4A4970}",
+      // Onze aanpak 'Onze belofte': alleen een oranje vink (22px), geen rondje of vlak (UI-design)
+      '.aanpak-promise_item{gap:clamp(.75rem,calc(.704rem + .1905vw),.875rem);padding-top:clamp(.8125rem,calc(.743rem + .2857vw),1rem);padding-bottom:clamp(.8125rem,calc(.743rem + .2857vw),1rem);' +
+        'font-size:clamp(1.0625rem,calc(1.039rem + .0952vw),1.125rem);font-weight:500;line-height:1.4}',
+      '.aanpak-promise_item::before{flex:0 0 1.375rem;width:1.375rem;height:1.375rem;margin-top:.0625rem;border-radius:0;background-color:transparent;background-size:100% 100%;background-repeat:no-repeat;background-position:50% 50%;' +
+        "background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 18' fill='none' stroke='%23F2560A' stroke-width='2.6'%3E%3Cpath d='M3.5 9.5l3.5 3.5 7.5-8'/%3E%3C/svg%3E\")}",
       // Locatiedetail 'Geschikt voor': navy vierkantje met witte vink (UI-design), geen oranje rondje
       '.location-suits_list{gap:clamp(.75rem,calc(.704rem + .1905vw),.875rem)}',
       '.location-suits_list li{gap:.75rem;font-size:clamp(1.0625rem,calc(1.039rem + .0952vw),1.125rem)}',

@@ -2,6 +2,10 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.21.0] - 2026-11-12
+
+- Onze aanpak, 'Onze belofte': alleen een oranje vink van 22px zonder rondje, tekst 500 en vloeiend 17→18px, rijen 13→16px (UI-design).
+
 ## [1.20.2] - 2026-11-12
 
 - Ruimtetabel en 'Geschikt voor' vloeiend tussen mobiel en desktop volgens het UI-design: zaalnaam 17→19px, aantal 24→28px, rij-padding 14→18px, lijsttekst 17→18px. Het vinkje blijft 32×32.
