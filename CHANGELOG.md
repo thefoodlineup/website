@@ -2,6 +2,11 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.16.1] - 2026-11-12
+
+- Event-type-kaarten (Event catering): bij hover groeit een lijn onder 'Meer info' (zoals bij de megamenukaarten en tekstlinks), naast de beeldzoom en de pijl.
+- Cases-slider: 'Alle cases bekijken' staat op dezelfde middellijn als de teller.
+
 ## [1.16.0] - 2026-11-12
 
 - Casekaarten: bij hover verschijnt een pijl rechts van de titel (titelkleur, geen achtergrond), samen met de beeldzoom.

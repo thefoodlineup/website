@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.16.0
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.16.1
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -254,7 +254,8 @@
         '[data-gallery-track].is-dragging{cursor:grabbing}[data-gallery-track].is-dragging,[data-gallery-track].is-gliding{scroll-snap-type:none!important;scroll-behavior:auto!important}' +
         '[data-gallery-track].is-dragging *{cursor:grabbing}' +
         '[data-gallery-track] img{-webkit-user-drag:none}' +
-        '[data-gallery-count]{font-variant-numeric:tabular-nums}';
+        '[data-gallery-count]{font-variant-numeric:tabular-nums}' +
+        '.cases_footer .link-more{padding-top:0;padding-bottom:0}';
       document.head.appendChild(st);
     }
     $$('[data-gallery-track]').forEach(function (track) {
@@ -1846,11 +1847,12 @@
       '.footer_credit{column-gap:.5em}',
       '.footer_link:hover,.footer_link:focus-visible,.footer_legal-link:hover,.footer_legal-link:focus-visible,.footer_credit:hover,.footer_credit:focus-visible{color:var(--brand--yellow)}',
       // Megamenu: lijn alleen onder de tekst van 'Alle …' en de kaart-CTA (de pijl beweegt apart)
-      '.mega-nav__panel-more>span:first-child,.mega-nav__card-cta>span:first-child{position:relative}',
-      '.mega-nav__panel-more>span:first-child::after,.mega-nav__card-cta>span:first-child::after{content:"";position:absolute;left:0;right:0;bottom:-.25rem;height:2px;background:currentColor;' +
+      '.mega-nav__panel-more>span:first-child,.mega-nav__card-cta>span:first-child,.event-card_more>span:first-child{position:relative}',
+      '.mega-nav__panel-more>span:first-child::after,.mega-nav__card-cta>span:first-child::after,.event-card_more>span:first-child::after{content:"";position:absolute;left:0;right:0;bottom:-.25rem;height:2px;background:currentColor;' +
         'transform:scaleX(0);transform-origin:left;transition:transform .3s ' + e + ';pointer-events:none}',
       '.mega-nav__panel-more:hover>span:first-child::after,.mega-nav__panel-more:focus-visible>span:first-child::after,' +
-        '.mega-nav__card:hover .mega-nav__card-cta>span:first-child::after,.mega-nav__card:focus-visible .mega-nav__card-cta>span:first-child::after{transform:scaleX(1)}',
+        '.mega-nav__card:hover .mega-nav__card-cta>span:first-child::after,.mega-nav__card:focus-visible .mega-nav__card-cta>span:first-child::after,' +
+        '.event-card:hover .event-card_more>span:first-child::after,.event-card:focus-visible .event-card_more>span:first-child::after{transform:scaleX(1)}',
       // Megamenu-items: alleen de titel kleurt oranje (de omschrijving niet)
       '.mega-nav__panel-link-text{transition:color var(--tflu-fast) ease}.mega-nav__panel-link:hover .mega-nav__panel-link-text,.mega-nav__panel-link:focus-visible .mega-nav__panel-link-text{color:var(--brand--orange)}',
       // Megamenu-kaarten: titel schaalt mee met de kaartbreedte (blijft binnen de kaart)
