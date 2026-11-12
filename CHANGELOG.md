@@ -2,6 +2,11 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.20.0] - 2026-11-12
+
+- Locatiedetail, ruimtetabel zoals het UI-design: aantal in Anton (groot, navy), 'personen' klein ernaast, zaalnaam iets groter, lijn onder de kop en onder de laatste rij.
+- Locatiedetail 'Geschikt voor': navy vierkantje met witte vink in plaats van een oranje rondje.
+
 ## [1.19.0] - 2026-11-12
 
 - Pijl naast een titel (locatiekaarten, casekaarten, eventtegels) zit vast aan het laatste woord: bij lange titels valt de pijl niet meer los onder de titel.
