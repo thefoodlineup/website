@@ -2,6 +2,10 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.20.2] - 2026-11-12
+
+- Ruimtetabel en 'Geschikt voor' vloeiend tussen mobiel en desktop volgens het UI-design: zaalnaam 17→19px, aantal 24→28px, rij-padding 14→18px, lijsttekst 17→18px. Het vinkje blijft 32×32.
+
 ## [1.20.1] - 2026-11-12
 
 - 'Geschikt voor'-vinkje is echt vierkant (2rem × 2rem, 32 px bij standaard lettergrootte); de oude flex-basis van 24px maakte het smaller.

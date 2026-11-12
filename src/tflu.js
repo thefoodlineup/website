@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.20.1
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.20.2
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -1944,15 +1944,15 @@
       // Casekaarten: pijl rechts van de titel, in de titelkleur, samen met de beeldzoom
       '.tflu-glue{white-space:nowrap}.tflu-glue>.case-card_arrow{margin-left:.35em}',
       // Locatiedetail: ruimtetabel zoals het UI-design (aantal in Anton, lijn onder de kop, lijn onder de laatste rij)
-      '.section_location-rooms .location-rooms_list li{align-items:baseline;gap:0;padding:1.125rem 0;border-top:1px solid rgba(37,36,90,.2);' +
-        "font-family:Anton,Impact,sans-serif;font-size:1.75rem;line-height:1.2;color:var(--brand--navy,#25245A)}",
+      '.section_location-rooms .location-rooms_list li{align-items:baseline;gap:0;padding:clamp(.875rem,calc(.782rem + .381vw),1.125rem) 0;white-space:nowrap;border-top:1px solid rgba(37,36,90,.2);' +
+        "font-family:Anton,Impact,sans-serif;font-size:clamp(1.5rem,calc(1.407rem + .381vw),1.75rem);line-height:1.2;color:var(--brand--navy,#25245A)}",
       '.section_location-rooms .location-rooms_list li:first-child{border-top:1px solid rgba(37,36,90,.2)}',
       '.section_location-rooms .location-rooms_list li:last-child{border-bottom:1px solid rgba(37,36,90,.2)}',
-      ".section_location-rooms .location-rooms_list li strong{font-family:Outfit,sans-serif;font-size:1.1875rem;font-weight:600;line-height:1.3}",
+      ".section_location-rooms .location-rooms_list li strong{white-space:normal;font-family:Outfit,sans-serif;font-size:clamp(1.0625rem,calc(1.016rem + .1905vw),1.1875rem);font-weight:600;line-height:1.3}",
       ".section_location-rooms .location-rooms_list li::after{margin-left:.4rem;font-family:Outfit,sans-serif;font-size:.9375rem;font-weight:500;color:#4A4970}",
       // Locatiedetail 'Geschikt voor': navy vierkantje met witte vink (UI-design), geen oranje rondje
-      '.location-suits_list{gap:.875rem}',
-      '.location-suits_list li{gap:.75rem;font-size:1.125rem}',
+      '.location-suits_list{gap:clamp(.75rem,calc(.704rem + .1905vw),.875rem)}',
+      '.location-suits_list li{gap:.75rem;font-size:clamp(1.0625rem,calc(1.039rem + .0952vw),1.125rem)}',
       '.location-suits_list li::before{flex:0 0 2rem;width:2rem;height:2rem;min-width:2rem;box-sizing:border-box;aspect-ratio:1;border-radius:0;background-color:var(--brand--navy,#25245A);background-size:1.125rem auto;background-repeat:no-repeat;background-position:50% 50%;' +
         "background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 18' fill='none' stroke='%23fff' stroke-width='2.6'%3E%3Cpath d='M3.5 9.5l3.5 3.5 7.5-8'/%3E%3C/svg%3E\")}",
       '.case-card_title .tflu-title-arrow{display:inline-block;vertical-align:middle;width:.8em;height:.8em;margin-left:.4em;margin-top:-.12em;color:inherit;background:none;' +
