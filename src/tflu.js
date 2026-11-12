@@ -1743,7 +1743,7 @@
       comps.forEach(function (comp) {
         [].slice.call(comp.children).forEach(function (child) {
           if (!child.offsetHeight || child.matches('script,style,[aria-hidden="true"]')) return;
-          var list = child.matches('.w-dyn-items,[role="list"]') ? child : child.querySelector('.w-dyn-items,[role="list"],[class$="_list"],[class$="_grid"]');
+          var list = child.matches('.w-dyn-items,[role="list"],[class$="_list"],[class$="_grid"]') ? child : child.querySelector('.w-dyn-items,[role="list"],[class$="_list"],[class$="_grid"]');
           var items = list ? [].slice.call(list.children).filter(function (x) { return x.offsetHeight > 0; }) : [];
           if (items.length >= 3 && !list.closest('[data-slider],.splide,.swiper')) {
             if (list !== child) {
@@ -1761,26 +1761,31 @@
   }
 
   function countUp(el) {
-    var raw = el.textContent.trim();
-    var m = raw.match(/^([^\d]*)(\d{1,3}(?:[.\s]\d{3})*|\d+)(?:,(\d+))?(.*)$/);
+    // Telt het getal in de eerste tekstnode (een los +/% in een span blijft staan).
+    var node = null;
+    for (var n = el.firstChild; n; n = n.nextSibling) { if (n.nodeType === 3 && /\d/.test(n.nodeValue)) { node = n; break; } }
+    if (!node || el._counted) return;
+    var raw = node.nodeValue;
+    var m = raw.trim().match(/^([^\d]*)(\d{1,3}(?:[.\s]\d{3})+|\d+)(?:,(\d+))?(.*)$/);
     if (!m) return;
     var intPart = m[2].replace(/[.\s]/g, ''), dec = m[3] || '';
     var target = parseFloat(intPart + (dec ? '.' + dec : ''));
     if (!(target >= 10) || /^0/.test(m[2]) || (target >= 1900 && target <= 2100 && !dec)) return;
+    el._counted = true;
     var sep = /\./.test(m[2]) ? '.' : '';
     var fmt = function (v) {
       var s = dec ? v.toFixed(dec.length).replace('.', ',') : String(Math.round(v));
       if (sep) s = s.replace(/\B(?=(\d{3})+(?!\d))/g, sep);
       return m[1] + s + m[4];
     };
-    el.setAttribute('aria-label', raw);
+    if (!el.hasAttribute('aria-label')) el.setAttribute('aria-label', el.textContent.trim());
     var t0 = null, dur = 1400;
-    el.textContent = fmt(0);
+    node.nodeValue = fmt(0);
     function step(t) {
       if (t0 === null) t0 = t;
       var p = Math.min(1, (t - t0) / dur), k = 1 - Math.pow(1 - p, 4);
-      el.textContent = fmt(target * k);
-      if (p < 1) requestAnimationFrame(step); else el.textContent = raw;
+      node.nodeValue = fmt(target * k);
+      if (p < 1) requestAnimationFrame(step); else node.nodeValue = raw;
     }
     requestAnimationFrame(step);
   }
@@ -1819,7 +1824,8 @@
 
     // Cijfers die optellen: grote getallen in *_number / *score-value
     $$('[class*="_number"],[class*="score-value"],[data-count]').forEach(function (el) {
-      if (el.children.length || el.closest('[aria-hidden="true"]')) return;
+      if (el.closest('[aria-hidden="true"]')) return;
+      if ([].some.call(el.children, function (c) { return !/(suffix|prefix|unit)/.test(c.className); })) return;
       if (!/^[^\d]*\d[\d.,\s]*[^\d]*$/.test(el.textContent.trim())) return;
       el.setAttribute('data-count', '');
       var host = el.closest('[data-reveal="wait"]');
