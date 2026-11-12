@@ -1718,6 +1718,9 @@
       'a.button:hover,button.button:hover,a.button:focus-visible,.mega-nav__bar-cta:hover,.mega-nav__bar-cta:focus-visible{transition:color .25s ' + e + ',border-color .25s ease,background-color 0s var(--tflu-mid)}',
       'a.button:hover::before,button.button:hover::before,a.button:focus-visible::before,.mega-nav__bar-cta:hover::before,.mega-nav__bar-cta:focus-visible::before{transform:translateX(0) skewX(-11.5deg);transition-duration:var(--tflu-mid)}',
       '.button.is-light{--tflu-wipe:#fff}',
+      // Outline-knop: vulling in de themakleur, tekst in de achtergrondkleur (navy op licht, wit op donker)
+      '.button.is-secondary:hover,.button.is-secondary:focus-visible{color:var(--_theme---theme--background)}',
+      '.button.is-navy{--tflu-wipe:var(--brand--orange)}.button.is-navy:hover,.button.is-navy:focus-visible{border-color:var(--brand--orange);color:#fff}',
       '.mega-nav__bar-cta{--tflu-wipe:var(--brand--orange)}.mega-nav__bar-cta.is--secondary{--tflu-wipe:var(--brand--navy)}',
       'input.button{transition:background-color var(--tflu-fast) ease,border-color var(--tflu-fast) ease,color var(--tflu-fast) ease}',
       // Pijl in knoppen en links: 4px vooruit (terugpijl 4px terug)
@@ -1780,7 +1783,8 @@
           if (!child.offsetHeight || child.matches('script,style,[aria-hidden="true"]')) return;
           var list = child.matches('.w-dyn-items,[role="list"],[class$="_list"],[class$="_grid"]') ? child : child.querySelector('.w-dyn-items,[role="list"],[class$="_list"],[class$="_grid"]');
           var items = list ? [].slice.call(list.children).filter(function (x) { return x.offsetHeight > 0; }) : [];
-          if (items.length >= 3 && !list.closest('[data-slider],.splide,.swiper')) {
+          var sliding = list && (/slide|slider|track|marquee|logos/.test(list.className) || getComputedStyle(list).overflowX !== 'visible');
+          if (items.length >= 3 && !sliding && !list.closest('[data-slider],.splide,.swiper')) {
             if (list !== child) {
               var before = [].slice.call(child.children).filter(function (x) { return x !== list && !x.contains(list) && x.offsetHeight; });
               before.forEach(function (b) { groups.push([b]); });
