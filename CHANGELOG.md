@@ -2,6 +2,10 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.13.0] - 2026-11-12
+
+- Story's: het aanmeldblok in het artikel is standaard een algemene nieuwsbriefinschrijving (HubSpot-formulier Nieuwsbrief, `data-form="nieuwsbrief-story"`) en staat halverwege het artikel. Een eigen aanmeldblok uit het CMS (kop ingevuld) blijft ongewijzigd.
+
 ## [1.12.0] - 2026-11-12
 
 - Story's: zonder datum verdwijnt het losse puntje voor de leestijd.

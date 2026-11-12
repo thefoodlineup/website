@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.12.0
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.13.0
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -1721,6 +1721,57 @@
   }
 
   /* ------------------------------------------------------------------
+   * Nieuwsbriefblok midden in een story   .signup-inline
+   * - Heeft de story een eigen aanmeldblok (kop ingevuld in het CMS),
+   *   dan blijft dat blok zoals het is.
+   * - Anders wordt het een algemene nieuwsbriefinschrijving (HubSpot-
+   *   formulier Nieuwsbrief) en verhuist het naar ongeveer het midden van
+   *   het artikel. Korte artikelen: het blok blijft onder de tekst staan.
+   * ------------------------------------------------------------------ */
+  var HS_NEWSLETTER_FORM = '3b4d7f05-2d15-401a-a6c1-f440274929f8';
+  function initInlineSignup() {
+    var box = document.querySelector('.signup-inline');
+    if (!box) return;
+    var head = box.querySelector('.signup-inline_heading');
+    var text = box.querySelector('.signup-inline_text');
+    var form = box.querySelector('form[data-hs-form]');
+    if (!head || !form || head.textContent.trim()) return;
+
+    head.textContent = tr('Meer van dit in je inbox?', 'More of this in your inbox?');
+    head.classList.remove('w-dyn-bind-empty');
+    if (text) {
+      text.textContent = tr('Foodtrends, eventinspiratie en de nieuwste chefs uit ons netwerk: zo nu en dan geserveerd in je inbox.',
+        'Food trends, event inspiration and the newest chefs from our network, served in your inbox every now and then.');
+      text.classList.remove('w-dyn-bind-empty');
+    }
+    form.setAttribute('data-hs-form', HS_NEWSLETTER_FORM);
+    form.setAttribute('data-form', 'nieuwsbrief-story');
+    form.setAttribute('data-hs-subscribe', '');
+    form.removeAttribute('data-hs-tracking');
+    form.setAttribute('aria-label', tr('Aanmelden voor de nieuwsbrief', 'Sign up for the newsletter'));
+    box.setAttribute('aria-label', tr('Nieuwsbrief', 'Newsletter'));
+    box.classList.add('is-newsletter');
+
+    var rich = box.parentElement && box.parentElement.querySelector('.story-rich');
+    if (!rich) return;
+    var kids = [].slice.call(rich.children);
+    if (kids.length < 6) return;
+    var total = rich.textContent.length, acc = 0;
+    for (var i = 0; i < kids.length - 2; i++) {
+      acc += kids[i].textContent.length;
+      var k = kids[i], b = k.firstElementChild;
+      // Niet direct na een 'tussenkop' (een alinea die alleen uit vette tekst bestaat).
+      var pseudoHead = k.children.length === 1 && b && /^(STRONG|B)$/.test(b.tagName) &&
+        b.textContent.trim() === k.textContent.trim();
+      if (acc >= total * 0.45 && k.tagName === 'P' && k.textContent.trim() && !pseudoHead) {
+        kids[i].parentNode.insertBefore(box, kids[i].nextSibling);
+        box.classList.add('is-in-article');
+        return;
+      }
+    }
+  }
+
+  /* ------------------------------------------------------------------
    * Gestructureerde data: FAQPage voor pagina's met een FAQ-blok
    * (event-types, Event catering, Onze aanpak, Chef's netwerk, Offerte,
    * Contact). De pagina /faq heeft een vaste FAQPage in de paginacode;
@@ -1769,6 +1820,7 @@
     initFilters();
     initGalleries();
     initSplitLists();
+    initInlineSignup();
     initForms();
     initLegal();
     initMegaNav();
