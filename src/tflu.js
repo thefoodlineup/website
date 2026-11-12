@@ -1742,6 +1742,11 @@
         'transform:scaleX(0);transform-origin:left;transition:transform .3s ' + e + ';pointer-events:none}',
       '.mega-nav__panel-more:hover>span:first-child::after,.mega-nav__panel-more:focus-visible>span:first-child::after,' +
         '.mega-nav__card:hover .mega-nav__card-cta>span:first-child::after,.mega-nav__card:focus-visible .mega-nav__card-cta>span:first-child::after{transform:scaleX(1)}',
+      // Megamenu-items: alleen de titel kleurt oranje (de omschrijving niet)
+      '.mega-nav__panel-link-text{transition:color var(--tflu-fast) ease}.mega-nav__panel-link:hover .mega-nav__panel-link-text,.mega-nav__panel-link:focus-visible .mega-nav__panel-link-text{color:var(--brand--orange)}',
+      // Megamenu-kaarten: titel schaalt mee met de kaartbreedte (blijft binnen de kaart)
+      '.mega-nav__card{container-type:inline-size}.mega-nav__card .mega-nav__card-title{font-size:min(3.375rem,12.8cqi)}' +
+        '.mega-nav__card .mega-nav__card-title.is--long{font-size:min(2.625rem,10.9cqi)}.mega-nav__card .mega-nav__card-title-accent{font-size:inherit}',
       // Menubalk (desktop): oranje lijn vlak onder het woord, groeit soepel van links; zelfde afstand voor elk item
       '@media (min-width:992px){.mega-nav__bar-link:not(.is--back){border-bottom-color:transparent!important}' +
         '.mega-nav__bar-link-label{position:relative}' +
