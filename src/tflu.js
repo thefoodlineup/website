@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.13.0
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.14.0
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -1655,6 +1655,183 @@
   }
 
   /* ------------------------------------------------------------------
+   * Beweging (blok F)
+   * Eén systeem voor de hele site, afgeleid van het UI-design:
+   * - één easing (expo-out) en drie tempo's: snel (kleur, lijnen),
+   *   midden (knopvulling, kaarten), traag (beeldzoom, inkomen bij scrollen);
+   * - knoppen: schuine vulling van links naar rechts + pijl 4px vooruit;
+   * - tekstlinks met pijl: lijn groeit van links + pijl 4px vooruit;
+   * - kaarten met beeld: beeld zoomt langzaam in, pijl verschijnt;
+   *   kaarten zonder beeld: komen 6px omhoog met een zachte schaduw;
+   * - genummerde stappen: het nummer kleurt oranje;
+   * - bij scrollen: blokken en kaarten schuiven zacht omhoog in beeld,
+   *   kaarten in een rij kort na elkaar; cijfers tellen op.
+   * Wat bij het laden al in beeld staat beweegt niet (geen vertraging voor
+   * de LCP). Zonder JavaScript of met 'minder beweging' staat alles stil.
+   * ------------------------------------------------------------------ */
+  var EASE = 'cubic-bezier(.22,1,.36,1)';
+  function motionCss() {
+    var e = EASE;
+    return [
+      ':root{--tflu-ease:' + e + ';--tflu-fast:.2s;--tflu-mid:.4s;--tflu-slow:.9s}',
+      // Knoppen (links en buttons; formulier-inputs houden de kleurwissel)
+      'a.button,button.button,.mega-nav__bar-cta{position:relative;overflow:hidden;isolation:isolate;' +
+        'transition:color var(--tflu-fast) ' + e + ',border-color var(--tflu-fast) ease,background-color 0s}',
+      'a.button::before,button.button::before,.mega-nav__bar-cta::before{content:"";position:absolute;top:0;bottom:0;left:-25%;width:150%;z-index:-1;' +
+        'background:var(--tflu-wipe,var(--_theme---theme--button-secondary));transform:translateX(-101%) skewX(-11.5deg);' +
+        'transition:transform .25s ' + e + ';pointer-events:none}',
+      'a.button:hover,button.button:hover,a.button:focus-visible,.mega-nav__bar-cta:hover,.mega-nav__bar-cta:focus-visible{transition:color .25s ' + e + ',border-color .25s ease,background-color 0s var(--tflu-mid)}',
+      'a.button:hover::before,button.button:hover::before,a.button:focus-visible::before,.mega-nav__bar-cta:hover::before,.mega-nav__bar-cta:focus-visible::before{transform:translateX(0) skewX(-11.5deg);transition-duration:var(--tflu-mid)}',
+      '.button.is-light{--tflu-wipe:#fff}',
+      '.mega-nav__bar-cta{--tflu-wipe:var(--brand--orange)}.mega-nav__bar-cta.is--secondary{--tflu-wipe:var(--brand--navy)}',
+      'input.button{transition:background-color var(--tflu-fast) ease,border-color var(--tflu-fast) ease,color var(--tflu-fast) ease}',
+      // Pijl in knoppen en links: 4px vooruit (terugpijl 4px terug)
+      '.button svg:last-child,.mega-nav__bar-cta svg:last-child,.link-more svg:last-child,.cta_contact-link svg:last-child,.mega-nav__panel-more svg:last-child,' +
+        '.faq_more svg:last-child,.case-related_link svg:last-child,.locations-empty_link svg:last-child,.event-card_more svg:last-child,.mega-nav__card-cta svg:last-child{transition:transform var(--tflu-fast) ' + e + '}',
+      '.button:hover svg:last-child,.button:focus-visible svg:last-child,.mega-nav__bar-cta:hover svg:last-child,.link-more:hover svg:last-child,.link-more:focus-visible svg:last-child,' +
+        '.cta_contact-link:hover svg:last-child,.mega-nav__panel-more:hover svg:last-child,.faq_more:hover svg:last-child,.case-related_link:hover svg:last-child,' +
+        '.locations-empty_link:hover svg:last-child,.event-card:hover .event-card_more svg:last-child,.mega-nav__card:hover .mega-nav__card-cta svg:last-child{transform:translateX(4px);transition-duration:.25s}',
+      '.mega-nav__bar-link.is--back svg{transition:transform var(--tflu-fast) ' + e + '}.mega-nav__bar-link.is--back:hover svg{transform:translateX(-4px)}',
+      // Tekstlinks met pijl: lijn groeit van links (niet onder de pijl)
+      '.link-more,.cta_contact-link,.faq_more,.case-related_link,.locations-empty_link,.mega-nav__panel-more{position:relative}',
+      '.link-more::after,.cta_contact-link::after,.faq_more::after,.case-related_link::after,.locations-empty_link::after,.mega-nav__panel-more::after{content:"";position:absolute;left:0;right:1.5rem;bottom:-.375rem;height:2px;' +
+        'background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform var(--tflu-fast) ' + e + ';pointer-events:none}',
+      '.link-more:hover::after,.link-more:focus-visible::after,.cta_contact-link:hover::after,.cta_contact-link:focus-visible::after,.faq_more:hover::after,.case-related_link:hover::after,' +
+        '.locations-empty_link:hover::after,.mega-nav__panel-more:hover::after{transform:scaleX(1);transition-duration:.25s}',
+      // Kleurlinks (menu, footer, breadcrumb, contact): alleen kleur, altijd even snel
+      '.mega-nav__bar-link,.mega-nav__panel-link,.mega-nav__lang-option,.footer_link,.footer_legal-link,.footer_credit,.breadcrumb_link,.contact_phone,.contact_mail,.contact_link,.faq_question,' +
+        '.filter_chip,.chip{transition:color var(--tflu-fast) ease,border-color var(--tflu-fast) ease,background-color var(--tflu-fast) ease}',
+      '.footer_social{transition:background-color .3s ease,border-color .3s ease,color .3s ease}.footer_social:hover,.footer_social:focus-visible{background-color:var(--brand--orange);border-color:var(--brand--orange)}',
+      '.slider-button{transition:background-color .3s ease,color .3s ease,border-color .3s ease,opacity .3s ease,transform .3s ' + e + '}.slider-button:hover{transform:scale(1.06)}',
+      // Kaarten met beeld: trage zoom, pijl schuift in
+      '.case-card_image,.story-card_image,.location-card_image,.event-tile_image,.event-card_image{transition:transform var(--tflu-slow) ' + e + '}',
+      '.case-card:hover .case-card_image,.case-card:focus-visible .case-card_image,.story-card:hover .story-card_image,.story-card:focus-visible .story-card_image,' +
+        '.stories-featured_card:hover .story-card_image,.location-card:hover .location-card_image,.location-card:focus-visible .location-card_image,' +
+        '.event-tile:hover .event-tile_image,.event-tile:focus-visible .event-tile_image,.event-card:hover .event-card_image,.event-card:focus-visible .event-card_image{transform:scale(1.06)}',
+      '.location-card .case-card_arrow,.event-tile_go{transition:opacity .35s ease,transform .5s ' + e + '}',
+      '.location-card:hover .case-card_arrow,.location-card:focus-visible .case-card_arrow{opacity:1;transform:none}',
+      '.event-tile_content{transition:transform .5s ' + e + '}.event-tile:hover .event-tile_content,.event-tile:focus-visible .event-tile_content{transform:translateY(-8px)}',
+      // Kaarten zonder beeld: 6px omhoog met schaduw
+      '.mega-nav__card,.notfound-links_card{transition:transform .5s ' + e + ',box-shadow .5s ease}',
+      '.mega-nav__card:hover,.mega-nav__card:focus-visible{transform:translateY(-6px);box-shadow:0 18px 40px rgba(37,36,90,.16)}',
+      // Genummerde stappen
+      '.aanpak-steps_number,.event-process_number{transition:background-color .35s ease,border-color .35s ease,color .35s ease}',
+      '.aanpak-steps_item:hover .aanpak-steps_number,.event-process_item:hover .event-process_number{color:var(--brand--orange)}',
+      // Inkomen bij scrollen (alleen als het script draait)
+      '.tflu-js [data-reveal="wait"]{opacity:0;transform:translate3d(0,1.5rem,0)}',
+      '.tflu-js [data-reveal="in"]{opacity:1;transform:none;transition:opacity .7s ease var(--tflu-delay,0s),transform var(--tflu-slow) ' + e + ' var(--tflu-delay,0s)}',
+      '@media (prefers-reduced-motion:reduce){.tflu-js [data-reveal]{opacity:1!important;transform:none!important;transition:none!important}' +
+        'a.button::before,button.button::before,.mega-nav__bar-cta::before{display:none}' +
+        '[class*="_image"]{transition:none!important;transform:none!important}}'
+    ].join('');
+  }
+
+  // Blokken die bij scrollen inkomen: de kinderen van elk *_component
+  // (Client-First), behalve in de eerste sectie (hero), het menu en de footer.
+  // Een rij gelijke kaarten komt kaart voor kaart in.
+  function revealTargets() {
+    var main = document.querySelector('.main-wrapper') || document.querySelector('main');
+    if (!main) return [];
+    var sections = [].slice.call(main.children).filter(function (s) { return s.offsetHeight > 0; });
+    var groups = [];
+    sections.slice(1).forEach(function (sec) {
+      if (sec.matches('[class*="consent"],[data-no-reveal]')) return;
+      var comps = $$('[class$="_component"],[class*="_component "]', sec).filter(function (c) {
+        return !c.parentElement.closest('[class$="_component"],[class*="_component "]') || c.parentElement.closest('section,[class^="section_"]') !== sec;
+      });
+      if (!comps.length) comps = [sec];
+      comps.forEach(function (comp) {
+        [].slice.call(comp.children).forEach(function (child) {
+          if (!child.offsetHeight || child.matches('script,style,[aria-hidden="true"]')) return;
+          var list = child.matches('.w-dyn-items,[role="list"]') ? child : child.querySelector('.w-dyn-items,[role="list"],[class$="_list"],[class$="_grid"]');
+          var items = list ? [].slice.call(list.children).filter(function (x) { return x.offsetHeight > 0; }) : [];
+          if (items.length >= 3 && !list.closest('[data-slider],.splide,.swiper')) {
+            if (list !== child) {
+              var before = [].slice.call(child.children).filter(function (x) { return x !== list && !x.contains(list) && x.offsetHeight; });
+              before.forEach(function (b) { groups.push([b]); });
+            }
+            groups.push(items.slice(0, 24));
+          } else {
+            groups.push([child]);
+          }
+        });
+      });
+    });
+    return groups;
+  }
+
+  function countUp(el) {
+    var raw = el.textContent.trim();
+    var m = raw.match(/^([^\d]*)(\d{1,3}(?:[.\s]\d{3})*|\d+)(?:,(\d+))?(.*)$/);
+    if (!m) return;
+    var intPart = m[2].replace(/[.\s]/g, ''), dec = m[3] || '';
+    var target = parseFloat(intPart + (dec ? '.' + dec : ''));
+    if (!(target >= 10) || /^0/.test(m[2]) || (target >= 1900 && target <= 2100 && !dec)) return;
+    var sep = /\./.test(m[2]) ? '.' : '';
+    var fmt = function (v) {
+      var s = dec ? v.toFixed(dec.length).replace('.', ',') : String(Math.round(v));
+      if (sep) s = s.replace(/\B(?=(\d{3})+(?!\d))/g, sep);
+      return m[1] + s + m[4];
+    };
+    el.setAttribute('aria-label', raw);
+    var t0 = null, dur = 1400;
+    el.textContent = fmt(0);
+    function step(t) {
+      if (t0 === null) t0 = t;
+      var p = Math.min(1, (t - t0) / dur), k = 1 - Math.pow(1 - p, 4);
+      el.textContent = fmt(target * k);
+      if (p < 1) requestAnimationFrame(step); else el.textContent = raw;
+    }
+    requestAnimationFrame(step);
+  }
+
+  function initMotion() {
+    var css = document.createElement('style');
+    css.id = 'tflu-motion';
+    css.textContent = motionCss();
+    document.head.appendChild(css);
+    if (reduceMotion || !('IntersectionObserver' in window)) return;
+
+    var vh = window.innerHeight;
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        io.unobserve(en.target);
+        en.target.setAttribute('data-reveal', 'in');
+        var c = en.target.querySelectorAll('[data-count]');
+        for (var i = 0; i < c.length; i++) countUp(c[i]);
+        if (en.target.hasAttribute('data-count')) countUp(en.target);
+        setTimeout(function () { en.target.removeAttribute('data-reveal'); en.target.style.removeProperty('--tflu-delay'); }, 1600);
+      });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.12 });
+
+    revealTargets().forEach(function (group) {
+      var shown = 0;
+      group.forEach(function (el) {
+        if (el.hasAttribute('data-reveal')) return;
+        if (el.getBoundingClientRect().top < vh * 0.92) return; // staat al in beeld
+        el.setAttribute('data-reveal', 'wait');
+        if (group.length > 1) el.style.setProperty('--tflu-delay', (Math.min(shown, 5) * 0.07).toFixed(2) + 's');
+        shown++;
+        io.observe(el);
+      });
+    });
+
+    // Cijfers die optellen: grote getallen in *_number / *score-value
+    $$('[class*="_number"],[class*="score-value"],[data-count]').forEach(function (el) {
+      if (el.children.length || el.closest('[aria-hidden="true"]')) return;
+      if (!/^[^\d]*\d[\d.,\s]*[^\d]*$/.test(el.textContent.trim())) return;
+      el.setAttribute('data-count', '');
+      var host = el.closest('[data-reveal="wait"]');
+      if (!host) {
+        if (el.getBoundingClientRect().top < vh) return;
+        var o = new IntersectionObserver(function (en) { if (en[0].isIntersecting) { o.disconnect(); countUp(el); } }, { threshold: 0.6 });
+        o.observe(el);
+      }
+    });
+  }
+
+  /* ------------------------------------------------------------------
    * Delen (story's)   a[data-share="linkedin"] / a[data-share="copy"]
    * Gebruikt de canonical-URL (www), zodat delen vanaf staging ook goed gaat.
    * ------------------------------------------------------------------ */
@@ -1828,7 +2005,7 @@
     initSchema();
     initShare();
     initStoryMeta();
-    // Volgt later: initAnimations() (data-animate / data-stagger / data-counter, GSAP)
+    initMotion();
   }
 
   if (document.readyState === 'loading') {

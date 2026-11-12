@@ -2,6 +2,10 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.14.0] - 2026-11-12
+
+- Blok F, beweging: één hover-systeem volgens het UI-design (schuine vulling op knoppen, groeiende lijn onder tekstlinks, pijl 4px vooruit, trage beeldzoom op kaarten, kaarten zonder beeld 6px omhoog, stapnummers oranje), inkomen bij scrollen per blok en per kaart (kort na elkaar) en tellers voor grote cijfers. Niets beweegt wat bij het laden al in beeld staat; 'minder beweging' zet alles uit.
+
 ## [1.13.0] - 2026-11-12
 
 - Story's: het aanmeldblok in het artikel is standaard een algemene nieuwsbriefinschrijving (HubSpot-formulier Nieuwsbrief, `data-form="nieuwsbrief-story"`) en staat halverwege het artikel. Een eigen aanmeldblok uit het CMS (kop ingevuld) blijft ongewijzigd.
