@@ -1646,6 +1646,41 @@
       if (a && window.FinsweetConsentPro && typeof window.FinsweetConsentPro.on === 'function') e.preventDefault();
     }, true);
 
+    // Toestemming ingetrokken: cookies van die categorie opruimen. Google
+    // gebruikt ze dan niet meer (Consent Mode), maar ze horen ook weg.
+    var CLEAN = { analytics: /^_ga(_|$)/, marketing: /^(_gcl_|_gac_|hubspotutk$|__hstc$|__hssc$|__hssrc$|_fbp$)/ };
+    function dropCookie(name) {
+      var host = location.hostname, parts = host.split('.');
+      var domains = ['', host, '.' + host];
+      if (parts.length > 2) domains.push('.' + parts.slice(-2).join('.'));
+      domains.forEach(function (d) {
+        document.cookie = name + '=; Max-Age=0; path=/' + (d ? '; domain=' + d : '');
+      });
+    }
+    function cleanCookies() {
+      var m = document.cookie.match(/(?:^|;\s*)fs-consent=([^;]+)/);
+      if (!m) return;
+      var choices;
+      try { choices = JSON.parse(decodeURIComponent(m[1])).choices || {}; } catch (err) { return; }
+      document.cookie.split(';').forEach(function (c) {
+        var name = c.split('=')[0].trim();
+        Object.keys(CLEAN).forEach(function (cat) {
+          if (choices[cat] === false && CLEAN[cat].test(name)) dropCookie(name);
+        });
+      });
+    }
+    window.dataLayer = window.dataLayer || [];
+    var push = window.dataLayer.push;
+    window.dataLayer.push = function () {
+      var r = push.apply(this, arguments);
+      for (var i = 0; i < arguments.length; i++) {
+        var a = arguments[i];
+        if (a && a.event === 'consent-updated') setTimeout(cleanCookies, 50);
+      }
+      return r;
+    };
+    cleanCookies();
+
     window.addEventListener('load', function () {
       setTimeout(function () {
         if (document.querySelector('[fs-consent-instance]')) return;

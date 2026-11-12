@@ -5,6 +5,7 @@ Alle wijzigingen per versie. Nieuwste bovenaan.
 ## [1.14.0] - 2026-11-12
 
 - Blok F, beweging: één hover-systeem volgens het UI-design (schuine vulling op knoppen, groeiende lijn onder tekstlinks, pijl 4px vooruit, trage beeldzoom op kaarten, kaarten zonder beeld 6px omhoog, stapnummers oranje), inkomen bij scrollen per blok en per kaart (kort na elkaar) en tellers voor grote cijfers. Niets beweegt wat bij het laden al in beeld staat; 'minder beweging' zet alles uit.
+- Cookietoestemming: bij weigeren of intrekken worden de cookies van die categorie opgeruimd (Analytisch: _ga*; Marketing: _gcl_*, _gac_*, HubSpot, _fbp).
 
 ## [1.13.0] - 2026-11-12
 
