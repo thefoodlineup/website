@@ -2,6 +2,10 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.18.2] - 2026-11-12
+
+- Chips (filters op Cases/Stories/Locaties en 'Ook voor' op eventtype-pagina's): bij hover navy achtergrond met witte tekst.
+
 ## [1.18.0] - 2026-11-12
 
 - Knoppen op een donkere sectie (bijv. 'Dit kun je verwachten' op Event catering): bij hover een witte vulling met navy tekst en pijl, zoals in het UI-design. Op lichte secties blijft het navy met wit.

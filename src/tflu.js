@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.18.1
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.18.2
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -1930,6 +1930,8 @@
       // Kleurlinks (menu, footer, breadcrumb, contact): alleen kleur, altijd even snel
       '.mega-nav__bar-link,.mega-nav__panel-link,.mega-nav__lang-option,.footer_link,.footer_legal-link,.footer_credit,.breadcrumb_link,.contact_phone,.contact_mail,.contact_link,.faq_question,' +
         '.filter_chip,.chip{transition:color var(--tflu-fast) ease,border-color var(--tflu-fast) ease,background-color var(--tflu-fast) ease}',
+      // Chips (filters, 'Ook voor'): bij hover navy vlak met witte tekst
+      '.filter_chip:not(.is-active):hover,.filter_chip:not(.is-active):focus-visible{background-color:var(--brand--navy);border-color:var(--brand--navy);color:#fff}',
       '.footer_social{transition:background-color .3s ease,border-color .3s ease,color .3s ease}.footer_social:hover,.footer_social:focus-visible{background-color:var(--brand--orange);border-color:var(--brand--orange)}',
       '.slider-button{transition:background-color .3s ease,color .3s ease,border-color .3s ease,opacity .3s ease,transform .3s ' + e + '}.slider-button:hover{transform:scale(1.06)}',
       // Kaarten met beeld: trage zoom, pijl schuift in
