@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.11.0
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.12.0
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -1694,6 +1694,33 @@
   }
 
   /* ------------------------------------------------------------------
+   * Story-meta   .story-hero_meta
+   * - Geen datum ingevuld: het puntje tussen datum en leestijd verdwijnt.
+   * - Geen leestijd ingevuld: schatting op basis van de artikeltekst
+   *   (200 woorden per minuut, minimaal 1 minuut).
+   * ------------------------------------------------------------------ */
+  var WPM = 200;
+  function readingMinutes(el) {
+    var words = (el.textContent || '').trim().split(/\s+/).filter(Boolean).length;
+    return Math.max(1, Math.round(words / WPM));
+  }
+  function initStoryMeta() {
+    $$('.story-hero_meta').forEach(function (meta) {
+      var date = meta.querySelector(':scope > .story-hero_meta-text');
+      var dot = meta.querySelector('.story-hero_meta-dot');
+      if (dot && date && !date.textContent.trim()) dot.style.display = 'none';
+      var num = meta.querySelector('.story-hero_reading .story-hero_meta-text');
+      if (num && !num.textContent.trim()) {
+        var body = document.querySelector('.story-body_article .w-richtext') || document.querySelector('.w-richtext');
+        if (body) {
+          num.textContent = readingMinutes(body);
+          num.classList.remove('w-dyn-bind-empty');
+        }
+      }
+    });
+  }
+
+  /* ------------------------------------------------------------------
    * Gestructureerde data: FAQPage voor pagina's met een FAQ-blok
    * (event-types, Event catering, Onze aanpak, Chef's netwerk, Offerte,
    * Contact). De pagina /faq heeft een vaste FAQPage in de paginacode;
@@ -1748,6 +1775,7 @@
     initConsent();
     initSchema();
     initShare();
+    initStoryMeta();
     // Volgt later: initAnimations() (data-animate / data-stagger / data-counter, GSAP)
   }
 

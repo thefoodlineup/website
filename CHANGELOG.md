@@ -2,6 +2,11 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.12.0] - 2026-11-12
+
+- Story's: zonder datum verdwijnt het losse puntje voor de leestijd.
+- Story's: zonder ingevulde leestijd schat het script die uit de artikeltekst (200 woorden per minuut, minimaal 1).
+
 ## [1.11.0] - 2026-11-12
 
 - Delen op story's: LinkedIn-link en 'Kopieer de link' werken (met de www-URL); bij kopiëren tijdelijk de class `is-copied`.
