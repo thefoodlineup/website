@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.10.0
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.11.0
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -1655,6 +1655,45 @@
   }
 
   /* ------------------------------------------------------------------
+   * Delen (story's)   a[data-share="linkedin"] / a[data-share="copy"]
+   * Gebruikt de canonical-URL (www), zodat delen vanaf staging ook goed gaat.
+   * ------------------------------------------------------------------ */
+  function initShare() {
+    var btns = $$('[data-share]');
+    if (!btns.length) return;
+    var c = document.querySelector('link[rel="canonical"]');
+    var url = (c && c.href) || location.href.split('#')[0].split('?')[0];
+    btns.forEach(function (a) {
+      var type = a.getAttribute('data-share');
+      if (type === 'linkedin') {
+        a.href = 'https://www.linkedin.com/sharing/share-offsite/?url=' + encodeURIComponent(url);
+        a.target = '_blank';
+        a.rel = 'noopener';
+      } else if (type === 'copy') {
+        a.href = url;
+        a.setAttribute('role', 'button');
+        var label = a.getAttribute('aria-label') || '';
+        a.addEventListener('click', function (e) {
+          e.preventDefault();
+          var done = function () {
+            a.setAttribute('aria-label', tr('Link gekopieerd', 'Link copied'));
+            a.classList.add('is-copied');
+            setTimeout(function () { a.setAttribute('aria-label', label); a.classList.remove('is-copied'); }, 2000);
+          };
+          if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(done, function () {});
+          else {
+            var t = document.createElement('textarea');
+            t.value = url; t.setAttribute('readonly', ''); t.style.position = 'fixed'; t.style.opacity = '0';
+            document.body.appendChild(t); t.select();
+            try { document.execCommand('copy'); done(); } catch (err) {}
+            t.remove();
+          }
+        });
+      }
+    });
+  }
+
+  /* ------------------------------------------------------------------
    * Gestructureerde data: FAQPage voor pagina's met een FAQ-blok
    * (event-types, Event catering, Onze aanpak, Chef's netwerk, Offerte,
    * Contact). De pagina /faq heeft een vaste FAQPage in de paginacode;
@@ -1708,6 +1747,7 @@
     initMegaNav();
     initConsent();
     initSchema();
+    initShare();
     // Volgt later: initAnimations() (data-animate / data-stagger / data-counter, GSAP)
   }
 

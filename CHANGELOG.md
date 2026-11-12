@@ -2,6 +2,10 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.11.0] - 2026-11-12
+
+- Delen op story's: LinkedIn-link en 'Kopieer de link' werken (met de www-URL); bij kopiëren tijdelijk de class `is-copied`.
+
 ## [1.10.0] - 2026-11-12
 
 - SEO: FAQPage-markup (JSON-LD) op pagina's met een FAQ-blok, behalve als er al een FAQPage staat (zoals op /faq).
