@@ -1731,11 +1731,24 @@
         '.locations-empty_link:hover svg:last-child,.event-card:hover .event-card_more svg:last-child,.mega-nav__card:hover .mega-nav__card-cta svg:last-child{transform:translateX(4px);transition-duration:.25s}',
       '.mega-nav__bar-link.is--back svg{transition:transform var(--tflu-fast) ' + e + '}.mega-nav__bar-link.is--back:hover svg{transform:translateX(-4px)}',
       // Tekstlinks met pijl: lijn groeit van links (niet onder de pijl)
-      '.link-more,.cta_contact-link,.faq_more,.case-related_link,.locations-empty_link,.mega-nav__panel-more{position:relative}',
-      '.link-more::after,.cta_contact-link::after,.faq_more::after,.case-related_link::after,.locations-empty_link::after,.mega-nav__panel-more::after{content:"";position:absolute;left:0;right:1.5rem;bottom:-.375rem;height:2px;' +
+      '.link-more,.cta_contact-link,.faq_more,.case-related_link,.locations-empty_link{position:relative}',
+      '.link-more::after,.cta_contact-link::after,.faq_more::after,.case-related_link::after,.locations-empty_link::after{content:"";position:absolute;left:0;right:1.5rem;bottom:-.375rem;height:2px;' +
         'background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform var(--tflu-fast) ' + e + ';pointer-events:none}',
       '.link-more:hover::after,.link-more:focus-visible::after,.cta_contact-link:hover::after,.cta_contact-link:focus-visible::after,.faq_more:hover::after,.case-related_link:hover::after,' +
-        '.locations-empty_link:hover::after,.mega-nav__panel-more:hover::after{transform:scaleX(1);transition-duration:.25s}',
+        '.locations-empty_link:hover::after{transform:scaleX(1);transition-duration:.25s}',
+      // Megamenu: lijn alleen onder de tekst van 'Alle …' en de kaart-CTA (de pijl beweegt apart)
+      '.mega-nav__panel-more>span:first-child,.mega-nav__card-cta>span:first-child{position:relative}',
+      '.mega-nav__panel-more>span:first-child::after,.mega-nav__card-cta>span:first-child::after{content:"";position:absolute;left:0;right:0;bottom:-.25rem;height:2px;background:currentColor;' +
+        'transform:scaleX(0);transform-origin:left;transition:transform .3s ' + e + ';pointer-events:none}',
+      '.mega-nav__panel-more:hover>span:first-child::after,.mega-nav__panel-more:focus-visible>span:first-child::after,' +
+        '.mega-nav__card:hover .mega-nav__card-cta>span:first-child::after,.mega-nav__card:focus-visible .mega-nav__card-cta>span:first-child::after{transform:scaleX(1)}',
+      // Menubalk (desktop): oranje lijn vlak onder het woord, groeit soepel van links; zelfde afstand voor elk item
+      '@media (min-width:992px){.mega-nav__bar-link:not(.is--back){border-bottom-color:transparent!important}' +
+        '.mega-nav__bar-link-label{position:relative}' +
+        '.mega-nav__bar-link:not(.is--back) .mega-nav__bar-link-label::after{content:"";position:absolute;left:0;right:0;bottom:-.375rem;height:3px;background:var(--brand--orange);' +
+        'transform:scaleX(0);transform-origin:left;transition:transform .35s ' + e + ';pointer-events:none}' +
+        '.mega-nav__bar-link:hover .mega-nav__bar-link-label::after,.mega-nav__bar-link:focus-visible .mega-nav__bar-link-label::after,' +
+        '.mega-nav__bar-link[data-active="true"] .mega-nav__bar-link-label::after,.mega-nav__bar-link.w--current .mega-nav__bar-link-label::after{transform:scaleX(1)}}',
       // Kleurlinks (menu, footer, breadcrumb, contact): alleen kleur, altijd even snel
       '.mega-nav__bar-link,.mega-nav__panel-link,.mega-nav__lang-option,.footer_link,.footer_legal-link,.footer_credit,.breadcrumb_link,.contact_phone,.contact_mail,.contact_link,.faq_question,' +
         '.filter_chip,.chip{transition:color var(--tflu-fast) ease,border-color var(--tflu-fast) ease,background-color var(--tflu-fast) ease}',
@@ -1750,8 +1763,7 @@
       '.location-card:hover .case-card_arrow,.location-card:focus-visible .case-card_arrow{opacity:1;transform:none}',
       '.event-tile_content{transition:transform .5s ' + e + '}.event-tile:hover .event-tile_content,.event-tile:focus-visible .event-tile_content{transform:translateY(-8px)}',
       // Kaarten zonder beeld: 6px omhoog met schaduw
-      '.mega-nav__card,.notfound-links_card{transition:transform .5s ' + e + ',box-shadow .5s ease}',
-      '.mega-nav__card:hover,.mega-nav__card:focus-visible{transform:translateY(-6px);box-shadow:0 18px 40px rgba(37,36,90,.16)}',
+      '.notfound-links_card{transition:transform .5s ' + e + ',box-shadow .5s ease}',
       // Genummerde stappen
       '.aanpak-steps_number,.event-process_number{transition:background-color .35s ease,border-color .35s ease,color .35s ease}',
       '.aanpak-steps_item:hover .aanpak-steps_number,.event-process_item:hover .event-process_number{color:var(--brand--orange)}',
