@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.21.0
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.22.0
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -1950,6 +1950,8 @@
       '.section_location-rooms .location-rooms_list li:last-child{border-bottom:1px solid rgba(37,36,90,.2)}',
       ".section_location-rooms .location-rooms_list li strong{white-space:normal;font-family:Outfit,sans-serif;font-size:clamp(1.0625rem,calc(1.016rem + .1905vw),1.1875rem);font-weight:600;line-height:1.3}",
       ".section_location-rooms .location-rooms_list li::after{margin-left:.4rem;font-family:Outfit,sans-serif;font-size:.9375rem;font-weight:500;color:#4A4970}",
+      // Kruimelpad: 36px tot de kop op desktop (24px gap + 12px), vloeiend naar de mobiele afstand (gap 14px, kruimelpad 44px hoog)
+      '.breadcrumb_component{margin-bottom:clamp(0rem,calc(1.143vw - .2786rem),.75rem)}',
       // Onze aanpak 'Onze belofte': alleen een oranje vink (22px), geen rondje of vlak (UI-design)
       '.aanpak-promise_item{gap:clamp(.75rem,calc(.704rem + .1905vw),.875rem);padding-top:clamp(.8125rem,calc(.743rem + .2857vw),1rem);padding-bottom:clamp(.8125rem,calc(.743rem + .2857vw),1rem);' +
         'font-size:clamp(1.0625rem,calc(1.039rem + .0952vw),1.125rem);font-weight:500;line-height:1.4}',

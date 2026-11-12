@@ -2,6 +2,10 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.22.0] - 2026-11-12
+
+- Kruimelpad: op desktop 36px tot de kop (was 24px), vloeiend aflopend naar de mobiele afstand. Geldt op alle pagina's met een kruimelpad.
+
 ## [1.21.0] - 2026-11-12
 
 - Onze aanpak, 'Onze belofte': alleen een oranje vink van 22px zonder rondje, tekst 500 en vloeiend 17→18px, rijen 13→16px (UI-design).
