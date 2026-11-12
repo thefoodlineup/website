@@ -2,6 +2,11 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.10.0] - 2026-11-12
+
+- SEO: FAQPage-markup (JSON-LD) op pagina's met een FAQ-blok, behalve als er al een FAQPage staat (zoals op /faq).
+- Vertaalbaar: tekst die het script zelf toont volgt `<html lang>` (nl of en) via `tr(nl, en)`; data naar HubSpot blijft Nederlands.
+
 ## [1.9.0] - 2026-11-11
 
 - Cookiebanner: overgestapt op de componenten van Consent Pro v2 (pagina /cookiebanner, in TFLU-stijl). Eigen formulierafhandeling en voorbeeldmodus verwijderd; alleen focusring, terugvaloptie en het openen van de voorkeuren via links (zonder te navigeren) blijven.

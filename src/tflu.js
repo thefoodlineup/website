@@ -2,11 +2,15 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.9.0
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.10.0
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
   'use strict';
+
+  // Taal: tekst die het script zelf toont volgt <html lang>. Engels volgt in een latere fase.
+  var LANG = /^en/i.test(document.documentElement.getAttribute('lang') || '') ? 'en' : 'nl';
+  function tr(nl, en) { return LANG === 'en' && en ? en : nl; }
 
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var mobile = window.matchMedia('(max-width: 767px)');
@@ -368,7 +372,7 @@
         buttons.push(b);
       }
       if (nav) {
-        addButton('alle', 'Alle vragen', items.length);
+        addButton('alle', tr('Alle vragen', 'All questions'), items.length);
         groups.forEach(function (g) { addButton(g.slug, g.name, g.items.length); });
       }
 
@@ -466,19 +470,19 @@
   var HS_SUBSCRIPTION = 12212794;
   var UTM = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
   var MSG = {
-    firstname: 'Vul je voornaam in.',
-    lastname: 'Vul je achternaam in.',
-    email: 'Vul je e-mailadres in.',
-    emailBad: 'Dit e-mailadres lijkt niet te kloppen. Bijvoorbeeld: naam@bedrijf.nl',
-    phone: 'Vul je telefoonnummer in, dan kunnen we je bellen.',
-    phoneBad: 'Dit telefoonnummer lijkt te kort. Bijvoorbeeld: 06 12345678',
-    company: 'Vul de naam van je bedrijf in.',
-    message: 'Vul je vraag of opmerking in.',
-    web_contact_onderwerp: 'Kies een onderwerp.',
-    web_type_event: 'Kies het type event.',
-    web_aantal_gasten: 'Kies het aantal gasten. Weet je het nog niet? Kies dan ‘Weet ik nog niet’.',
-    when: 'Kies een maand, ‘Later’ of ‘Weet ik nog niet’.',
-    whenYear: 'Kies in welk jaar je event plaatsvindt.'
+    firstname: tr('Vul je voornaam in.', 'Please enter your first name.'),
+    lastname: tr('Vul je achternaam in.', 'Please enter your last name.'),
+    email: tr('Vul je e-mailadres in.', 'Please enter your email address.'),
+    emailBad: tr('Dit e-mailadres lijkt niet te kloppen. Bijvoorbeeld: naam@bedrijf.nl', 'This email address doesn\'t look right. For example: name@company.com'),
+    phone: tr('Vul je telefoonnummer in, dan kunnen we je bellen.', 'Please enter your phone number so we can call you.'),
+    phoneBad: tr('Dit telefoonnummer lijkt te kort. Bijvoorbeeld: 06 12345678', 'This phone number looks too short. For example: +31 6 12345678'),
+    company: tr('Vul de naam van je bedrijf in.', 'Please enter your company name.'),
+    message: tr('Vul je vraag of opmerking in.', 'Please enter your question or comment.'),
+    web_contact_onderwerp: tr('Kies een onderwerp.', 'Please choose a subject.'),
+    web_type_event: tr('Kies het type event.', 'Please choose the type of event.'),
+    web_aantal_gasten: tr('Kies het aantal gasten. Weet je het nog niet? Kies dan ‘Weet ik nog niet’.', 'Please choose the number of guests. Not sure yet? Choose ‘Not sure yet’.'),
+    when: tr('Kies een maand, ‘Later’ of ‘Weet ik nog niet’.', 'Please choose a month, ‘Later’ or ‘Not sure yet’.'),
+    whenYear: tr('Kies in welk jaar je event plaatsvindt.', 'Please choose the year of your event.')
   };
 
   function store(fn) {
@@ -532,7 +536,7 @@
     var name = input.name;
     var v = (input.value || '').trim();
     var msg = '';
-    if (input.required && !v) msg = MSG[name] || 'Vul dit veld in.';
+    if (input.required && !v) msg = MSG[name] || tr('Vul dit veld in.', 'Please fill in this field.');
     else if (v && input.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)) msg = MSG.emailBad;
     else if (v && input.type === 'tel' && v.replace(/\D/g, '').length < 10) msg = MSG.phoneBad;
     return setError(form, name, msg);
@@ -624,7 +628,7 @@
   function submitToHubSpot(form) {
     var data = collect(form);
     var consentText = form.getAttribute('data-consent-text') ||
-      'Door te verzenden geef je ons toestemming om bovenstaande informatie te verwerken.';
+      tr('Door te verzenden geef je ons toestemming om bovenstaande informatie te verwerken.', 'By submitting you allow us to process the information above.');
     var payload = {
       fields: data.fields,
       context: { pageUri: location.href.split('#')[0], pageName: document.title },
@@ -638,7 +642,7 @@
       payload.legalConsentOptions.consent.communications = [{
         value: true,
         subscriptionTypeId: HS_SUBSCRIPTION,
-        text: 'Ik ga ermee akkoord om ook andere geniaal lekkere berichten te ontvangen van The Food Line-up.'
+        text: tr('Ik ga ermee akkoord om ook andere geniaal lekkere berichten te ontvangen van The Food Line-up.', 'I agree to receive other deliciously good messages from The Food Line-up.')
       }];
     }
     var url = 'https://api.hsforms.com/submissions/v3/integration/submit/' + HS_PORTAL + '/' +
@@ -669,7 +673,7 @@
     var btn = form.querySelector('[type="submit"]');
     var label = btn ? btn.value : '';
     form._busy = true;
-    if (btn) { btn.disabled = true; btn.value = btn.getAttribute('data-wait') || 'Even geduld…'; }
+    if (btn) { btn.disabled = true; btn.value = btn.getAttribute('data-wait') || tr('Even geduld…', 'Please wait…'); }
     if (fail) fail.style.display = 'none';
 
     submitToHubSpot(form).then(function () {
@@ -695,10 +699,12 @@
 
   /* Offerte: twee stappen + "wanneer"-keuze (maanden, later, jaar, datum).
      De opmaak komt uit de verborgen voorbeelden in [data-when-templates]. */
-  var MN = ['jan', 'feb', 'mrt', 'apr', 'mei', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'];
+  var MN = LANG === 'en'
+    ? ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    : ['jan', 'feb', 'mrt', 'apr', 'mei', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'];
   var MNL = ['januari', 'februari', 'maart', 'april', 'mei', 'juni', 'juli', 'augustus',
     'september', 'oktober', 'november', 'december'];
-  var DOW = ['ma', 'di', 'wo', 'do', 'vr', 'za', 'zo'];
+  var DOW = LANG === 'en' ? ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'] : ['ma', 'di', 'wo', 'do', 'vr', 'za', 'zo'];
   function pad(n) { return String(n).padStart(2, '0'); }
   function iso(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
   function nlDate(v) { var p = v.split('-'); return Number(p[2]) + ' ' + MNL[Number(p[1]) - 1] + ' ' + p[0]; }
@@ -823,13 +829,13 @@
       row.appendChild(chip('Later', st.mo === 'later', function () {
         set({ mo: st.mo === 'later' ? '' : 'later', yr: '', lmo: '', date: '' }, true);
       }));
-      row.appendChild(chip('Weet ik nog niet', st.mo === 'unknown', function () {
+      row.appendChild(chip(tr('Weet ik nog niet', 'Not sure yet'), st.mo === 'unknown', function () {
         set({ mo: st.mo === 'unknown' ? '' : 'unknown', yr: '', lmo: '', date: '' }, true);
       }));
       whenEl.appendChild(row);
 
       if (st.mo === 'later') {
-        var ry = reveal('In welk jaar?');
+        var ry = reveal(tr('In welk jaar?', 'Which year?'));
         var yrow = el('div', C.row);
         YEARS.forEach(function (y) {
           yrow.appendChild(chip(y, st.yr === y, function () { set({ yr: y, lmo: '', date: '' }, true); }));
@@ -839,7 +845,7 @@
 
         var yN = st.yr && st.yr !== 'Nog verder' ? Number(st.yr) : null;
         if (yN) {
-          var rm = reveal('Weet je de maand al?', true);
+          var rm = reveal(tr('Weet je de maand al?', 'Do you know the month?'), true);
           var mg = el('div', C.months);
           for (var i = 0; i < 12; i++) {
             var md = new Date(yN, i, 1);
@@ -858,7 +864,7 @@
 
       var act = active();
       if (act) {
-        var rd = reveal('Weet je de datum al?', true);
+        var rd = reveal(tr('Weet je de datum al?', 'Do you know the date?'), true);
         var drow = el('div', C.date);
         var cal = el('div', C.cal);
         var title = MNL[act.getMonth()] + ' ' + act.getFullYear();
@@ -887,8 +893,8 @@
         cal.appendChild(cg);
         drow.appendChild(cal);
         drow.appendChild(el('p', C.hint, st.date
-          ? 'Top, dan checken we direct de beschikbaarheid.'
-          : 'Nog geen vaste datum? Geen probleem, de maand is genoeg.'));
+          ? tr('Top, dan checken we direct de beschikbaarheid.', 'Great, we\'ll check availability right away.')
+          : tr('Nog geen vaste datum? Geen probleem, de maand is genoeg.', 'No fixed date yet? No problem, the month is enough.')));
         rd.appendChild(drow);
         whenEl.appendChild(rd);
       }
@@ -994,7 +1000,7 @@
   function fillSelects(form) {
     $$('select[data-options]', form).forEach(function (s) {
       if (s.options.length > 1) return;
-      var ph = s.getAttribute('data-placeholder') || 'Kies een optie';
+      var ph = s.getAttribute('data-placeholder') || tr('Kies een optie', 'Choose an option');
       s.textContent = '';
       var o0 = new Option(ph, '');
       s.appendChild(o0);
@@ -1085,7 +1091,7 @@
       if (!list.id) list.id = 'legal-toc-list';
       btn.setAttribute('aria-controls', list.id);
     }
-    btn.innerHTML = '<span>Op deze pagina</span><span class="legal_toc-toggle-meta">' +
+    btn.innerHTML = '<span>' + tr('Op deze pagina', 'On this page') + '</span><span class="legal_toc-toggle-meta">' +
       (count ? '<span class="legal_toc-toggle-count">' + count.textContent.trim() + '</span>' : '') +
       '<span class="legal_toc-toggle-icon" aria-hidden="true"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M8 2v12M2 8h12"/></svg></span></span>';
     toc.insertBefore(btn, toc.firstChild);
@@ -1129,9 +1135,9 @@
       input.type = 'search';
       input.id = 'vw-zoek';
       input.className = 'legal_search-input';
-      input.placeholder = 'Zoek in de voorwaarden';
+      input.placeholder = tr('Zoek in de voorwaarden', 'Search the terms');
       input.autocomplete = 'off';
-      input.setAttribute('aria-label', 'Zoek in de voorwaarden');
+      input.setAttribute('aria-label', tr('Zoek in de voorwaarden', 'Search the terms'));
       input.setAttribute('enterkeyhint', 'search');
       mount.appendChild(input);
       mount.classList.add('is-ready');
@@ -1147,7 +1153,7 @@
           if (a && a.parentElement) a.parentElement.style.display = hit ? '' : 'none';
           if (hit) { n++; if (!first) first = d; }
         });
-        var label = q ? n + ' van ' + total : total + ' artikelen';
+        var label = q ? n + tr(' van ', ' of ') + total : total + tr(' artikelen', ' articles');
         if (count) count.textContent = label;
         if (btnCount) btnCount.textContent = label;
         if (empty) empty.style.display = n ? 'none' : 'block';
@@ -1592,7 +1598,7 @@
     if (p.burger) {
       if (p.burger.tagName === 'A') p.burger.setAttribute('role', 'button');
       p.burger.setAttribute('aria-expanded', 'false');
-      if (!p.burger.getAttribute('aria-label')) p.burger.setAttribute('aria-label', 'Menu openen of sluiten');
+      if (!p.burger.getAttribute('aria-label')) p.burger.setAttribute('aria-label', tr('Menu openen of sluiten', 'Open or close menu'));
       on(p.burger, 'click', function (e) { e.preventDefault(); if (state.open) closeMenu(); else openMenu(); });
     }
     on(p.back, 'click', function (e) { e.preventDefault(); closePanel(); });
@@ -1648,6 +1654,44 @@
     });
   }
 
+  /* ------------------------------------------------------------------
+   * Gestructureerde data: FAQPage voor pagina's met een FAQ-blok
+   * (event-types, Event catering, Onze aanpak, Chef's netwerk, Offerte,
+   * Contact). De pagina /faq heeft een vaste FAQPage in de paginacode;
+   * staat er al een FAQPage op de pagina, dan doet dit niets.
+   * ------------------------------------------------------------------ */
+  function initSchema() {
+    var lists = $$('[data-faq-list]');
+    if (!lists.length) return;
+    var exists = $$('script[type="application/ld+json"]').some(function (s) {
+      return s.textContent.indexOf('FAQPage') !== -1;
+    });
+    if (exists) return;
+    var seen = {}, items = [];
+    lists.forEach(function (list) {
+      $$('details', list).forEach(function (d) {
+        var q = d.querySelector('summary');
+        var a = d.querySelector('.faq_answer-text') || d.querySelector('.faq_answer');
+        if (!q || !a) return;
+        var name = q.textContent.replace(/\s+/g, ' ').trim();
+        var text = a.textContent.replace(/\s+/g, ' ').trim();
+        if (!name || !text || seen[name]) return;
+        seen[name] = true;
+        items.push({ '@type': 'Question', name: name, acceptedAnswer: { '@type': 'Answer', text: text } });
+      });
+    });
+    if (!items.length) return;
+    var el = document.createElement('script');
+    el.type = 'application/ld+json';
+    el.textContent = JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      inLanguage: LANG === 'en' ? 'en' : 'nl-NL',
+      mainEntity: items
+    });
+    document.head.appendChild(el);
+  }
+
   function init() {
     document.documentElement.classList.add('tflu-js');
     if (reduceMotion) document.documentElement.classList.add('tflu-reduced-motion');
@@ -1663,6 +1707,7 @@
     initLegal();
     initMegaNav();
     initConsent();
+    initSchema();
     // Volgt later: initAnimations() (data-animate / data-stagger / data-counter, GSAP)
   }
 
