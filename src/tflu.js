@@ -1928,7 +1928,7 @@
       '.share_button.is-copied .tflu-copied{opacity:1;transform:translate(-50%,0)}',
       // Aanmeldblok in stories: e-mailveld even hoog als de knop ernaast (56px), zoals de velden op Offerte aanvragen
       '.signup_field-row .form_input{height:3.5rem}',
-      '.button>.cta_button-icon{flex:none}',
+      '.button>.cta_button-icon{flex:none}','.signup_field-row .button{flex:none}',
       // Uitgelichte story: 'Lees het verhaal' krijgt dezelfde onderstreping als de andere tekstlinks, alleen onder de tekst
       '.stories-featured_link>div{position:relative}',
       '.stories-featured_link>div::after{content:"";position:absolute;left:0;right:0;bottom:-.375rem;height:2px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform var(--tflu-fast) ' + e + ';pointer-events:none}',
