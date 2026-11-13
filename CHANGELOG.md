@@ -2,6 +2,10 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.28.1] - 2026-11-13
+
+- Formulieren: labels met een leeg for="" (Webflow) worden gerepareerd. Keuzeknoppen bij 'Wat voor event organiseer je?' en 'Hoeveel gasten verwacht je?' zijn weer aan te klikken (blauw met witte tekst), en labels zijn weer gekoppeld aan hun veld (klik op label = focus, schermlezers).
+
 ## [1.28.0] - 2026-11-13
 
 - Deel dit verhaal: kopieerknop toont 'Link gekopieerd' (navy labeltje, gele vink); op telefoon/tablet opent dezelfde knop het deelmenu van het toestel.

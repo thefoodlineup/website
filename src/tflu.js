@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.28.0
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.28.1
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -2511,9 +2511,26 @@
     });
   }
 
+  /* Webflow zet bij formulierlabels een leeg for="" neer. Dan hoort het label bij geen enkel veld:
+   * klikken op een keuzeknop (radio in label) doet niets en schermlezers koppelen label en veld niet.
+   * Label met veld erin: for weghalen. Anders: for naar het eerstvolgende veld met een id. */
+  function initLabels() {
+    $$('label[for=""]').forEach(function (l) {
+      if (l.querySelector('input,select,textarea')) { l.removeAttribute('for'); return; }
+      var n = l.nextElementSibling;
+      while (n && !/^(INPUT|SELECT|TEXTAREA)$/.test(n.tagName)) {
+        var inner = n.querySelector && n.querySelector('input,select,textarea');
+        if (inner) { n = inner; break; }
+        n = n.nextElementSibling;
+      }
+      if (n && n.id) l.setAttribute('for', n.id); else l.removeAttribute('for');
+    });
+  }
+
   function init() {
     document.documentElement.classList.add('tflu-js');
     if (reduceMotion) document.documentElement.classList.add('tflu-reduced-motion');
+    initLabels();
     initLinkButtons();
     initDates();
     initFaq();
