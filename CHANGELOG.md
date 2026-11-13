@@ -2,6 +2,10 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.29.1] - 2026-11-13
+
+- Pijl in knoppen krimpt niet meer weg als de knop smal is (o.a. 'Aanmelden' in het nieuwsbriefblok).
+
 ## [1.29.0] - 2026-11-13
 
 - Verzendknoppen van alle formulieren (offerte, contact, nieuwsbrief) worden een knop met tekst + pijl, gelijk aan 'Volgende stap', met dezelfde hover-animatie. Tekst 'Even geduld…' tijdens verzenden blijft werken.
