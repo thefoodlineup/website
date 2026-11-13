@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.26.2
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.27.0
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -2450,6 +2450,24 @@
     }
   }
 
+  /* Vacature: 'Solliciteer via e-mail' (en het mailadres in de sollicitatietekst) krijgt automatisch
+   * het onderwerp 'Sollicitatie: [titel vacature]'. Geldt voor elke vacature uit het CMS.
+   * Het mailadres van de contactpersoon ('Meer (w)eten?') blijft zonder onderwerp: dat is voor vragen.
+   */
+  function initVacancyMail() {
+    var sec = document.querySelector('.section_vacancy-apply');
+    var h1 = document.querySelector('h1');
+    if (!sec || !h1) return;
+    var title = h1.textContent.replace(/\s+/g, ' ').trim();
+    if (!title) return;
+    $$('a[href^="mailto:"]', sec).forEach(function (a) {
+      if (a.classList.contains('vacancy-contact_email')) return;
+      var href = a.getAttribute('href');
+      if (/[?&]subject=/i.test(href)) return;
+      a.setAttribute('href', href + (href.indexOf('?') > -1 ? '&' : '?') + 'subject=' + encodeURIComponent(tr('Sollicitatie: ', 'Application: ') + title));
+    });
+  }
+
   function init() {
     document.documentElement.classList.add('tflu-js');
     if (reduceMotion) document.documentElement.classList.add('tflu-reduced-motion');
@@ -2473,6 +2491,7 @@
     initStoryMeta();
     initLineup();
     initAnchors();
+    initVacancyMail();
     initMotion();
   }
 

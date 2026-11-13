@@ -2,6 +2,10 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.27.0] - 2026-11-13
+
+- Vacature: 'Solliciteer via e-mail' en het mailadres in de sollicitatietekst krijgen het onderwerp 'Sollicitatie: [titel vacature]'.
+
 ## [1.26.2] - 2026-11-13
 
 - Vacaturerij: pijl in het rondje schuift niet meer op bij hover; alleen het rondje kleurt wit met navy pijl.
