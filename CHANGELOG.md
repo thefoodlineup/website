@@ -2,6 +2,10 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.26.2] - 2026-11-13
+
+- Vacaturerij: pijl in het rondje schuift niet meer op bij hover; alleen het rondje kleurt wit met navy pijl.
+
 ## [1.26.1] - 2026-11-13
 
 - Vacaturerij: geen lichter vlak meer; in plaats daarvan tekent de scheidingslijn onder de rij geel in van links naar rechts (zoals de onderstreping bij links), titel geel, rondje wit.

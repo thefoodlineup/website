@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.26.1
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.26.2
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -1906,7 +1906,6 @@
       '.vacancy-row_title{transition:color .3s ease}',
       '@media (hover:hover){.vacancy-row:hover::after{transform:scaleX(1)}.vacancy-row:hover .vacancy-row_title{color:var(--brand--yellow,#FFD632)}}',
       '.vacancy-row:focus-visible::after{transform:scaleX(1)}.vacancy-row:focus-visible .vacancy-row_title{color:var(--brand--yellow,#FFD632)}',
-      '.vacancy-row .vacancy-row_go svg{transition:transform var(--tflu-fast) ' + e + '}.vacancy-row:hover .vacancy-row_go svg{transform:translateX(3px)}',
       // Losse tekstlinks (in tekst, formulieren, e-mail): oranje bij hover, zoals overal in het UI-design
       '.form_consent-link,.form_text-button,.vacancy-contact_email,main p a:not([class]),main li a:not([class]){transition:color var(--tflu-fast) ease}',
       '.form_consent-link:hover,.form_text-button:hover,.vacancy-contact_email:hover,main p a:not([class]):hover,main li a:not([class]):hover{color:var(--brand--orange)}',
