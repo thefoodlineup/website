@@ -2,6 +2,11 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.30.0] - 2026-11-13
+
+- Bedankt-melding: `[data-done-email]` toont het ingevulde e-mailadres (zonder adres: `[data-done-mailline]` met `data-fallback`). `[data-form-summary]` toont de samenvatting van de offerteaanvraag.
+- Staging-preview `?formpreview=bedankt` zit nu in het script (alle formulieren), met voorbeeldadres en voorbeeld-samenvatting.
+
 ## [1.29.1] - 2026-11-13
 
 - Pijl in knoppen krimpt niet meer weg als de knop smal is (o.a. 'Aanmelden' in het nieuwsbriefblok).

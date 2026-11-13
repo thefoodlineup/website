@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.29.1
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.30.0
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -818,6 +818,29 @@
     });
   }
 
+  /* Bedankt-melding: [data-done-email] krijgt het ingevulde e-mailadres. Zonder adres valt
+   * [data-done-mailline] terug op de tekst in data-fallback. [data-form-summary] vult initQuoteForm. */
+  function fillDone(form, done) {
+    if (!done) return;
+    var inp = form.querySelector('input[type="email"]');
+    var mail = inp ? inp.value.trim() : '';
+    $$('[data-done-email]', done).forEach(function (e) { e.textContent = mail; });
+    if (!mail) $$('[data-done-mailline][data-fallback]', done).forEach(function (e) { e.textContent = e.getAttribute('data-fallback'); });
+  }
+
+  // Alleen op staging: ?formpreview=bedankt toont de bedankt-melding met voorbeeldgegevens, zonder te verzenden.
+  function initFormPreview() {
+    if (!/\.webflow\.io$/.test(location.hostname)) return;
+    if (!/[?&]formpreview=bedankt\b/.test(location.search)) return;
+    $$('form[data-hs-form]').forEach(function (f) {
+      var wrap = f.closest('.w-form'); var done = wrap && wrap.querySelector('.w-form-done');
+      if (!done) return;
+      f.style.display = 'none'; done.style.display = 'block';
+      $$('[data-done-email]', done).forEach(function (e) { e.textContent = 'naam@bedrijf.nl'; });
+      $$('[data-form-summary]', done).forEach(function (e) { e.textContent = 'Bedrijfsfeest · 150 – 300 gasten · maart 2027'; });
+    });
+  }
+
   function onSubmit(e) {
     var form = e.target;
     if (!form || !form.matches || !form.matches('form[data-hs-form]')) return;
@@ -839,6 +862,7 @@
 
     submitToHubSpot(form).then(function () {
       form.style.display = 'none';
+      fillDone(form, done);
       if (done) {
         done.style.display = 'block';
         var focus = done.querySelector('[tabindex="-1"]') || done;
@@ -2568,6 +2592,7 @@
     initSplitLists();
     initInlineSignup();
     initForms();
+    initFormPreview();
     initLegal();
     initMegaNav();
     initConsent();
