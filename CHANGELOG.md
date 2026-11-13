@@ -2,6 +2,10 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.27.1] - 2026-11-13
+
+- FAQ: na zoeken of filteren blijft de plakkende linkerkolom (met zoekveld) onder de navigatie staan; de vragenkolom krijgt minimaal de hoogte van de linkerkolom en de lijst scrolt terug naar boven als je lager op de pagina stond.
+
 ## [1.27.0] - 2026-11-13
 
 - Vacature: 'Solliciteer via e-mail' en het mailadres in de sollicitatietekst krijgen het onderwerp 'Sollicitatie: [titel vacature]'.

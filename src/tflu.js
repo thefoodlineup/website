@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.27.0
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.27.1
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -544,15 +544,30 @@
         if (empty) empty.style.display = shown ? 'none' : 'flex';
       }
 
+      // Na zoeken of filteren: de vragenkolom wordt nooit korter dan de plakkende linkerkolom
+      // (anders schuift die kolom omhoog onder de navigatie), en staat de bezoeker al lager
+      // op de pagina, dan gaat de lijst terug naar boven zodat zoekveld en resultaat samen in beeld zijn.
+      var aside = root.querySelector('.faq-index_aside');
+      var main = root.querySelector('.faq-index_main');
+      function keepInView() {
+        if (!aside || !main) return;
+        var cols = getComputedStyle(root).gridTemplateColumns.split(' ').length;
+        main.style.minHeight = cols > 1 ? aside.offsetHeight + 'px' : '';
+        var off = cols > 1 ? (parseFloat(getComputedStyle(aside).top) || 0) : 96;
+        var top = root.getBoundingClientRect().top;
+        if (top < off - 1) window.scrollTo({ top: top + window.pageYOffset - off, behavior: reduceMotion ? 'auto' : 'smooth' });
+      }
+      buttons.forEach(function (b) { b.addEventListener('click', keepInView); });
       if (input) {
         input.type = 'search';
-        input.addEventListener('input', render);
+        input.addEventListener('input', function () { render(); keepInView(); });
       }
       if (reset) reset.addEventListener('click', function (e) {
         e.preventDefault();
         current = 'alle';
         if (input) input.value = '';
         render();
+        keepInView();
       });
       // Structured data (FAQPage) uit dezelfde CMS-inhoud
       if (!document.querySelector('script[data-faq-ld]')) {
