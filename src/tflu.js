@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.27.2
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.27.3
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -1896,6 +1896,8 @@
       '.mega-nav__bar-link.is--back svg{transition:transform var(--tflu-fast) ' + e + '}.mega-nav__bar-link.is--back:hover svg{transform:translateX(-4px)}',
       // Tekstlinks met pijl: lijn groeit van links (niet onder de pijl)
       '.link-more,.faq_more,.case-related_link,.locations-empty_link{position:relative}',
+      // Aanmeldblok in stories: e-mailveld even hoog als de knop ernaast (56px), zoals de velden op Offerte aanvragen
+      '.signup_field-row .form_input{height:3.5rem}',
       // Uitgelichte story: 'Lees het verhaal' krijgt dezelfde onderstreping als de andere tekstlinks, alleen onder de tekst
       '.stories-featured_link>div{position:relative}',
       '.stories-featured_link>div::after{content:"";position:absolute;left:0;right:0;bottom:-.375rem;height:2px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform var(--tflu-fast) ' + e + ';pointer-events:none}',

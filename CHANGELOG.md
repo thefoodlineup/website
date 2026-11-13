@@ -2,6 +2,10 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.27.3] - 2026-11-13
+
+- Aanmeldblok in stories: e-mailveld even hoog als de knop (56px). Webflow: ruimte tussen veld en 'Je kunt je altijd weer afmelden' (signup_note margin-top 0.875rem).
+
 ## [1.27.2] - 2026-11-13
 
 - Stories: 'Lees het verhaal' bij de uitgelichte story krijgt bij hover dezelfde onderstreping als de andere tekstlinks, alleen onder de tekst.
