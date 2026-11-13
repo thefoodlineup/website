@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.28.1
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.29.0
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -832,9 +832,9 @@
     var done = wrap.querySelector('.w-form-done');
     var fail = wrap.querySelector('.w-form-fail');
     var btn = form.querySelector('[type="submit"]');
-    var label = btn ? btn.value : '';
+    var label = btn ? btnLabel(btn) : '';
     form._busy = true;
-    if (btn) { btn.disabled = true; btn.value = btn.getAttribute('data-wait') || tr('Even geduld…', 'Please wait…'); }
+    if (btn) { btn.disabled = true; btnLabel(btn, btn.getAttribute('data-wait') || tr('Even geduld…', 'Please wait…')); }
     if (fail) fail.style.display = 'none';
 
     submitToHubSpot(form).then(function () {
@@ -854,7 +854,7 @@
       if (fail) fail.style.display = 'block';
     }).then(function () {
       form._busy = false;
-      if (btn) { btn.disabled = false; btn.value = label; }
+      if (btn) { btn.disabled = false; btnLabel(btn, label); }
     });
   }
 
@@ -1178,17 +1178,40 @@
     });
   }
 
+  // Verzendknoppen: Webflow levert een <input type="submit"> (kan geen icoon bevatten).
+  // We zetten die om naar een <button> met dezelfde opbouw als 'Volgende stap': tekst + pijl,
+  // zodat elke verzendknop dezelfde pijl en hover-animatie heeft.
+  var ARROW_SVG = '<svg class="cta_button-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M3 9h12M10 4l5 5-5 5"/></svg>';
+  function upgradeSubmit(form) {
+    var inp = form.querySelector('input[type="submit"]');
+    if (!inp) return;
+    var b = document.createElement('button');
+    [].slice.call(inp.attributes).forEach(function (a) {
+      if (a.name !== 'value' && a.name !== 'type') b.setAttribute(a.name, a.value);
+    });
+    b.type = 'submit';
+    b.classList.remove('w-button');
+    b.innerHTML = '<span></span>' + ARROW_SVG;
+    b.firstChild.textContent = inp.value;
+    inp.parentNode.replaceChild(b, inp);
+  }
+  function btnLabel(btn, text) {
+    var sp = btn.tagName === 'BUTTON' ? (btn.querySelector('span') || btn) : null;
+    if (text === undefined) return sp ? sp.textContent : btn.value;
+    if (sp) sp.textContent = text; else btn.value = text;
+  }
+
   // Webflow zet de verzendknop uit tot zijn eigen spamcheck (Turnstile) klaar is.
   // Wij versturen zelf naar HubSpot, dus de knop blijft gewoon bruikbaar.
   function keepSubmitEnabled(form) {
     var btn = form.querySelector('[type="submit"]');
     if (!btn) return;
-    var label = btn.value;
+    var label = btnLabel(btn);
     function fix() {
       if (form._busy) return;
       if (btn.disabled) btn.disabled = false;
       if (btn.classList.contains('w-form-loading')) btn.classList.remove('w-form-loading');
-      if (btn.value !== label && !form._busy) btn.value = label;
+      if (btnLabel(btn) !== label && !form._busy) btnLabel(btn, label);
     }
     fix();
     if (window.MutationObserver) {
@@ -1206,6 +1229,7 @@
       $$('[placeholder]', form).forEach(function (i) {
         if (/^example text$/i.test(i.getAttribute('placeholder'))) i.removeAttribute('placeholder');
       });
+      upgradeSubmit(form);
       keepSubmitEnabled(form);
       fillSelects(form);
       initChips(form);
