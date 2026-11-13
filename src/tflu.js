@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.27.1
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.27.2
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -1896,6 +1896,10 @@
       '.mega-nav__bar-link.is--back svg{transition:transform var(--tflu-fast) ' + e + '}.mega-nav__bar-link.is--back:hover svg{transform:translateX(-4px)}',
       // Tekstlinks met pijl: lijn groeit van links (niet onder de pijl)
       '.link-more,.faq_more,.case-related_link,.locations-empty_link{position:relative}',
+      // Uitgelichte story: 'Lees het verhaal' krijgt dezelfde onderstreping als de andere tekstlinks, alleen onder de tekst
+      '.stories-featured_link>div{position:relative}',
+      '.stories-featured_link>div::after{content:"";position:absolute;left:0;right:0;bottom:-.375rem;height:2px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform var(--tflu-fast) ' + e + ';pointer-events:none}',
+      '.stories-featured_card:hover .stories-featured_link>div::after,.stories-featured_card:focus-visible .stories-featured_link>div::after{transform:scaleX(1);transition-duration:.25s}',
       '.link-more::after,.faq_more::after,.case-related_link::after,.locations-empty_link::after{content:"";position:absolute;left:0;right:1.5rem;bottom:-.375rem;height:2px;' +
         'background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform var(--tflu-fast) ' + e + ';pointer-events:none}',
       '.link-more:hover::after,.link-more:focus-visible::after,.faq_more:hover::after,.case-related_link:hover::after,' +

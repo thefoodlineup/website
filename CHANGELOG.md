@@ -2,6 +2,10 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.27.2] - 2026-11-13
+
+- Stories: 'Lees het verhaal' bij de uitgelichte story krijgt bij hover dezelfde onderstreping als de andere tekstlinks, alleen onder de tekst.
+
 ## [1.27.1] - 2026-11-13
 
 - FAQ: na zoeken of filteren blijft de plakkende linkerkolom (met zoekveld) onder de navigatie staan; de vragenkolom krijgt minimaal de hoogte van de linkerkolom en de lijst scrolt terug naar boven als je lager op de pagina stond.
