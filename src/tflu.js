@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.27.3
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.28.0
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -1896,6 +1896,12 @@
       '.mega-nav__bar-link.is--back svg{transition:transform var(--tflu-fast) ' + e + '}.mega-nav__bar-link.is--back:hover svg{transform:translateX(-4px)}',
       // Tekstlinks met pijl: lijn groeit van links (niet onder de pijl)
       '.link-more,.faq_more,.case-related_link,.locations-empty_link{position:relative}',
+      // Kopieerknop 'Deel dit verhaal': labeltje 'Link gekopieerd'
+      '.share_button[data-share="copy"]{position:relative}',
+      '.tflu-copied{position:absolute;left:50%;bottom:calc(100% + .625rem);transform:translate(-50%,.25rem);display:inline-flex;align-items:center;gap:.375rem;padding:.375rem .625rem;background:var(--brand--navy,#25245A);color:#fff;font-family:var(--font--body,Outfit),sans-serif;font-size:.8125rem;font-weight:600;line-height:1.2;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .2s ease,transform .3s ' + e + '}',
+      ".tflu-copied::before{content:'';width:.75rem;height:.75rem;flex:0 0 .75rem;background:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 18' fill='none' stroke='%23FFD632' stroke-width='3'%3E%3Cpath d='M3.5 9.5l3.5 3.5 7.5-8'/%3E%3C/svg%3E\") center/contain no-repeat}",
+      ".tflu-copied::after{content:'';position:absolute;left:50%;top:100%;transform:translateX(-50%);border:.3125rem solid transparent;border-top-color:var(--brand--navy,#25245A)}",
+      '.share_button.is-copied .tflu-copied{opacity:1;transform:translate(-50%,0)}',
       // Aanmeldblok in stories: e-mailveld even hoog als de knop ernaast (56px), zoals de velden op Offerte aanvragen
       '.signup_field-row .form_input{height:3.5rem}',
       // Uitgelichte story: 'Lees het verhaal' krijgt dezelfde onderstreping als de andere tekstlinks, alleen onder de tekst
@@ -2209,12 +2215,26 @@
         a.href = url;
         a.setAttribute('role', 'button');
         var label = a.getAttribute('aria-label') || '';
+        // Zichtbare bevestiging in de huisstijl: navy labeltje met gele vink boven de knop
+        var tip = document.createElement('span');
+        tip.className = 'tflu-copied';
+        tip.setAttribute('aria-hidden', 'true');
+        tip.textContent = tr('Link gekopieerd', 'Link copied');
+        a.appendChild(tip);
+        var touch = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
         a.addEventListener('click', function (e) {
           e.preventDefault();
+          // Telefoon/tablet: het deelmenu van het toestel (WhatsApp, Berichten, Mail…)
+          if (touch && navigator.share) {
+            var t = document.querySelector('h1');
+            navigator.share({ title: (t && t.textContent.trim()) || document.title, url: url }).catch(function () {});
+            return;
+          }
           var done = function () {
             a.setAttribute('aria-label', tr('Link gekopieerd', 'Link copied'));
             a.classList.add('is-copied');
-            setTimeout(function () { a.setAttribute('aria-label', label); a.classList.remove('is-copied'); }, 2000);
+            clearTimeout(a._copyT);
+            a._copyT = setTimeout(function () { a.setAttribute('aria-label', label); a.classList.remove('is-copied'); }, 2000);
           };
           if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(done, function () {});
           else {
@@ -2290,6 +2310,8 @@
 
     var rich = box.parentElement && box.parentElement.querySelector('.story-rich');
     if (!rich) return;
+    // Korte story (minder dan 300 woorden): geen blok in het artikel, onderaan staat al 'Nog meer zin in eten?'
+    if (rich.textContent.trim().split(/\s+/).length < 300) { box.hidden = true; box.style.display = 'none'; return; }
     var kids = [].slice.call(rich.children);
     if (kids.length < 6) return;
     var total = rich.textContent.length, acc = 0;

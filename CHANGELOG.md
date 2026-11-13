@@ -2,6 +2,11 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.28.0] - 2026-11-13
+
+- Deel dit verhaal: kopieerknop toont 'Link gekopieerd' (navy labeltje, gele vink); op telefoon/tablet opent dezelfde knop het deelmenu van het toestel.
+- Aanmeldblok in het artikel alleen bij stories vanaf 300 woorden (onderaan staat al 'Nog meer zin in eten?').
+
 ## [1.27.3] - 2026-11-13
 
 - Aanmeldblok in stories: e-mailveld even hoog als de knop (56px). Webflow: ruimte tussen veld en 'Je kunt je altijd weer afmelden' (signup_note margin-top 0.875rem).
