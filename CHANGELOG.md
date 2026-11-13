@@ -2,6 +2,10 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.26.1] - 2026-11-13
+
+- Vacaturerij: geen lichter vlak meer; in plaats daarvan tekent de scheidingslijn onder de rij geel in van links naar rechts (zoals de onderstreping bij links), titel geel, rondje wit.
+
 ## [1.26.0] - 2026-11-13
 
 - Vacaturerij (Werken bij): bij hover schuift een lichter navy vlak van links over de hele rij en wordt de titel geel; het rondje vult wit met een navy pijl die iets opschuift. Bij minder beweging alleen de kleurwissel.

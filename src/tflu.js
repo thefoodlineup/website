@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.26.0
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.26.1
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -1899,13 +1899,13 @@
       '.share_button{transition:background-color .3s ease,border-color .3s ease,color .3s ease}.share_button:hover,.share_button:focus-visible{background-color:var(--brand--orange);border-color:var(--brand--orange);color:#fff}',
       // Vacaturerij: beeldloze rij, pijlknop keert om (zoals in het UI-design)
       '.vacancy-row_go{transition:background-color .3s ease,color .3s ease,border-color .3s ease}.vacancy-row:hover .vacancy-row_go,.vacancy-row:focus-visible .vacancy-row_go{background-color:#fff;color:var(--brand--navy);border-color:#fff}',
-      // Vacaturerij: hele rij reageert. Lichter navy vlak schuift van links in, titel wordt geel (zelfde als de kop erboven)
-      '.vacancy-row{position:relative;isolation:isolate}.vacancy-row>*{position:relative;z-index:1}',
-      '.vacancy-row::before{content:"";position:absolute;z-index:0;top:0;bottom:0;left:-1.5rem;right:-1.5rem;background-color:#2F2E6B;transform:scaleX(0);transform-origin:left center;transition:transform .5s ' + e + '}',
+      // Vacaturerij: in lijn met de rest van de site (links met een gele onderstreping die van links intekent):
+      // de scheidingslijn onder de rij tekent geel in over de volle breedte van de lijn, titel wordt geel, rondje vult wit
+      '.vacancy-row{position:relative}',
+      '.vacancy-row::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background-color:var(--brand--yellow,#FFD632);transform:scaleX(0);transform-origin:left center;transition:transform .5s ' + e + ';pointer-events:none}',
       '.vacancy-row_title{transition:color .3s ease}',
-      '@media (hover:hover){.vacancy-row:hover::before{transform:scaleX(1)}.vacancy-row:hover .vacancy-row_title{color:var(--brand--yellow,#FFD632)}}',
-      '.vacancy-row:focus-visible::before{transform:scaleX(1)}.vacancy-row:focus-visible .vacancy-row_title{color:var(--brand--yellow,#FFD632)}',
-      '@media (max-width:767px){.vacancy-row::before{left:-1.25rem;right:-1.25rem}}',
+      '@media (hover:hover){.vacancy-row:hover::after{transform:scaleX(1)}.vacancy-row:hover .vacancy-row_title{color:var(--brand--yellow,#FFD632)}}',
+      '.vacancy-row:focus-visible::after{transform:scaleX(1)}.vacancy-row:focus-visible .vacancy-row_title{color:var(--brand--yellow,#FFD632)}',
       '.vacancy-row .vacancy-row_go svg{transition:transform var(--tflu-fast) ' + e + '}.vacancy-row:hover .vacancy-row_go svg{transform:translateX(3px)}',
       // Losse tekstlinks (in tekst, formulieren, e-mail): oranje bij hover, zoals overal in het UI-design
       '.form_consent-link,.form_text-button,.vacancy-contact_email,main p a:not([class]),main li a:not([class]){transition:color var(--tflu-fast) ease}',
