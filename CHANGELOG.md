@@ -2,6 +2,10 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.26.0] - 2026-11-13
+
+- Vacaturerij (Werken bij): bij hover schuift een lichter navy vlak van links over de hele rij en wordt de titel geel; het rondje vult wit met een navy pijl die iets opschuift. Bij minder beweging alleen de kleurwissel.
+
 ## [1.25.1] - 2026-11-12
 
 - Ankerlinks: positie zonder de tijdelijke verschuiving van de inschuif-animatie; iets meer ruimte onder de navigatie (64px desktop, 32px mobiel).
