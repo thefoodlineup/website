@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.31.0
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.31.1
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -1952,7 +1952,7 @@
       '.share_button.is-copied .tflu-copied{opacity:1;transform:translate(-50%,0)}',
       // Aanmeldblok in stories: e-mailveld even hoog als de knop ernaast (56px), zoals de velden op Offerte aanvragen
       '.signup_field-row .form_input{height:3.5rem}',
-      '.button>.cta_button-icon{flex:none}',
+      '.button>.cta_button-icon{flex:none}','.tflu-no-slant .slant-bottom{display:none}','.tflu-no-slant .home-cases_component{padding-bottom:0}',
       '[data-error-for]:not(:empty){display:flex;align-items:center;gap:.5rem}','[data-error-for]:not(:empty)::before{content:"";flex:0 0 1rem;width:1rem;height:1rem;background-color:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27 fill=%27none%27 stroke=%27%23000%27 stroke-width=%271.8%27 stroke-linecap=%27round%27%3E%3Ccircle cx=%278%27 cy=%278%27 r=%277%27/%3E%3Cpath d=%27M8 4.5v4.2M8 11v.5%27/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27 fill=%27none%27 stroke=%27%23000%27 stroke-width=%271.8%27 stroke-linecap=%27round%27%3E%3Ccircle cx=%278%27 cy=%278%27 r=%277%27/%3E%3Cpath d=%27M8 4.5v4.2M8 11v.5%27/%3E%3C/svg%3E") center/contain no-repeat}','.form_actions:has([data-form-prev]){justify-content:space-between}','.form_actions [data-form-prev]{display:inline-flex;align-items:center;gap:.5rem}','.form_actions [data-form-prev]::before{content:"";flex:0 0 1rem;width:1rem;height:1rem;background-color:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 18 18%27 fill=%27none%27 stroke=%27%23000%27 stroke-width=%272.2%27%3E%3Cpath d=%27M15 9H3M8 4L3 9l5 5%27/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 18 18%27 fill=%27none%27 stroke=%27%23000%27 stroke-width=%272.2%27%3E%3Cpath d=%27M15 9H3M8 4L3 9l5 5%27/%3E%3C/svg%3E") center/contain no-repeat;transition:transform .2s cubic-bezier(.22,1,.36,1)}','.form_actions [data-form-prev]:hover::before{transform:translateX(-4px)}','.signup_field-row .button{flex:none}',
       // Uitgelichte story: 'Lees het verhaal' krijgt dezelfde onderstreping als de andere tekstlinks, alleen onder de tekst
       '.stories-featured_link>div{position:relative}',
@@ -2577,6 +2577,19 @@
     });
   }
 
+  /* Schuine overgang onder een sectie alleen tonen als de volgende sectie dezelfde kleur heeft
+   * (bijv. cases-slider > navy blok op Home). Anders (Offerte, Werken bij: witte FAQ eronder) weg,
+   * met de ruimte die ervoor was gereserveerd. */
+  function initSlants() {
+    $$('.slant-bottom').forEach(function (sl) {
+      var sec = sl.closest('section'); if (!sec) return;
+      var next = sec.nextElementSibling;
+      while (next && next.offsetHeight === 0) next = next.nextElementSibling;
+      var nb = next ? getComputedStyle(next).backgroundColor : '';
+      if (!next || nb !== getComputedStyle(sl).backgroundColor) sec.classList.add('tflu-no-slant');
+    });
+  }
+
   function init() {
     document.documentElement.classList.add('tflu-js');
     if (reduceMotion) document.documentElement.classList.add('tflu-reduced-motion');
@@ -2603,6 +2616,7 @@
     initLineup();
     initAnchors();
     initVacancyMail();
+    initSlants();
     initMotion();
   }
 

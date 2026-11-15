@@ -2,6 +2,10 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.31.1] - 2026-11-15
+
+- Schuine navy overgang onder de cases-slider alleen als de sectie eronder ook navy is (Home, Event catering). Op Offerte en andere pagina's met een witte sectie eronder verdwijnt hij, inclusief de gereserveerde ruimte.
+
 ## [1.31.0] - 2026-11-13
 
 - Foutmeldingen in formulieren krijgen het waarschuwingsicoon uit het design (sitebreed).
