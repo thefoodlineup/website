@@ -2,6 +2,10 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.31.2] - 2026-11-15
+
+- Schuine overgang: kleur van de volgende sectie ook herkennen als die op het binnenblok staat (padding-global is-navy), zodat Home de overgangen houdt.
+
 ## [1.31.1] - 2026-11-15
 
 - Schuine navy overgang onder de cases-slider alleen als de sectie eronder ook navy is (Home, Event catering). Op Offerte en andere pagina's met een witte sectie eronder verdwijnt hij, inclusief de gereserveerde ruimte.

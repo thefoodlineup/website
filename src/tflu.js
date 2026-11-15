@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.31.1
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.31.2
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -2585,7 +2585,11 @@
       var sec = sl.closest('section'); if (!sec) return;
       var next = sec.nextElementSibling;
       while (next && next.offsetHeight === 0) next = next.nextElementSibling;
-      var nb = next ? getComputedStyle(next).backgroundColor : '';
+      var nb = '', e = next;
+      for (var i = 0; e && i < 3; i++, e = e.firstElementChild) {
+        var c = getComputedStyle(e).backgroundColor;
+        if (c && !/rgba\(0, 0, 0, 0\)|transparent/.test(c)) { nb = c; break; }
+      }
       if (!next || nb !== getComputedStyle(sl).backgroundColor) sec.classList.add('tflu-no-slant');
     });
   }
