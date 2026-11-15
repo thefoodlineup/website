@@ -5,7 +5,7 @@ Alle wijzigingen per versie. Nieuwste bovenaan.
 ## [1.31.0] - 2026-11-13
 
 - Foutmeldingen in formulieren krijgen het waarschuwingsicoon uit het design (sitebreed).
-- 'Vorige stap' in het offerteformulier krijgt een pijl naar links (schuift 4px bij hover).
+- 'Vorige stap' in het offerteformulier krijgt een pijl naar links (schuift 4px bij hover); 'Vorige stap' links en 'Verstuur aanvraag' rechts, zoals in het design.
 
 ## [1.30.0] - 2026-11-13
 
