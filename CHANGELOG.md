@@ -2,6 +2,11 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.31.0] - 2026-11-13
+
+- Foutmeldingen in formulieren krijgen het waarschuwingsicoon uit het design (sitebreed).
+- 'Vorige stap' in het offerteformulier krijgt een pijl naar links (schuift 4px bij hover).
+
 ## [1.30.0] - 2026-11-13
 
 - Bedankt-melding: `[data-done-email]` toont het ingevulde e-mailadres (zonder adres: `[data-done-mailline]` met `data-fallback`). `[data-form-summary]` toont de samenvatting van de offerteaanvraag.

@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.30.0
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.31.0
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -1952,7 +1952,8 @@
       '.share_button.is-copied .tflu-copied{opacity:1;transform:translate(-50%,0)}',
       // Aanmeldblok in stories: e-mailveld even hoog als de knop ernaast (56px), zoals de velden op Offerte aanvragen
       '.signup_field-row .form_input{height:3.5rem}',
-      '.button>.cta_button-icon{flex:none}','.signup_field-row .button{flex:none}',
+      '.button>.cta_button-icon{flex:none}',
+      '[data-error-for]:not(:empty){display:flex;align-items:center;gap:.5rem}','[data-error-for]:not(:empty)::before{content:"";flex:0 0 1rem;width:1rem;height:1rem;background-color:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27 fill=%27none%27 stroke=%27%23000%27 stroke-width=%271.8%27 stroke-linecap=%27round%27%3E%3Ccircle cx=%278%27 cy=%278%27 r=%277%27/%3E%3Cpath d=%27M8 4.5v4.2M8 11v.5%27/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27 fill=%27none%27 stroke=%27%23000%27 stroke-width=%271.8%27 stroke-linecap=%27round%27%3E%3Ccircle cx=%278%27 cy=%278%27 r=%277%27/%3E%3Cpath d=%27M8 4.5v4.2M8 11v.5%27/%3E%3C/svg%3E") center/contain no-repeat}','[data-form-prev]{display:inline-flex;align-items:center;gap:.5rem}','[data-form-prev]::before{content:"";flex:0 0 1rem;width:1rem;height:1rem;background-color:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 18 18%27 fill=%27none%27 stroke=%27%23000%27 stroke-width=%272.2%27%3E%3Cpath d=%27M15 9H3M8 4L3 9l5 5%27/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 18 18%27 fill=%27none%27 stroke=%27%23000%27 stroke-width=%272.2%27%3E%3Cpath d=%27M15 9H3M8 4L3 9l5 5%27/%3E%3C/svg%3E") center/contain no-repeat;transition:transform .2s cubic-bezier(.22,1,.36,1)}','[data-form-prev]:hover::before{transform:translateX(-4px)}','.signup_field-row .button{flex:none}',
       // Uitgelichte story: 'Lees het verhaal' krijgt dezelfde onderstreping als de andere tekstlinks, alleen onder de tekst
       '.stories-featured_link>div{position:relative}',
       '.stories-featured_link>div::after{content:"";position:absolute;left:0;right:0;bottom:-.375rem;height:2px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform var(--tflu-fast) ' + e + ';pointer-events:none}',
