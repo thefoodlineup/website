@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.31.2
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.32.0
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -652,7 +652,16 @@
 
   // Bron van dit bezoek bewaren (alleen voor deze sessie) zodat een formulier
   // drie pagina's later nog weet via welke campagne iemand binnenkwam.
+  // Keuze uit de cookiebanner (Consent Pro): true / false, of null als er nog geen keuze is.
+  function consentFor(cat) {
+    var m = document.cookie.match(/(?:^|;\s*)fs-consent=([^;]+)/);
+    if (!m) return null;
+    try { var c = JSON.parse(decodeURIComponent(m[1])).choices || {}; return cat in c ? !!c[cat] : null; } catch (e) { return null; }
+  }
+
+  // Alleen met toestemming voor analytische cookies (Telecommunicatiewet: niet strikt noodzakelijk).
   function rememberVisit() {
+    if (consentFor('analytics') !== true) return;
     store(function (s) {
       if (!s.getItem('tflu_landing')) s.setItem('tflu_landing', location.href.split('#')[0]);
       var q = new URLSearchParams(location.search);
@@ -1840,6 +1849,41 @@
    * - zichtbare focusring op de knoppen (:focus-visible);
    * - zonder Consent Pro gaat 'Cookievoorkeuren aanpassen' naar #cookies.
    * ------------------------------------------------------------------ */
+  /* Externe spelers (Spotify) pas laden na toestemming voor marketingcookies.
+   * In het CMS staat in plaats van de iframe: <div data-consent-embed="marketing" data-src="…" data-title="…" data-height="152"></div>
+   * Zonder toestemming: een blok met uitleg, een link naar de bron en een knop naar de cookievoorkeuren. */
+  function loadConsentEmbeds() {
+    $$('[data-consent-embed]').forEach(function (el) {
+      var cat = el.getAttribute('data-consent-embed') || 'marketing';
+      var src = el.getAttribute('data-src'); if (!src) return;
+      var title = el.getAttribute('data-title') || tr('Externe speler', 'External player');
+      if (consentFor(cat) === true) {
+        if (el.querySelector('iframe')) return;
+        el.innerHTML = '';
+        var f = document.createElement('iframe');
+        f.src = src; f.title = title; f.loading = 'lazy'; f.width = '100%';
+        f.height = el.getAttribute('data-height') || '152';
+        f.setAttribute('frameborder', '0');
+        f.setAttribute('allow', 'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture');
+        f.style.cssText = 'border:0;border-radius:12px;display:block';
+        el.appendChild(f);
+        return;
+      }
+      if (el.querySelector('.tflu-embed-ph')) return;
+      var open = src.replace('/embed/', '/').replace(/\?.*$/, '');
+      el.innerHTML = '<div class="tflu-embed-ph"><p class="tflu-embed-ph_title"></p>' +
+        '<p class="tflu-embed-ph_text">' + tr('Deze speler komt van Spotify. Spotify plaatst cookies, daarom tonen we hem pas als je marketingcookies toestaat.', 'This player is hosted by Spotify. Spotify sets cookies, so we only show it if you allow marketing cookies.') + '</p>' +
+        '<p class="tflu-embed-ph_actions"><button type="button" class="tflu-embed-ph_btn">' + tr('Cookievoorkeuren aanpassen', 'Change cookie preferences') + '</button>' +
+        '<a class="tflu-embed-ph_link" target="_blank" rel="noopener"></a></p></div>';
+      el.querySelector('.tflu-embed-ph_title').textContent = title;
+      var a = el.querySelector('.tflu-embed-ph_link'); a.href = open; a.textContent = tr('Luister op Spotify', 'Listen on Spotify');
+      el.querySelector('.tflu-embed-ph_btn').addEventListener('click', function () {
+        var o = document.querySelector('[fs-consent-element="open-preferences"]');
+        if (o) o.click(); else location.hash = 'cookies';
+      });
+    });
+  }
+
   function initConsent() {
     var css = document.createElement('style');
     css.textContent =
@@ -1877,6 +1921,13 @@
           if (choices[cat] === false && CLEAN[cat].test(name)) dropCookie(name);
         });
       });
+      // Ook opslag in de browser: Google Ads (_gcl_ls e.d.) en onze herkomstgegevens
+      try {
+        if (choices.marketing === false) Object.keys(localStorage).forEach(function (k) { if (CLEAN.marketing.test(k)) localStorage.removeItem(k); });
+        if (choices.analytics === false) { sessionStorage.removeItem('tflu_utm'); sessionStorage.removeItem('tflu_landing'); }
+      } catch (err) {}
+      if (choices.analytics === true) rememberVisit();
+      loadConsentEmbeds();
     }
     window.dataLayer = window.dataLayer || [];
     var push = window.dataLayer.push;
@@ -1889,6 +1940,7 @@
       return r;
     };
     cleanCookies();
+    loadConsentEmbeds();
 
     window.addEventListener('load', function () {
       setTimeout(function () {
@@ -1952,7 +2004,7 @@
       '.share_button.is-copied .tflu-copied{opacity:1;transform:translate(-50%,0)}',
       // Aanmeldblok in stories: e-mailveld even hoog als de knop ernaast (56px), zoals de velden op Offerte aanvragen
       '.signup_field-row .form_input{height:3.5rem}',
-      '.button>.cta_button-icon{flex:none}','.tflu-no-slant .slant-bottom{display:none}','.tflu-no-slant .home-cases_component{padding-bottom:0}',
+      '.button>.cta_button-icon{flex:none}','.tflu-embed-ph{padding:1.25rem 1.5rem;border:1px solid #E4E8EF;background:#F4FAF9;color:#25245A}','.tflu-embed-ph p{margin:0}.tflu-embed-ph_title{font-weight:600;margin-bottom:.375rem!important}','.tflu-embed-ph_text{font-size:.9375rem;line-height:1.5;color:#4A4970}','.tflu-embed-ph_actions{display:flex;flex-wrap:wrap;align-items:center;gap:.75rem 1.5rem;margin-top:1rem!important}','.tflu-embed-ph_btn{border:1.5px solid #25245A;background:transparent;color:#25245A;font:600 .9375rem/1 Outfit,sans-serif;padding:.75rem 1rem;cursor:pointer;border-radius:0}','.tflu-embed-ph_btn:hover,.tflu-embed-ph_btn:focus-visible{background:#25245A;color:#fff}','.tflu-embed-ph_link{color:#25245A;font-weight:600;text-decoration:underline;text-underline-offset:3px}','.tflu-no-slant .slant-bottom{display:none}','.tflu-no-slant .home-cases_component{padding-bottom:0}',
       '[data-error-for]:not(:empty){display:flex;align-items:center;gap:.5rem}','[data-error-for]:not(:empty)::before{content:"";flex:0 0 1rem;width:1rem;height:1rem;background-color:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27 fill=%27none%27 stroke=%27%23000%27 stroke-width=%271.8%27 stroke-linecap=%27round%27%3E%3Ccircle cx=%278%27 cy=%278%27 r=%277%27/%3E%3Cpath d=%27M8 4.5v4.2M8 11v.5%27/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27 fill=%27none%27 stroke=%27%23000%27 stroke-width=%271.8%27 stroke-linecap=%27round%27%3E%3Ccircle cx=%278%27 cy=%278%27 r=%277%27/%3E%3Cpath d=%27M8 4.5v4.2M8 11v.5%27/%3E%3C/svg%3E") center/contain no-repeat}','.form_actions:has([data-form-prev]){justify-content:space-between}','.form_actions [data-form-prev]{display:inline-flex;align-items:center;gap:.5rem}','.form_actions [data-form-prev]::before{content:"";flex:0 0 1rem;width:1rem;height:1rem;background-color:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 18 18%27 fill=%27none%27 stroke=%27%23000%27 stroke-width=%272.2%27%3E%3Cpath d=%27M15 9H3M8 4L3 9l5 5%27/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 18 18%27 fill=%27none%27 stroke=%27%23000%27 stroke-width=%272.2%27%3E%3Cpath d=%27M15 9H3M8 4L3 9l5 5%27/%3E%3C/svg%3E") center/contain no-repeat;transition:transform .2s cubic-bezier(.22,1,.36,1)}','.form_actions [data-form-prev]:hover::before{transform:translateX(-4px)}','.signup_field-row .button{flex:none}',
       // Uitgelichte story: 'Lees het verhaal' krijgt dezelfde onderstreping als de andere tekstlinks, alleen onder de tekst
       '.stories-featured_link>div{position:relative}',

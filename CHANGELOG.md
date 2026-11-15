@@ -2,6 +2,12 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.32.0] - 2026-11-15
+
+- Herkomst van een bezoek (eerste pagina, UTM) wordt alleen nog bewaard met toestemming voor analytische cookies; bij intrekken weggehaald.
+- Bij geweigerde marketingcookies wordt ook Google Ads-opslag in de browser (_gcl_ls e.d.) opgeruimd.
+- Externe spelers via `[data-consent-embed]` (Spotify) laden pas na toestemming voor marketingcookies; daarvoor een uitlegblok met knop naar de cookievoorkeuren en link 'Luister op Spotify'.
+
 ## [1.31.2] - 2026-11-15
 
 - Schuine overgang: kleur van de volgende sectie ook herkennen als die op het binnenblok staat (padding-global is-navy), zodat Home de overgangen houdt.
