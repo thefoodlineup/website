@@ -2715,8 +2715,8 @@
    * - Bovenaan altijd in beeld; na 120px naar beneden scrollen schuift hij
    *   weg, bij omhoog scrollen komt hij terug (8px marge tegen trillen).
    * - Blijft staan als het menu of een paneel open is, of bij toetsenbordfocus.
-   * - T/m 1199px: bovenaan transparant over de (donkere) hero (beginstand in
-   *   de Webflow-stijlen/head-CSS, dus geen flits), verder wit met schaduw. Alle paginatypes beginnen met een donkere hero.
+   * - T/m 1199px: vaste witte balk; na scrollen een zachte schaduw.
+   * - Richting telt pas na 16px beweging; terugveren (iOS) wordt genegeerd.
    * - Alleen transform/kleur, geen layout; 'minder beweging' zet de animatie uit.
    * ------------------------------------------------------------------ */
   function initNavScroll() {
