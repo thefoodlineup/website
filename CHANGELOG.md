@@ -2,6 +2,11 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.43.0] - 2026-11-16
+
+- Spamfilter laag 1 op alle formulieren (offerte, contact, nieuwsbrief): onzichtbare honeypot, minimale invultijd (2 s) en echte interactie (toets, klik, tik of focus), maximaal 5 inzendingen per 10 minuten per browser. Bots krijgen de bedankt-melding, maar er gaat niets naar HubSpot en er telt geen conversie.
+- Inhoudscontrole met zichtbare melding: geen links in naam/bedrijf, maximaal één link en geen HTML/BBCode in het bericht, geen bericht in vooral Cyrillisch/Chinees schrift, geen wegwerp-e-mailadressen.
+
 ## [1.42.0] - 2026-11-16
 
 - Smooth scroll vloeiender: parallax, menubalk, plakkende filters en inhoudsopgave worden met Lenis in hetzelfde frame bijgewerkt als de scrollpositie (`lenis.on('scroll')`), in plaats van een frame later via het scroll-event. Daardoor geen schokjes meer in de parallaxbeelden.

@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.42.0
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.43.0
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -741,6 +741,88 @@
     return ok;
   }
 
+  /* ------------------------------------------------------------------
+   * Spamfilter, laag 1 (in de browser). Merkbaar voor bots, niet voor mensen.
+   * - Honeypot: een onzichtbaar veld dat alleen bots invullen (aria-hidden, niet met Tab bereikbaar).
+   * - Tijd en gedrag: verzenden binnen 2 seconden na laden, of zonder één toets, klik, tik of focus, telt als bot. AI-agents en hulpsoftware die het formulier echt bedienen (focus, klik, typen) komen er gewoon door; de honeypot is voor hen onzichtbaar (aria-hidden).
+   * - Herhaling: meer dan 5 inzendingen in 10 minuten vanaf dezelfde browser.
+   *   Bij deze drie krijgt de afzender gewoon de bedankt-melding (bots leren er niets van),
+   *   maar er gaat niets naar HubSpot en er telt geen conversie.
+   * - Inhoud: links in naam/bedrijf, meer dan één link of HTML/BBCode in het bericht, bericht vooral
+   *   in Cyrillisch/Chinees schrift en wegwerp-e-mailadressen. Dat kan ook een mens zijn, dus daar
+   *   komt een gewone foutmelding bij het veld, zodat iemand het kan aanpassen.
+   * Laag 2 (vóór livegang): server-side Turnstile-check vóór HubSpot.
+   * ------------------------------------------------------------------ */
+  var HP_NAME = 'tflu_website';
+  var SPAM_MIN_MS = 2000;
+  var DISPOSABLE = /@(mailinator|guerrillamail|sharklasers|grr\.la|yopmail|10minutemail|tempmail|temp-mail|tempmailo|trashmail|getnada|dispostable|maildrop|throwawaymail|fakeinbox|mailnesia|moakt|emailondeck|mintemail|spamgourmet|burnermail|mohmal)\./i;
+  var URL_RE = /(https?:\/\/|www\.)[^\s]+|\b[a-z0-9-]+\.(ru|cn|top|xyz|click|link|shop|online|site|info|biz)\b/gi;
+  function initSpamGuard(form) {
+    form._t0 = Date.now();
+    form._human = false;
+    function mark() { form._human = true; }
+    ['pointerdown', 'keydown', 'input', 'touchstart', 'paste', 'click', 'focusin'].forEach(function (ev) {
+      form.addEventListener(ev, mark, { passive: true, capture: true });
+    });
+    if (form.querySelector('[name="' + HP_NAME + '"]')) return;
+    var hp = document.createElement('div');
+    hp.setAttribute('aria-hidden', 'true');
+    hp.style.cssText = 'position:absolute!important;left:-10000px!important;top:0;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none';
+    hp.innerHTML = '<label>Laat dit veld leeg <input type="text" name="' + HP_NAME + '" tabindex="-1" autocomplete="off" value=""></label>';
+    form.appendChild(hp);
+  }
+  function recentSubmits(add) {
+    try {
+      var now = Date.now(), k = 'tflu_sub';
+      var list = JSON.parse(window.localStorage.getItem(k) || '[]').filter(function (t) { return now - t < 600000; });
+      if (add) { list.push(now); window.localStorage.setItem(k, JSON.stringify(list)); }
+      return list.length;
+    } catch (e) { return 0; }
+  }
+  // true = stil tegenhouden (bot), met reden voor de console
+  function looksLikeBot(form) {
+    var hp = form.querySelector('[name="' + HP_NAME + '"]');
+    if (hp && hp.value) return 'honeypot';
+    if (form._t0 && Date.now() - form._t0 < SPAM_MIN_MS) return 'te snel';
+    if (form._human === false) return 'geen interactie';
+    if (recentSubmits() >= 5) return 'te vaak';
+    return '';
+  }
+  function contentError(form, input, msg) {
+    if (!errorEl(form, input.name)) {
+      var el = document.createElement('div');
+      el.className = 'form_error';
+      el.setAttribute('data-error-for', input.name);
+      el.setAttribute('role', 'alert');
+      (input.closest('label') || input).insertAdjacentElement('afterend', el);
+    }
+    return setError(form, input.name, msg);
+  }
+  // Inhoudscontrole met zichtbare melding (kan ook een mens zijn)
+  function checkContent(form) {
+    var ok = true, first = null;
+    $$('input[type="text"], input:not([type]), textarea, input[type="email"]', form).forEach(function (i) {
+      if (!i.name || i.name === HP_NAME || i.type === 'hidden') return;
+      var v = (i.value || '').trim();
+      if (!v) return;
+      var msg = '';
+      if (i.type === 'email') {
+        if (DISPOSABLE.test(v)) msg = tr('Gebruik je vaste e-mailadres, dan kunnen we je bereiken.', 'Please use your regular email address so we can reach you.');
+      } else if (i.tagName === 'TEXTAREA') {
+        var links = (v.match(URL_RE) || []).length;
+        var foreign = (v.match(/[Ѐ-ӿ一-鿿]/g) || []).length;
+        if (/<a\s|href\s*=|\[url|\[link/i.test(v) || links > 1) msg = tr('Haal de links uit je bericht (één link naar je website mag).', 'Please remove the links from your message (one link to your website is fine).');
+        else if (foreign > 20 && foreign / v.length > 0.3) msg = tr('Schrijf je bericht in het Nederlands of Engels.', 'Please write your message in Dutch or English.');
+      } else if (URL_RE.test(v)) {
+        msg = tr('Vul hier geen link in.', 'Please don\'t enter a link here.');
+      }
+      URL_RE.lastIndex = 0;
+      if (msg) { contentError(form, i, msg); ok = false; first = first || i; }
+    });
+    if (first) first.focus();
+    return ok;
+  }
+
   function initShowIf(form) {
     var blocks = $$('[data-show-if]', form);
     if (!blocks.length) return;
@@ -785,6 +867,7 @@
     $$('input, select, textarea', form).forEach(function (i) {
       if (!i.name || i.type === 'submit' || i.disabled) return;
       if (/^(cf-|g-recaptcha|h-captcha)/.test(i.name)) return; // spamcheck van Webflow, niet voor HubSpot
+      if (i.name === HP_NAME) return; // honeypot
       if (i.type === 'radio' && !i.checked) return;
       if (i.type === 'checkbox') {
         if (i.name === 'web_nieuwsbrief_optin') optin = i.checked;
@@ -876,6 +959,8 @@
     if (form._busy) return;
     if (form._beforeSubmit && !form._beforeSubmit()) return;
     if (!validateFields(form)) return;
+    if (!checkContent(form)) return;
+    var blocked = looksLikeBot(form);
 
     var wrap = form.closest('.w-form') || form.parentNode;
     var done = wrap.querySelector('.w-form-done');
@@ -886,7 +971,10 @@
     if (btn) { btn.disabled = true; btnLabel(btn, btn.getAttribute('data-wait') || tr('Even geduld…', 'Please wait…')); }
     if (fail) fail.style.display = 'none';
 
-    submitToHubSpot(form).then(function () {
+    var send = blocked ? new Promise(function (res) { setTimeout(res, 600); }) : submitToHubSpot(form);
+    if (blocked && window.console) console.info('[tflu] inzending tegengehouden door spamfilter:', blocked);
+    send.then(function () {
+      if (!blocked) recentSubmits(true);
       form.style.display = 'none';
       fillDone(form, done);
       if (done) {
@@ -897,6 +985,7 @@
         var top = wrap.getBoundingClientRect().top + window.pageYOffset - 120;
         scrollToY(top, true);
       }
+      if (blocked) return; // geen conversie voor tegengehouden inzendingen
       window.dataLayer = window.dataLayer || [];
       window.dataLayer.push({ event: 'tflu_form_submit', form_name: form.getAttribute('data-form') || '' });
     }).catch(function (err) {
@@ -1283,6 +1372,7 @@
       });
       upgradeSubmit(form);
       keepSubmitEnabled(form);
+      initSpamGuard(form);
       fillSelects(form);
       initChips(form);
       initShowIf(form);
