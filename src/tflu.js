@@ -2715,8 +2715,8 @@
    * - Bovenaan altijd in beeld; na 120px naar beneden scrollen schuift hij
    *   weg, bij omhoog scrollen komt hij terug (8px marge tegen trillen).
    * - Blijft staan als het menu of een paneel open is, of bij toetsenbordfocus.
-   * - T/m 1199px: bovenaan transparant over de (donkere) hero, verder wit
-   *   met zachte schaduw. Alle paginatypes beginnen met een donkere hero.
+   * - T/m 1199px: bovenaan transparant over de (donkere) hero (beginstand in
+   *   de Webflow-stijlen/head-CSS, dus geen flits), verder wit met schaduw. Alle paginatypes beginnen met een donkere hero.
    * - Alleen transform/kleur, geen layout; 'minder beweging' zet de animatie uit.
    * ------------------------------------------------------------------ */
   function initNavScroll() {
@@ -2728,8 +2728,9 @@
       '.mega-nav{transition:transform .35s cubic-bezier(.22,1,.36,1)}' +
       '.mega-nav.tflu-nav-hidden{transform:translate3d(0,calc(-100% - 2rem),0);transition:transform .25s cubic-bezier(.4,0,1,1)}' +
       '@media (max-width:1199px){' +
-        '.mega-nav__bar{transition:background-color .3s ease,border-color .3s ease,box-shadow .3s ease;box-shadow:0 6px 20px rgba(37,36,90,.08)}' +
-        '.mega-nav.tflu-nav-top:not([data-menu-open="true"]) .mega-nav__bar{background-color:transparent;border-bottom-color:transparent;box-shadow:none}' +
+        '.mega-nav__bar{transition:background-color .3s ease,border-color .3s ease,box-shadow .3s ease}' +
+        '.mega-nav.tflu-nav-solid .mega-nav__bar,.mega-nav[data-menu-open="true"] .mega-nav__bar{background-color:#fff;border-bottom-color:var(--neutral--divider,#E4E8EF)}' +
+        '.mega-nav.tflu-nav-solid .mega-nav__bar{box-shadow:0 6px 20px rgba(37,36,90,.08)}' +
       '}';
     document.head.appendChild(st);
     var lastY = window.scrollY || 0, ticking = false, hidden = false;
@@ -2745,7 +2746,7 @@
     function update() {
       ticking = false;
       var y = Math.max(0, window.scrollY || 0), dy = y - lastY;
-      nav.classList.toggle('tflu-nav-top', y < 8);
+      nav.classList.toggle('tflu-nav-solid', y >= 8);
       if (locked() || y < 120) { setHidden(false); lastY = y; return; }
       if (dy > 8) { setHidden(true); lastY = y; }
       else if (dy < -8) { setHidden(false); lastY = y; }
