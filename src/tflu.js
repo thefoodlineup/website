@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.37.0
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.37.1
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -2784,7 +2784,8 @@
    * een zachte schaduw zolang hij vastzit.
    * ------------------------------------------------------------------ */
   function initStickyFilters() {
-    var bars = $$('.filter_list').map(function (l) { return l.parentElement; })
+    // Eén plakkende balk per filtergroep (Locaties heeft twee rijen in .locations-filter)
+    var bars = $$('.filter_list').map(function (l) { return l.closest('.locations-filter') || l.parentElement; })
       .filter(function (el, i, a) { return el && a.indexOf(el) === i; });
     if (!bars.length) return;
     var st = document.createElement('style');
@@ -2794,7 +2795,9 @@
         'transition:top .35s cubic-bezier(.22,1,.36,1)}' +
       '.tflu-sticky-filter::before{content:"";position:absolute;top:0;bottom:0;left:-100vmax;right:-100vmax;z-index:-1;' +
         'background:var(--tflu-filter-bg,#fff);transition:box-shadow .3s ease;pointer-events:none}' +
-      '.tflu-sticky-filter.is-stuck::before{box-shadow:0 8px 20px rgba(37,36,90,.08)}';
+      '.tflu-sticky-filter.is-stuck::before{box-shadow:0 8px 20px rgba(37,36,90,.08)}' +
+      // Twee filterrijen onder elkaar nemen op telefoon te veel scherm in: daar niet plakken
+      '@media (max-width:767px){.locations-filter.tflu-sticky-filter{position:static;padding-top:0;padding-bottom:0}.locations-filter.tflu-sticky-filter::before{display:none}}';
     document.head.appendChild(st);
     bars.forEach(function (bar) {
       var e = bar, bg = '';

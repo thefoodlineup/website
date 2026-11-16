@@ -2,6 +2,10 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.37.1] - 2026-11-16
+
+- Locaties: de twee filterrijen plakken samen als één balk (niet per rij), en op telefoon niet (te veel scherm).
+
 ## [1.37.0] - 2026-11-16
 
 - Filterbalk op Stories, Cases en Locaties plakt bovenin zodra je erlangs scrolt (onder de menubalk, of tegen de bovenrand als het menu weg is), over de volle breedte met de achtergrond van de sectie en een zachte schaduw.
