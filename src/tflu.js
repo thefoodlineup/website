@@ -2392,7 +2392,8 @@
   // footer = via de footerlink of /nieuwsbrief (komt binnen op #nieuwsbrief),
   // story = onderaan een story, stories = onderaan het overzicht.
   function initSignupSource() {
-    var inputs = $$('input[name="web_aanmeldbron"]');
+    // Alleen het algemene aanmeldblok (standaardwaarde 'story'); andere formulieren houden hun eigen waarde
+    var inputs = $$('input[name="web_aanmeldbron"]').filter(function (i) { return i.value === 'story'; });
     if (!inputs.length) return;
     var viaLink = location.hash === '#nieuwsbrief';
     var src = viaLink ? 'footer' : (/^\/story\//.test(location.pathname) ? 'story' : (location.pathname.replace(/\/$/, '') === '/stories' ? 'stories' : 'overig'));
