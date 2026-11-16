@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.32.0
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.33.0
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -1404,8 +1404,8 @@
 
   /* ------------------------------------------------------------------
    * Mega-navigatie (Osmo Mega Navigation – Directional Hover, Ilja van Eck)
-   * Desktop (> 991px): uitklappanelen op hover/klik met richting-animatie,
-   * taalkeuze-dropdown. Mobiel (≤ 991px): burger, schuifpanelen, terugknop.
+   * Desktop (> 1199px): uitklappanelen op hover/klik met richting-animatie,
+   * taalkeuze-dropdown. Mobiel en kleine laptop (≤ 1199px): burger, schuifpanelen, terugknop.
    * Timings en easings zijn die van Osmo; aangepast aan de Webflow-opbouw
    * (de toggle is zelf de knop) en met scroll-lock op mobiel.
    * GSAP wordt alleen geladen als de pagina een [data-menu-wrap] heeft.
@@ -1428,7 +1428,7 @@
     var root = document.querySelector('[data-menu-wrap]');
     if (!root) return;
     withGsap(function (gsap) {
-      var mq = window.matchMedia('(max-width: 991px)');
+      var mq = window.matchMedia('(max-width: 1199px)');
       var cleanup = null;
       function start() {
         if (cleanup) cleanup();
@@ -2008,14 +2008,14 @@
       '[data-error-for]:not(:empty){display:flex;align-items:center;gap:.5rem}','[data-error-for]:not(:empty)::before{content:"";flex:0 0 1rem;width:1rem;height:1rem;background-color:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27 fill=%27none%27 stroke=%27%23000%27 stroke-width=%271.8%27 stroke-linecap=%27round%27%3E%3Ccircle cx=%278%27 cy=%278%27 r=%277%27/%3E%3Cpath d=%27M8 4.5v4.2M8 11v.5%27/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27 fill=%27none%27 stroke=%27%23000%27 stroke-width=%271.8%27 stroke-linecap=%27round%27%3E%3Ccircle cx=%278%27 cy=%278%27 r=%277%27/%3E%3Cpath d=%27M8 4.5v4.2M8 11v.5%27/%3E%3C/svg%3E") center/contain no-repeat}','.form_actions:has([data-form-prev]){justify-content:space-between}','.form_actions [data-form-prev]{display:inline-flex;align-items:center;gap:.5rem}','.form_actions [data-form-prev]::before{content:"";flex:0 0 1rem;width:1rem;height:1rem;background-color:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 18 18%27 fill=%27none%27 stroke=%27%23000%27 stroke-width=%272.2%27%3E%3Cpath d=%27M15 9H3M8 4L3 9l5 5%27/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 18 18%27 fill=%27none%27 stroke=%27%23000%27 stroke-width=%272.2%27%3E%3Cpath d=%27M15 9H3M8 4L3 9l5 5%27/%3E%3C/svg%3E") center/contain no-repeat;transition:transform .2s cubic-bezier(.22,1,.36,1)}','.form_actions [data-form-prev]:hover::before{transform:translateX(-4px)}','.signup_field-row .button{flex:none}',
       // Uitgelichte story: 'Lees het verhaal' krijgt dezelfde onderstreping als de andere tekstlinks, alleen onder de tekst
       '.stories-featured_link>div{position:relative}',
-      '.stories-featured_link>div::after{content:"";position:absolute;left:0;right:0;bottom:-.375rem;height:2px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform var(--tflu-fast) ' + e + ';pointer-events:none}',
+      '.stories-featured_link>div::after{content:"";position:absolute;left:0;right:0;bottom:-.125rem;height:2px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform var(--tflu-fast) ' + e + ';pointer-events:none}',
       '.stories-featured_card:hover .stories-featured_link>div::after,.stories-featured_card:focus-visible .stories-featured_link>div::after{transform:scaleX(1);transition-duration:.25s}',
-      '.link-more::after,.faq_more::after,.case-related_link::after,.locations-empty_link::after{content:"";position:absolute;left:0;right:1.5rem;bottom:-.375rem;height:2px;' +
+      '.link-more::after,.faq_more::after,.case-related_link::after,.locations-empty_link::after{content:"";position:absolute;left:0;right:1.5rem;bottom:-.125rem;height:2px;' +
         'background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform var(--tflu-fast) ' + e + ';pointer-events:none}',
       '.link-more:hover::after,.link-more:focus-visible::after,.faq_more:hover::after,.case-related_link:hover::after,' +
         '.locations-empty_link:hover::after{transform:scaleX(1);transition-duration:.25s}',
       // Contactlinks (telefoon, e-mail): lijn alleen onder de tekst, het icoon staat stil
-      '.cta_contact-text{position:relative}.cta_contact-text::after{content:"";position:absolute;left:0;right:0;bottom:-.375rem;height:2px;background:currentColor;' +
+      '.cta_contact-text{position:relative}.cta_contact-text::after{content:"";position:absolute;left:0;right:0;bottom:-.125rem;height:2px;background:currentColor;' +
         'transform:scaleX(0);transform-origin:left;transition:transform var(--tflu-fast) ' + e + ';pointer-events:none}',
       '.cta_contact-link:hover .cta_contact-text::after,.cta_contact-link:focus-visible .cta_contact-text::after{transform:scaleX(1);transition-duration:.25s}',
       // Terug-links (story, vacature): lijn onder de tekst, pijl 4px terug
@@ -2045,7 +2045,7 @@
       '.footer_link:hover,.footer_link:focus-visible,.footer_legal-link:hover,.footer_legal-link:focus-visible,.footer_credit:hover,.footer_credit:focus-visible{color:var(--brand--yellow)}',
       // Megamenu: lijn alleen onder de tekst van 'Alle …' en de kaart-CTA (de pijl beweegt apart)
       '.mega-nav__panel-more>span:first-child,.mega-nav__card-cta>span:first-child,.event-card_more>span:first-child{position:relative}',
-      '.mega-nav__panel-more>span:first-child::after,.mega-nav__card-cta>span:first-child::after,.event-card_more>span:first-child::after{content:"";position:absolute;left:0;right:0;bottom:-.25rem;height:2px;background:currentColor;' +
+      '.mega-nav__panel-more>span:first-child::after,.mega-nav__card-cta>span:first-child::after,.event-card_more>span:first-child::after{content:"";position:absolute;left:0;right:0;bottom:-.125rem;height:2px;background:currentColor;' +
         'transform:scaleX(0);transform-origin:left;transition:transform .3s ' + e + ';pointer-events:none}',
       '.mega-nav__panel-more:hover>span:first-child::after,.mega-nav__panel-more:focus-visible>span:first-child::after,' +
         '.mega-nav__card:hover .mega-nav__card-cta>span:first-child::after,.mega-nav__card:focus-visible .mega-nav__card-cta>span:first-child::after,' +
@@ -2056,7 +2056,7 @@
       '.mega-nav__card{container-type:inline-size}.mega-nav__card .mega-nav__card-title{font-size:min(3.375rem,12.8cqi)}' +
         '.mega-nav__card .mega-nav__card-title.is--long{font-size:min(2.625rem,10.9cqi)}.mega-nav__card .mega-nav__card-title-accent{font-size:inherit}',
       // Menubalk (desktop): oranje lijn vlak onder het woord, groeit soepel van links; zelfde afstand voor elk item
-      '@media (min-width:992px){.mega-nav__bar-link:not(.is--back){border-bottom-color:transparent!important}' +
+      '@media (min-width:1200px){.mega-nav__bar-link:not(.is--back){border-bottom-color:transparent!important}' +
         '.mega-nav__bar-link-label{position:relative}' +
         '.mega-nav__bar-link:not(.is--back) .mega-nav__bar-link-label::after{content:"";position:absolute;left:0;right:0;bottom:-.375rem;height:3px;background:var(--brand--orange);' +
         'transform:scaleX(0);transform-origin:left;transition:transform .35s ' + e + ';pointer-events:none}' +

@@ -2,6 +2,11 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.33.0] - 2026-11-16
+
+- Megamenu: burger en schuifpanelen nu tot en met 1199px (was 991px), zodat de menu-items op kleine laptops en een liggende iPad nooit over twee regels vallen. De bijbehorende CSS staat in de head-code van de site.
+- Hover-lijn onder tekstlinks met pijl (Alle event catering, Alle cases e.d.), stories, contactlinks en megamenu dichter op de tekst.
+
 ## [1.32.0] - 2026-11-15
 
 - Herkomst van een bezoek (eerste pagina, UTM) wordt alleen nog bewaard met toestemming voor analytische cookies; bij intrekken weggehaald.
