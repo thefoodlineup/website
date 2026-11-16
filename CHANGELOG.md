@@ -2,6 +2,11 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.37.0] - 2026-11-16
+
+- Filterbalk op Stories, Cases en Locaties plakt bovenin zodra je erlangs scrolt (onder de menubalk, of tegen de bovenrand als het menu weg is), over de volle breedte met de achtergrond van de sectie en een zachte schaduw.
+- CSS-variabele --tflu-nav-offset: hoogte van de zichtbare menubalk (0 als hij weg is).
+
 ## [1.36.0] - 2026-11-16
 
 - Menubalk t/m 1199px weer altijd wit (geen transparante stand meer, dus geen kleurwissel bij scrollen op iPhone). Schaduw zodra je scrolt.

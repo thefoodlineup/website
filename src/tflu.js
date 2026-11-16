@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.36.0
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.37.0
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -2738,11 +2738,20 @@
     function maxY() { return Math.max(0, document.documentElement.scrollHeight - window.innerHeight); }
     function clampY() { return Math.min(Math.max(0, window.scrollY || 0), maxY()); }
     lastY = clampY();
+    var root = document.documentElement;
+    function setOffset() {
+      var b = nav.querySelector('.mega-nav__bar') || nav;
+      root.style.setProperty('--tflu-nav-offset', hidden ? '0px' : Math.max(0, Math.round(b.getBoundingClientRect().bottom)) + 'px');
+    }
     function setHidden(h) {
       if (h === hidden) return;
       hidden = h;
       nav.classList.toggle('tflu-nav-hidden', h);
+      if (h) root.style.setProperty('--tflu-nav-offset', '0px');
+      else setTimeout(setOffset, 380);
     }
+    window.addEventListener('resize', function () { if (!hidden) setOffset(); });
+    window.addEventListener('load', function () { if (!hidden) setOffset(); });
     function locked() {
       var a = document.activeElement;
       return nav.getAttribute('data-menu-open') === 'true' || (a && a !== document.body && nav.contains(a)) ||
@@ -2765,6 +2774,52 @@
     }, { passive: true });
     nav.addEventListener('focusin', function () { setHidden(false); });
     update();
+    setOffset();
+  }
+
+  /* ------------------------------------------------------------------
+   * Filterbalk (Stories, Cases, Locaties) plakt bovenin zodra je erlangs
+   * scrolt, direct onder de menubalk (of tegen de bovenrand als het menu
+   * weg is). Over de volle breedte, met de achtergrond van de sectie en
+   * een zachte schaduw zolang hij vastzit.
+   * ------------------------------------------------------------------ */
+  function initStickyFilters() {
+    var bars = $$('.filter_list').map(function (l) { return l.parentElement; })
+      .filter(function (el, i, a) { return el && a.indexOf(el) === i; });
+    if (!bars.length) return;
+    var st = document.createElement('style');
+    st.id = 'tflu-sticky-filters';
+    st.textContent =
+      '.tflu-sticky-filter{position:sticky;top:var(--tflu-nav-offset,0px);z-index:20;' +
+        'margin-left:calc(-1 * var(--space--page-padding,1.25rem));margin-right:calc(-1 * var(--space--page-padding,1.25rem));' +
+        'padding:.75rem var(--space--page-padding,1.25rem);background:var(--tflu-filter-bg,#fff);' +
+        'transition:top .35s cubic-bezier(.22,1,.36,1),box-shadow .3s ease}' +
+      '.tflu-sticky-filter.is-stuck{box-shadow:0 8px 20px rgba(37,36,90,.08)}' +
+      '.mega-nav.tflu-nav-hidden~* .tflu-sticky-filter{transition-duration:.25s}';
+    document.head.appendChild(st);
+    bars.forEach(function (bar) {
+      var e = bar, bg = '';
+      while (e && e !== document.documentElement) {
+        var c = getComputedStyle(e).backgroundColor;
+        if (c && c !== 'rgba(0, 0, 0, 0)' && c !== 'transparent') { bg = c; break; }
+        e = e.parentElement;
+      }
+      if (bg) bar.style.setProperty('--tflu-filter-bg', bg);
+      bar.classList.add('tflu-sticky-filter');
+    });
+    var ticking = false;
+    function check() {
+      ticking = false;
+      var off = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--tflu-nav-offset')) || 0;
+      bars.forEach(function (bar) {
+        var r = bar.getBoundingClientRect();
+        bar.classList.toggle('is-stuck', r.top <= off + 1 && window.scrollY > 0 && r.top > -r.height);
+      });
+    }
+    window.addEventListener('scroll', function () {
+      if (!ticking) { ticking = true; requestAnimationFrame(check); }
+    }, { passive: true });
+    check();
   }
 
   function init() {
@@ -2797,6 +2852,7 @@
     initMotion();
     initTouch();
     initNavScroll();
+    initStickyFilters();
   }
 
   if (document.readyState === 'loading') {
