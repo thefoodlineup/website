@@ -2,6 +2,12 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.39.0] - 2026-11-16
+
+- Beweging per formaat: inkomen bij scrollen op tablet en telefoon met kortere afstand en sneller tempo (desktop 1,5rem / .9s, tablet 1,125rem / .75s, telefoon .875rem / .6s); kaarten op telefoon 50 ms na elkaar (max 3), eerder in beeld.
+- Niet storend bij herhaalbezoek: een pagina die je deze sessie al zag, of via terug/vooruit opent, komt direct in beeld (geen inkomen, geen optellen).
+- Parallax op grote beelden (hero, foto naast tekst, offerteblok): alleen vanaf 992px met muis, max ±6% van de kaderhoogte, alleen transform, alleen zolang in beeld.
+
 ## [1.38.0] - 2026-11-16
 
 - Nieuwsbrief: verborgen veld web_aanmeldbron krijgt de herkomst mee (footer, story, stories, overig). 'footer' = binnengekomen via #nieuwsbrief (footerlink of /nieuwsbrief).

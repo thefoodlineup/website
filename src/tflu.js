@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.38.0
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.39.0
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -2111,8 +2111,14 @@
       // Kaarten zonder beeld: 6px omhoog met schaduw
       '.notfound-links_card{transition:transform .5s ' + e + ',box-shadow .5s ease}',
       // Inkomen bij scrollen (alleen als het script draait)
-      '.tflu-js [data-reveal="wait"]{opacity:0;transform:translate3d(0,1.5rem,0)}',
-      '.tflu-js [data-reveal="in"]{opacity:1;transform:none;transition:opacity .7s ease var(--tflu-delay,0s),transform var(--tflu-slow) ' + e + ' var(--tflu-delay,0s)}',
+      // Inkomen bij scrollen: korte afstand en rustig tempo; op telefoon en tablet nog iets korter en sneller
+      ':root{--tflu-rv-y:1.5rem;--tflu-rv-o:.7s;--tflu-rv-t:var(--tflu-slow)}' +
+        '@media (max-width:991px){:root{--tflu-rv-y:1.125rem;--tflu-rv-o:.6s;--tflu-rv-t:.75s}}' +
+        '@media (max-width:767px){:root{--tflu-rv-y:.875rem;--tflu-rv-o:.5s;--tflu-rv-t:.6s}}',
+      '.tflu-js [data-reveal="wait"]{opacity:0;transform:translate3d(0,var(--tflu-rv-y),0)}',
+      '.tflu-js [data-reveal="in"]{opacity:1;transform:none;transition:opacity var(--tflu-rv-o) ease var(--tflu-delay,0s),transform var(--tflu-rv-t) ' + e + ' var(--tflu-delay,0s)}',
+      // Parallax op grote beelden (alleen desktop met muis, zie initParallax)
+      '.tflu-parallax{will-change:transform;transform:translate3d(0,var(--tflu-py,0px),0) scale(var(--tflu-ps,1.12))}',
       '@media (prefers-reduced-motion:reduce){.tflu-js [data-reveal]{opacity:1!important;transform:none!important;transition:none!important}' +
         'a.button::before,button.button::before,.mega-nav__bar-cta::before{display:none}' +
         '[class*="_image"]{transition:none!important;transform:none!important}}'
@@ -2258,7 +2264,18 @@
     document.head.appendChild(css);
     if (reduceMotion || !('IntersectionObserver' in window)) return;
 
+    // Niet storend bij herhaalbezoek: een pagina die je deze sessie al zag (of via
+    // terug/vooruit opent) komt meteen in beeld, zonder inkomen en zonder optellen.
+    var seenKey = 'tflu_seen:' + location.pathname;
+    var navType = '';
+    try { var ne = performance.getEntriesByType('navigation')[0]; navType = ne ? ne.type : ''; } catch (e) {}
+    var seen = false;
+    try { seen = sessionStorage.getItem(seenKey) === '1'; sessionStorage.setItem(seenKey, '1'); } catch (e) {}
+    if (seen || navType === 'back_forward') return;
+
     var vh = window.innerHeight;
+    var small = window.matchMedia('(max-width: 767px)').matches;
+    var step = small ? 0.05 : 0.07, maxStep = small ? 3 : 5;
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (en) {
         if (!en.isIntersecting) return;
@@ -2269,7 +2286,7 @@
         if (en.target.hasAttribute('data-count')) countUp(en.target);
         setTimeout(function () { en.target.removeAttribute('data-reveal'); en.target.style.removeProperty('--tflu-delay'); }, 1600);
       });
-    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.12 });
+    }, { rootMargin: small ? '0px 0px -4% 0px' : '0px 0px -8% 0px', threshold: small ? 0.06 : 0.12 });
 
     revealTargets().forEach(function (group) {
       var shown = 0;
@@ -2277,7 +2294,7 @@
         if (el.hasAttribute('data-reveal')) return;
         if (el.getBoundingClientRect().top < vh * 0.92) return; // staat al in beeld
         el.setAttribute('data-reveal', 'wait');
-        if (group.length > 1) el.style.setProperty('--tflu-delay', (Math.min(shown, 5) * 0.07).toFixed(2) + 's');
+        if (group.length > 1) el.style.setProperty('--tflu-delay', (Math.min(shown, maxStep) * step).toFixed(2) + 's');
         shown++;
         io.observe(el);
       });
@@ -2837,6 +2854,63 @@
     check();
   }
 
+
+  /* ------------------------------------------------------------------
+   * Parallax op grote beelden (hero-foto, foto's naast tekst, offerteblok)
+   * Alleen op desktop/laptop met muis (vanaf 992px), niet bij 'minder beweging'.
+   * Het beeld beweegt maximaal ±6% van de kaderhoogte, licht vergroot zodat er
+   * geen randen zichtbaar worden. Alleen transform, alleen zolang het in beeld is.
+   * ------------------------------------------------------------------ */
+  function initParallax() {
+    if (reduceMotion || !window.matchMedia('(min-width: 992px) and (hover: hover) and (pointer: fine)').matches) return;
+    if (!('IntersectionObserver' in window)) return;
+    var imgs = $$('main img, .main-wrapper img').filter(function (img) {
+      if (img.closest('.mega-nav,a,[class*="card"],[class*="tile"],[class*="slide"],[class*="track"],[class*="logo"],[class*="avatar"],[class*="icon"],[class*="gallery"],footer')) return false;
+      var cs = getComputedStyle(img);
+      if (cs.position !== 'absolute' || cs.objectFit !== 'cover') return false;
+      var box = img.parentElement;
+      if (!box || !/hidden|clip/.test(getComputedStyle(box).overflow + getComputedStyle(box).overflowY)) {
+        // hero: het beeld staat los in de sectie met overflow hidden
+        box = img.closest('section');
+        if (!box || !/hidden|clip/.test(getComputedStyle(box).overflowY)) return false;
+      }
+      var r = img.getBoundingClientRect();
+      return r.height >= 280 && r.width >= window.innerWidth * 0.3;
+    });
+    if (!imgs.length) return;
+    var active = [];
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        var i = active.indexOf(en.target);
+        if (en.isIntersecting && i < 0) active.push(en.target);
+        if (!en.isIntersecting && i > -1) active.splice(i, 1);
+      });
+      tick();
+    }, { rootMargin: '10% 0px' });
+    imgs.forEach(function (img) {
+      img.classList.add('tflu-parallax');
+      io.observe(img);
+    });
+    var ticking = false;
+    function tick() {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(function () {
+        ticking = false;
+        var vh = window.innerHeight;
+        active.forEach(function (img) {
+          var box = img.parentElement.getBoundingClientRect();
+          // -1 (net onder in beeld) tot 1 (net boven uit beeld)
+          var p = Math.max(-1, Math.min(1, ((box.top + box.height / 2) - vh / 2) / (vh / 2 + box.height / 2)));
+          img.style.setProperty('--tflu-py', (p * box.height * 0.06).toFixed(1) + 'px');
+        });
+      });
+    }
+    window.addEventListener('scroll', tick, { passive: true });
+    window.addEventListener('resize', tick);
+    tick();
+  }
+
   function init() {
     document.documentElement.classList.add('tflu-js');
     if (reduceMotion) document.documentElement.classList.add('tflu-reduced-motion');
@@ -2866,6 +2940,7 @@
     initVacancyMail();
     initSlants();
     initMotion();
+    initParallax();
     initTouch();
     initNavScroll();
     initStickyFilters();
