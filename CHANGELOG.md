@@ -2,6 +2,10 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.41.0] - 2026-11-16
+
+- Formulieren krijgen `data-hs-do-not-collect="true"`: HubSpot 'verzamelde formulieren' pakt ze niet op, zodat een inzending niet dubbel in HubSpot komt (wij versturen zelf via de Forms API).
+
 ## [1.40.0] - 2026-11-16
 
 - Smooth scroll met Lenis 1.3.26 (via jsDelivr, laadt pas na de pagina): alleen met muis/trackpad, niet op touch en niet bij 'minder beweging'. Pauzeert als het menu de pagina vastzet; scrollgebieden binnen de pagina scrollen zelf.
