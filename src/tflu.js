@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.39.0
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.40.0
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -13,6 +13,12 @@
   function tr(nl, en) { return LANG === 'en' && en ? en : nl; }
 
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var lenis = null;
+  /* Eén plek voor scrollen vanuit code: via Lenis als smooth scroll actief is, anders native. */
+  function scrollToY(y, smooth) {
+    if (lenis) { lenis.scrollTo(y, smooth && !reduceMotion ? { duration: 1.1 } : { immediate: true, force: true }); return; }
+    window.scrollTo({ top: y, behavior: smooth && !reduceMotion ? 'smooth' : 'auto' });
+  }
   var mobile = window.matchMedia('(max-width: 767px)');
 
   function $$(sel, root) {
@@ -555,7 +561,7 @@
         main.style.minHeight = cols > 1 ? aside.offsetHeight + 'px' : '';
         var off = cols > 1 ? (parseFloat(getComputedStyle(aside).top) || 0) : 96;
         var top = root.getBoundingClientRect().top;
-        if (top < off - 1) window.scrollTo({ top: top + window.pageYOffset - off, behavior: reduceMotion ? 'auto' : 'smooth' });
+        if (top < off - 1) scrollToY(top + window.pageYOffset - off, true);
       }
       buttons.forEach(function (b) { b.addEventListener('click', keepInView); });
       if (input) {
@@ -878,7 +884,7 @@
         if (!focus.hasAttribute('tabindex')) focus.setAttribute('tabindex', '-1');
         focus.focus({ preventScroll: true });
         var top = wrap.getBoundingClientRect().top + window.pageYOffset - 120;
-        window.scrollTo({ top: top, behavior: reduceMotion ? 'auto' : 'smooth' });
+        scrollToY(top, true);
       }
       window.dataLayer = window.dataLayer || [];
       window.dataLayer.push({ event: 'tflu_form_submit', form_name: form.getAttribute('data-form') || '' });
@@ -1145,7 +1151,7 @@
       });
       var card = form.closest('.w-form') || form;
       var top = card.getBoundingClientRect().top + window.pageYOffset - 120;
-      if (top < window.pageYOffset) window.scrollTo({ top: top, behavior: reduceMotion ? 'auto' : 'smooth' });
+      if (top < window.pageYOffset) scrollToY(top, true);
       if (n === 2) {
         summary();
         var first = steps[1].querySelector('input:not([type="hidden"]), textarea');
@@ -2603,7 +2609,7 @@
       var b = blockFor(el), top = 0, n = b;
       while (n) { top += n.offsetTop; n = n.offsetParent; }
       var y = top - offset();
-      window.scrollTo({ top: Math.max(0, y), behavior: smooth && !reduceMotion ? 'smooth' : 'auto' });
+      scrollToY(Math.max(0, y), smooth);
     }
     document.addEventListener('click', function (e) {
       var a = e.target.closest && e.target.closest('a[href*="#"]');
@@ -2912,6 +2918,67 @@
     tick();
   }
 
+  /* Smooth scroll (Lenis) – alleen met muis of trackpad (desktop en laptop).
+   * Telefoon en tablet houden het native scrollen van het apparaat: dat is daar al vloeiend
+   * en een nagebootste versie voelt op touch traag. Uit bij 'minder beweging'.
+   * Laadt pas na de pagina (idle), dus geen invloed op de laadsnelheid.
+   * Scrollgebieden binnen de pagina (menu, filters, tabellen) scrollen gewoon zelf (allowNestedScroll).
+   * Zet het menu de pagina vast (overflow hidden op <html>), dan pauzeert Lenis mee.
+   */
+  function initSmoothScroll() {
+    if (reduceMotion) return;
+    var fine = window.matchMedia('(hover: hover) and (pointer: fine)');
+    if (!fine.matches) return;
+    var css = document.createElement('style');
+    css.id = 'tflu-lenis';
+    css.textContent = 'html.lenis,html.lenis body{height:auto}' +
+      '.lenis.lenis-stopped{overflow:clip}' +
+      '.lenis [data-lenis-prevent]{overscroll-behavior:contain}' +
+      'html.lenis{scroll-behavior:auto!important}';
+    document.head.appendChild(css);
+    function start() {
+      if (lenis || !window.Lenis) return;
+      lenis = new window.Lenis({
+        lerp: 0.1,
+        wheelMultiplier: 1,
+        smoothWheel: true,
+        syncTouch: false,
+        allowNestedScroll: true,
+        stopInertiaOnNavigate: true,
+        prevent: function (node) {
+          return node.matches && node.matches('.mega-nav__panel, .mega-nav__dropdown, [data-panel-state], .w-lightbox-backdrop');
+        }
+      });
+      function raf(t) { if (lenis) { lenis.raf(t); requestAnimationFrame(raf); } }
+      requestAnimationFrame(raf);
+      var html = document.documentElement, body = document.body;
+      function sync() {
+        if (!lenis) return;
+        var locked = html.style.overflow === 'hidden' || body.style.overflow === 'hidden';
+        if (locked && !lenis.isStopped) lenis.stop();
+        else if (!locked && lenis.isStopped) lenis.start();
+      }
+      new MutationObserver(sync).observe(html, { attributes: true, attributeFilter: ['style'] });
+      new MutationObserver(sync).observe(body, { attributes: true, attributeFilter: ['style'] });
+      sync();
+      // Na openklappen van FAQ's/accordeons klopt de paginahoogte direct
+      document.addEventListener('transitionend', function () { if (lenis) lenis.resize(); }, { passive: true });
+      fine.addEventListener && fine.addEventListener('change', function (e) {
+        if (!e.matches && lenis) { lenis.destroy(); lenis = null; }
+      });
+    }
+    function load() {
+      if (window.Lenis) return start();
+      var s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/lenis@1.3.26/dist/lenis.min.js';
+      s.async = true;
+      s.onload = start;
+      document.head.appendChild(s);
+    }
+    var go = function () { ('requestIdleCallback' in window) ? requestIdleCallback(load, { timeout: 1500 }) : setTimeout(load, 300); };
+    if (document.readyState === 'complete') go(); else window.addEventListener('load', go);
+  }
+
   function init() {
     document.documentElement.classList.add('tflu-js');
     if (reduceMotion) document.documentElement.classList.add('tflu-reduced-motion');
@@ -2945,6 +3012,7 @@
     initTouch();
     initNavScroll();
     initStickyFilters();
+    initSmoothScroll();
   }
 
   if (document.readyState === 'loading') {

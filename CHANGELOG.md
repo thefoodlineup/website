@@ -2,6 +2,11 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.40.0] - 2026-11-16
+
+- Smooth scroll met Lenis 1.3.26 (via jsDelivr, laadt pas na de pagina): alleen met muis/trackpad, niet op touch en niet bij 'minder beweging'. Pauzeert als het menu de pagina vastzet; scrollgebieden binnen de pagina scrollen zelf.
+- Alle scrollsprongen vanuit code (ankers, formulier, FAQ-index) lopen via één helper die Lenis gebruikt als die actief is.
+
 ## [1.39.0] - 2026-11-16
 
 - Beweging per formaat: inkomen bij scrollen op tablet en telefoon met kortere afstand en sneller tempo (desktop 1,5rem / .9s, tablet 1,125rem / .75s, telefoon .875rem / .6s); kaarten op telefoon 50 ms na elkaar (max 3), eerder in beeld.
