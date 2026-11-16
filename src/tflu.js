@@ -2902,7 +2902,8 @@
           var box = img.parentElement.getBoundingClientRect();
           // -1 (net onder in beeld) tot 1 (net boven uit beeld)
           var p = Math.max(-1, Math.min(1, ((box.top + box.height / 2) - vh / 2) / (vh / 2 + box.height / 2)));
-          img.style.setProperty('--tflu-py', (p * box.height * 0.06).toFixed(1) + 'px');
+          // Beeld blijft iets achter bij het scrollen (achtergrondlaag): tegengesteld aan p
+          img.style.setProperty('--tflu-py', (-p * box.height * 0.06).toFixed(1) + 'px');
         });
       });
     }
