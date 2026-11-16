@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.37.1
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.38.0
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -2387,6 +2387,18 @@
    *   het artikel. Korte artikelen: het blok blijft onder de tekst staan.
    * ------------------------------------------------------------------ */
   var HS_NEWSLETTER_FORM = '3b4d7f05-2d15-401a-a6c1-f440274929f8';
+
+  // Nieuwsbrief: herkomst van de aanmelding (verborgen veld web_aanmeldbron).
+  // footer = via de footerlink of /nieuwsbrief (komt binnen op #nieuwsbrief),
+  // story = onderaan een story, stories = onderaan het overzicht.
+  function initSignupSource() {
+    var inputs = $$('input[name="web_aanmeldbron"]');
+    if (!inputs.length) return;
+    var viaLink = location.hash === '#nieuwsbrief';
+    var src = viaLink ? 'footer' : (/^\/story\//.test(location.pathname) ? 'story' : (location.pathname.replace(/\/$/, '') === '/stories' ? 'stories' : 'overig'));
+    inputs.forEach(function (i) { i.value = src; });
+  }
+
   function initInlineSignup() {
     var box = document.querySelector('.signup-inline');
     if (!box) return;
@@ -2839,6 +2851,7 @@
     initHomeQuote();
     initSplitLists();
     initInlineSignup();
+    initSignupSource();
     initForms();
     initFormPreview();
     initLegal();

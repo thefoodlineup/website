@@ -2,6 +2,10 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.38.0] - 2026-11-16
+
+- Nieuwsbrief: verborgen veld web_aanmeldbron krijgt de herkomst mee (footer, story, stories, overig). 'footer' = binnengekomen via #nieuwsbrief (footerlink of /nieuwsbrief).
+
 ## [1.37.1] - 2026-11-16
 
 - Locaties: de twee filterrijen plakken samen als één balk (niet per rij), en op telefoon niet (te veel scherm).
