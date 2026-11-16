@@ -2728,7 +2728,7 @@
       '.mega-nav{transition:transform .35s cubic-bezier(.22,1,.36,1)}' +
       '.mega-nav.tflu-nav-hidden{transform:translate3d(0,calc(-100% - 2rem),0);transition:transform .25s cubic-bezier(.4,0,1,1)}' +
       '@media (max-width:1199px){' +
-        '.mega-nav__bar{transition:box-shadow .3s ease}' +
+        '.mega-nav__bar{transition:box-shadow .3s ease;box-shadow:none}' +
         '.mega-nav.tflu-nav-solid .mega-nav__bar{box-shadow:0 6px 20px rgba(37,36,90,.08)}' +
       '}';
     document.head.appendChild(st);
