@@ -2790,12 +2790,11 @@
     var st = document.createElement('style');
     st.id = 'tflu-sticky-filters';
     st.textContent =
-      '.tflu-sticky-filter{position:sticky;top:var(--tflu-nav-offset,0px);z-index:20;' +
-        'margin-left:calc(-1 * var(--space--page-padding,1.25rem));margin-right:calc(-1 * var(--space--page-padding,1.25rem));' +
-        'padding:.75rem var(--space--page-padding,1.25rem);background:var(--tflu-filter-bg,#fff);' +
-        'transition:top .35s cubic-bezier(.22,1,.36,1),box-shadow .3s ease}' +
-      '.tflu-sticky-filter.is-stuck{box-shadow:0 8px 20px rgba(37,36,90,.08)}' +
-      '.mega-nav.tflu-nav-hidden~* .tflu-sticky-filter{transition-duration:.25s}';
+      '.tflu-sticky-filter{position:sticky;top:var(--tflu-nav-offset,0px);z-index:20;padding-top:.75rem;padding-bottom:.75rem;' +
+        'transition:top .35s cubic-bezier(.22,1,.36,1)}' +
+      '.tflu-sticky-filter::before{content:"";position:absolute;top:0;bottom:0;left:-100vmax;right:-100vmax;z-index:-1;' +
+        'background:var(--tflu-filter-bg,#fff);transition:box-shadow .3s ease;pointer-events:none}' +
+      '.tflu-sticky-filter.is-stuck::before{box-shadow:0 8px 20px rgba(37,36,90,.08)}';
     document.head.appendChild(st);
     bars.forEach(function (bar) {
       var e = bar, bg = '';
