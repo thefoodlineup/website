@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.33.0
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.34.0
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -2646,6 +2646,69 @@
     });
   }
 
+
+  /* ------------------------------------------------------------------
+   * Touch (iPad, tablet, telefoon: apparaten zonder muis)
+   * - Hover-effecten (knop-wipe, pijl schuift, lijn groeit, beeld zoomt)
+   *   werken op touch niet en blijven na een tik 'hangen'. Op apparaten
+   *   waarvan de hoofdinvoer geen hover kan, halen we alle :hover-regels
+   *   uit de stylesheets (Webflow en eigen CSS). :focus-visible blijft.
+   * - Daarvoor in de plaats: directe tikfeedback (:active), zoals Apple en
+   *   Google aanraden. Betekenisvolle animaties (burger naar kruisje,
+   *   menupanelen, inkomen bij scrollen) blijven gewoon.
+   * - Menu open: de scrollbalk verdwijnt niet meer (geen verspringen).
+   * - Promokaarten in het menu alleen op desktop (vanaf 1200px).
+   * ------------------------------------------------------------------ */
+  function splitSelectors(sel) {
+    var out = [], depth = 0, cur = '';
+    for (var i = 0; i < sel.length; i++) {
+      var c = sel.charAt(i);
+      if (c === '(' || c === '[') depth++;
+      else if (c === ')' || c === ']') depth--;
+      if (c === ',' && depth === 0) { out.push(cur); cur = ''; } else cur += c;
+    }
+    out.push(cur);
+    return out;
+  }
+  function stripHoverRules(list, owner) {
+    for (var i = list.length - 1; i >= 0; i--) {
+      var r = list[i];
+      if (!r.selectorText) {
+        if (r.cssRules) { try { stripHoverRules(r.cssRules, r); } catch (e) {} }
+        continue;
+      }
+      if (r.selectorText.indexOf(':hover') < 0) continue;
+      var keep = splitSelectors(r.selectorText).filter(function (p) { return p.indexOf(':hover') < 0; });
+      try {
+        if (keep.length) r.selectorText = keep.join(','); else owner.deleteRule(i);
+      } catch (e) {}
+    }
+  }
+  function initTouch() {
+    var st = document.createElement('style');
+    st.id = 'tflu-touch';
+    st.textContent =
+      'html{scrollbar-gutter:stable}' +
+      '@media (max-width:1199px){.mega-nav__panel-col.has--card{display:none}}' +
+      '@media (hover:none){' +
+        'a.button,button.button,.mega-nav__bar-cta,.slider-button,.share_button,.footer_social,.filter_chip,.link-more,.case-card,.story-card,.location-card,.event-tile,.event-card{-webkit-tap-highlight-color:transparent}' +
+        'a.button:active,button.button:active,.mega-nav__bar-cta:active,.slider-button:active,.share_button:active,.footer_social:active,.filter_chip:active{transform:scale(.97);transition:transform .1s ease}' +
+        '.link-more:active,.faq_more:active,.case-related_link:active,.cta_contact-link:active,.link-back:active,.footer_link:active,.mega-nav__panel-link:active{opacity:.6}' +
+        '.case-card:active,.story-card:active,.location-card:active,.event-tile:active,.event-card:active,.stories-featured_card:active{opacity:.85;transition:opacity .1s ease}' +
+      '}';
+    document.head.appendChild(st);
+    if (!window.matchMedia || !window.matchMedia('(hover: none)').matches) return;
+    document.documentElement.classList.add('tflu-touch');
+    function run() {
+      [].forEach.call(document.styleSheets, function (sh) {
+        var rules; try { rules = sh.cssRules; } catch (e) { return; }
+        if (rules) stripHoverRules(rules, sh);
+      });
+    }
+    run();
+    window.addEventListener('load', run);
+  }
+
   function init() {
     document.documentElement.classList.add('tflu-js');
     if (reduceMotion) document.documentElement.classList.add('tflu-reduced-motion');
@@ -2674,6 +2737,7 @@
     initVacancyMail();
     initSlants();
     initMotion();
+    initTouch();
   }
 
   if (document.readyState === 'loading') {

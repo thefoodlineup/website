@@ -2,6 +2,12 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.34.0] - 2026-11-16
+
+- Touch (iPad, tablet, telefoon): alle :hover-effecten worden op apparaten zonder muis uit de stylesheets gehaald (Webflow en eigen CSS), zodat niets meer blijft 'hangen' na een tik. In de plaats komt directe tikfeedback (:active). Burger-animatie, menupanelen en inkomen bij scrollen blijven.
+- Menu openen laat de pagina niet meer verspringen: de ruimte van de scrollbalk blijft gereserveerd (scrollbar-gutter).
+- Promokaarten in het megamenu alleen vanaf 1200px.
+
 ## [1.33.0] - 2026-11-16
 
 - Megamenu: burger en schuifpanelen nu tot en met 1199px (was 991px), zodat de menu-items op kleine laptops en een liggende iPad nooit over twee regels vallen. De bijbehorende CSS staat in de head-code van de site.
