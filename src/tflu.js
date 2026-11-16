@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.34.0
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.35.0
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -2709,6 +2709,54 @@
     window.addEventListener('load', run);
   }
 
+
+  /* ------------------------------------------------------------------
+   * Menubalk bij scrollen (alle breakpoints)
+   * - Bovenaan altijd in beeld; na 120px naar beneden scrollen schuift hij
+   *   weg, bij omhoog scrollen komt hij terug (8px marge tegen trillen).
+   * - Blijft staan als het menu of een paneel open is, of bij toetsenbordfocus.
+   * - T/m 1199px: bovenaan transparant over de (donkere) hero, verder wit
+   *   met zachte schaduw. Alle paginatypes beginnen met een donkere hero.
+   * - Alleen transform/kleur, geen layout; 'minder beweging' zet de animatie uit.
+   * ------------------------------------------------------------------ */
+  function initNavScroll() {
+    var nav = document.querySelector('.mega-nav');
+    if (!nav) return;
+    var st = document.createElement('style');
+    st.id = 'tflu-nav-scroll';
+    st.textContent =
+      '.mega-nav{transition:transform .35s cubic-bezier(.22,1,.36,1)}' +
+      '.mega-nav.tflu-nav-hidden{transform:translate3d(0,calc(-100% - 2rem),0);transition:transform .25s cubic-bezier(.4,0,1,1)}' +
+      '@media (max-width:1199px){' +
+        '.mega-nav__bar{transition:background-color .3s ease,border-color .3s ease,box-shadow .3s ease;box-shadow:0 6px 20px rgba(37,36,90,.08)}' +
+        '.mega-nav.tflu-nav-top:not([data-menu-open="true"]) .mega-nav__bar{background-color:transparent;border-bottom-color:transparent;box-shadow:none}' +
+      '}';
+    document.head.appendChild(st);
+    var lastY = window.scrollY || 0, ticking = false, hidden = false;
+    function setHidden(h) {
+      if (h === hidden) return;
+      hidden = h;
+      nav.classList.toggle('tflu-nav-hidden', h);
+    }
+    function locked() {
+      return nav.getAttribute('data-menu-open') === 'true' || nav.contains(document.activeElement) && document.activeElement !== document.body ||
+        document.documentElement.style.overflow === 'hidden';
+    }
+    function update() {
+      ticking = false;
+      var y = Math.max(0, window.scrollY || 0), dy = y - lastY;
+      nav.classList.toggle('tflu-nav-top', y < 8);
+      if (locked() || y < 120) { setHidden(false); lastY = y; return; }
+      if (dy > 8) { setHidden(true); lastY = y; }
+      else if (dy < -8) { setHidden(false); lastY = y; }
+    }
+    window.addEventListener('scroll', function () {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }, { passive: true });
+    nav.addEventListener('focusin', function () { setHidden(false); });
+    update();
+  }
+
   function init() {
     document.documentElement.classList.add('tflu-js');
     if (reduceMotion) document.documentElement.classList.add('tflu-reduced-motion');
@@ -2738,6 +2786,7 @@
     initSlants();
     initMotion();
     initTouch();
+    initNavScroll();
   }
 
   if (document.readyState === 'loading') {

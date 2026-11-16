@@ -2,6 +2,11 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.35.0] - 2026-11-16
+
+- Menubalk schuift weg bij naar beneden scrollen (na 120px) en komt terug bij omhoog scrollen, op alle schermen. Blijft staan als het menu open is of bij toetsenbordfocus.
+- T/m 1199px is de menubalk bovenaan transparant over de donkere hero en verder wit met een zachte schaduw.
+
 ## [1.34.0] - 2026-11-16
 
 - Touch (iPad, tablet, telefoon): alle :hover-effecten worden op apparaten zonder muis uit de stylesheets gehaald (Webflow en eigen CSS), zodat niets meer blijft 'hangen' na een tik. In de plaats komt directe tikfeedback (:active). Burger-animatie, menupanelen en inkomen bij scrollen blijven.
