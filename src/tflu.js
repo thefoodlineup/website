@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.35.0
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.36.0
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -2728,28 +2728,37 @@
       '.mega-nav{transition:transform .35s cubic-bezier(.22,1,.36,1)}' +
       '.mega-nav.tflu-nav-hidden{transform:translate3d(0,calc(-100% - 2rem),0);transition:transform .25s cubic-bezier(.4,0,1,1)}' +
       '@media (max-width:1199px){' +
-        '.mega-nav__bar{transition:background-color .3s ease,border-color .3s ease,box-shadow .3s ease}' +
-        '.mega-nav.tflu-nav-solid .mega-nav__bar,.mega-nav[data-menu-open="true"] .mega-nav__bar{background-color:#fff;border-bottom-color:var(--neutral--divider,#E4E8EF)}' +
+        '.mega-nav__bar{transition:box-shadow .3s ease}' +
         '.mega-nav.tflu-nav-solid .mega-nav__bar{box-shadow:0 6px 20px rgba(37,36,90,.08)}' +
       '}';
     document.head.appendChild(st);
-    var lastY = window.scrollY || 0, ticking = false, hidden = false;
+    // Scrollrichting pas tellen na een duidelijke beweging (iOS: terugveren aan de
+    // randen en de inschuivende adresbalk geven kleine schokjes die we negeren).
+    var lastY = 0, acc = 0, ticking = false, hidden = false;
+    function maxY() { return Math.max(0, document.documentElement.scrollHeight - window.innerHeight); }
+    function clampY() { return Math.min(Math.max(0, window.scrollY || 0), maxY()); }
+    lastY = clampY();
     function setHidden(h) {
       if (h === hidden) return;
       hidden = h;
       nav.classList.toggle('tflu-nav-hidden', h);
     }
     function locked() {
-      return nav.getAttribute('data-menu-open') === 'true' || nav.contains(document.activeElement) && document.activeElement !== document.body ||
+      var a = document.activeElement;
+      return nav.getAttribute('data-menu-open') === 'true' || (a && a !== document.body && nav.contains(a)) ||
         document.documentElement.style.overflow === 'hidden';
     }
     function update() {
       ticking = false;
-      var y = Math.max(0, window.scrollY || 0), dy = y - lastY;
-      nav.classList.toggle('tflu-nav-solid', y >= 8);
-      if (locked() || y < 120) { setHidden(false); lastY = y; return; }
-      if (dy > 8) { setHidden(true); lastY = y; }
-      else if (dy < -8) { setHidden(false); lastY = y; }
+      var y = clampY(), dy = y - lastY;
+      lastY = y;
+      nav.classList.toggle('tflu-nav-solid', y > 8);
+      if (locked() || y < 120) { acc = 0; setHidden(false); return; }
+      if (y >= maxY() - 2) return; // onderkant (terugveren): niets wisselen
+      if (dy === 0) return;
+      acc = (acc > 0) === (dy > 0) ? acc + dy : dy;
+      if (acc > 16) setHidden(true);
+      else if (acc < -16) setHidden(false);
     }
     window.addEventListener('scroll', function () {
       if (!ticking) { ticking = true; requestAnimationFrame(update); }

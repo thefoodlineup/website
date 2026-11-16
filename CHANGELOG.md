@@ -2,6 +2,11 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.36.0] - 2026-11-16
+
+- Menubalk t/m 1199px weer altijd wit (geen transparante stand meer, dus geen kleurwissel bij scrollen op iPhone). Schaduw zodra je scrolt.
+- Wegschuiven/terugkomen reageert pas op een duidelijke beweging (16px in één richting) en negeert terugveren en de iOS-adresbalk.
+
 ## [1.35.0] - 2026-11-16
 
 - Menubalk schuift weg bij naar beneden scrollen (na 120px) en komt terug bij omhoog scrollen, op alle schermen. Blijft staan als het menu open is of bij toetsenbordfocus.
