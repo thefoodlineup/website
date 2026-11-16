@@ -2,6 +2,12 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.42.0] - 2026-11-16
+
+- Smooth scroll vloeiender: parallax, menubalk, plakkende filters en inhoudsopgave worden met Lenis in hetzelfde frame bijgewerkt als de scrollpositie (`lenis.on('scroll')`), in plaats van een frame later via het scroll-event. Daardoor geen schokjes meer in de parallaxbeelden.
+- Geen `lenis.resize()` meer bij elke `transitionend` (gaf tijdens scrollen extra layoutberekeningen bij elke inschuif- en hoveranimatie); Lenis houdt de paginahoogte zelf bij.
+- Parallax schrijft de transform direct (meten en schrijven gescheiden); plakkende filters lezen geen `getComputedStyle` meer per frame.
+
 ## [1.41.0] - 2026-11-16
 
 - Formulieren krijgen `data-hs-do-not-collect="true"`: HubSpot 'verzamelde formulieren' pakt ze niet op, zodat een inzending niet dubbel in HubSpot komt (wij versturen zelf via de Forms API).

@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.41.0
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.42.0
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -19,6 +19,17 @@
     if (lenis) { lenis.scrollTo(y, smooth && !reduceMotion ? { duration: 1.1 } : { immediate: true, force: true }); return; }
     window.scrollTo({ top: y, behavior: smooth && !reduceMotion ? 'smooth' : 'auto' });
   }
+  /* Eén plek voor alles wat meebeweegt met scrollen (parallax, menubalk, plakkende filters, inhoudsopgave).
+   * Met Lenis draait het in hetzelfde frame als de scrollpositie (lenis.on('scroll')), zonder Lenis
+   * één keer per frame via requestAnimationFrame. Zo loopt niets een frame achter (geen schokjes). */
+  var scrollSubs = [], scrollQueued = false;
+  function runScrollSubs() { scrollQueued = false; for (var i = 0; i < scrollSubs.length; i++) scrollSubs[i](); }
+  function onScroll(fn) { scrollSubs.push(fn); }
+  window.addEventListener('scroll', function () {
+    if (lenis || scrollQueued) return;
+    scrollQueued = true;
+    requestAnimationFrame(runScrollSubs);
+  }, { passive: true });
   var mobile = window.matchMedia('(max-width: 767px)');
 
   function $$(sel, root) {
@@ -1391,9 +1402,7 @@
     var pairs = links.map(function (a) { return { a: a, el: target(a.getAttribute('href')) }; })
       .filter(function (p) { return p.el; });
     if (!pairs.length) return;
-    var ticking = false;
     function mark() {
-      ticking = false;
       var current = null;
       pairs.forEach(function (p) {
         if (p.el.offsetParent !== null && p.el.getBoundingClientRect().top < 180) current = p;
@@ -1404,9 +1413,7 @@
         if (on) p.a.setAttribute('aria-current', 'location'); else p.a.removeAttribute('aria-current');
       });
     }
-    window.addEventListener('scroll', function () {
-      if (!ticking) { ticking = true; requestAnimationFrame(mark); }
-    }, { passive: true });
+    onScroll(mark);
     mark();
   }
 
@@ -2772,7 +2779,7 @@
     document.head.appendChild(st);
     // Scrollrichting pas tellen na een duidelijke beweging (iOS: terugveren aan de
     // randen en de inschuivende adresbalk geven kleine schokjes die we negeren).
-    var lastY = 0, acc = 0, ticking = false, hidden = false;
+    var lastY = 0, acc = 0, hidden = false;
     function maxY() { return Math.max(0, document.documentElement.scrollHeight - window.innerHeight); }
     function clampY() { return Math.min(Math.max(0, window.scrollY || 0), maxY()); }
     lastY = clampY();
@@ -2796,7 +2803,6 @@
         document.documentElement.style.overflow === 'hidden';
     }
     function update() {
-      ticking = false;
       var y = clampY(), dy = y - lastY;
       lastY = y;
       nav.classList.toggle('tflu-nav-solid', y > 8);
@@ -2807,9 +2813,7 @@
       if (acc > 16) setHidden(true);
       else if (acc < -16) setHidden(false);
     }
-    window.addEventListener('scroll', function () {
-      if (!ticking) { ticking = true; requestAnimationFrame(update); }
-    }, { passive: true });
+    onScroll(update);
     nav.addEventListener('focusin', function () { setHidden(false); });
     update();
     setOffset();
@@ -2847,18 +2851,17 @@
       if (bg) bar.style.setProperty('--tflu-filter-bg', bg);
       bar.classList.add('tflu-sticky-filter');
     });
-    var ticking = false;
     function check() {
-      ticking = false;
-      var off = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--tflu-nav-offset')) || 0;
+      // Offset uit de inline style lezen (geen getComputedStyle per frame: dat dwingt een stijlberekening af)
+      var off = parseFloat(document.documentElement.style.getPropertyValue('--tflu-nav-offset')) || 0;
+      var y = window.scrollY;
       bars.forEach(function (bar) {
         var r = bar.getBoundingClientRect();
-        bar.classList.toggle('is-stuck', r.top <= off + 1 && window.scrollY > 0 && r.top > -r.height);
+        var stuck = r.top <= off + 1 && y > 0 && r.top > -r.height;
+        if (bar.classList.contains('is-stuck') !== stuck) bar.classList.toggle('is-stuck', stuck);
       });
     }
-    window.addEventListener('scroll', function () {
-      if (!ticking) { ticking = true; requestAnimationFrame(check); }
-    }, { passive: true });
+    onScroll(check);
     check();
   }
 
@@ -2899,23 +2902,27 @@
       img.classList.add('tflu-parallax');
       io.observe(img);
     });
-    var ticking = false;
-    function tick() {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(function () {
-        ticking = false;
-        var vh = window.innerHeight;
-        active.forEach(function (img) {
-          var box = img.parentElement.getBoundingClientRect();
-          // -1 (net onder in beeld) tot 1 (net boven uit beeld)
-          var p = Math.max(-1, Math.min(1, ((box.top + box.height / 2) - vh / 2) / (vh / 2 + box.height / 2)));
-          // Beeld blijft iets achter bij het scrollen (achtergrondlaag): tegengesteld aan p
-          img.style.setProperty('--tflu-py', (-p * box.height * 0.06).toFixed(1) + 'px');
-        });
+    function apply() {
+      if (!active.length) return;
+      var vh = window.innerHeight;
+      // Eerst alles meten, daarna pas schrijven (geen heen-en-weer tussen lezen en schrijven)
+      var boxes = active.map(function (img) { return img.parentElement.getBoundingClientRect(); });
+      active.forEach(function (img, i) {
+        var box = boxes[i];
+        // -1 (net onder in beeld) tot 1 (net boven uit beeld)
+        var p = Math.max(-1, Math.min(1, ((box.top + box.height / 2) - vh / 2) / (vh / 2 + box.height / 2)));
+        // Beeld blijft iets achter bij het scrollen (achtergrondlaag): tegengesteld aan p.
+        // Rechtstreeks als transform (geen CSS-variabele: dat scheelt een stijlberekening per frame)
+        img.style.transform = 'translate3d(0,' + (-p * box.height * 0.06).toFixed(2) + 'px,0) scale(1.12)';
       });
     }
-    window.addEventListener('scroll', tick, { passive: true });
+    var queued = false;
+    function tick() {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(function () { queued = false; apply(); });
+    }
+    onScroll(apply);
     window.addEventListener('resize', tick);
     tick();
   }
@@ -2953,6 +2960,8 @@
       });
       function raf(t) { if (lenis) { lenis.raf(t); requestAnimationFrame(raf); } }
       requestAnimationFrame(raf);
+      // Alles wat meebeweegt met scrollen in hetzelfde frame bijwerken als de scrollpositie
+      lenis.on('scroll', runScrollSubs);
       var html = document.documentElement, body = document.body;
       function sync() {
         if (!lenis) return;
@@ -2963,8 +2972,8 @@
       new MutationObserver(sync).observe(html, { attributes: true, attributeFilter: ['style'] });
       new MutationObserver(sync).observe(body, { attributes: true, attributeFilter: ['style'] });
       sync();
-      // Na openklappen van FAQ's/accordeons klopt de paginahoogte direct
-      document.addEventListener('transitionend', function () { if (lenis) lenis.resize(); }, { passive: true });
+      // Paginahoogte: Lenis houdt die zelf bij (ResizeObserver, autoResize). Geen resize() bij elke
+      // transitionend meer: dat gaf tijdens scrollen bij elke inschuif- en hoveranimatie een extra layoutberekening.
       fine.addEventListener && fine.addEventListener('change', function (e) {
         if (!e.matches && lenis) { lenis.destroy(); lenis = null; }
       });
