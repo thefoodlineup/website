@@ -181,7 +181,7 @@ MAILS = {
     + p("Leuk dat je je hebt aangemeld. Zo nu en dan serveren we je foodtrends, eventinspiratie en de nieuwste chefs uit ons netwerk. Geen spam, wel veel smaak.")
     + steps([("Foodtrends", "Wat verdient straks een plek op jouw eventmenu?"),
              ("Eventinspiratie", "Echte cases, van congres tot jubileum."),
-             ("Nieuwe chefs", "De nieuwste talenten uit ons netwerk van 60+ ondernemers.")])
+             ("Nieuwe chefs", "De nieuwste talenten uit ons netwerk van 80+ chefs.")])
     + p("Kun je niet wachten? Lees alvast onze nieuwste stories.", mb=20)
     + button("Lees onze stories", SITE + "/stories")
     + '<div style="height:28px;line-height:28px;">&nbsp;</div>'
