@@ -889,6 +889,9 @@
     UTM.forEach(function (k) { if (utm[k]) extra[k] = utm[k]; });
     // Taal van de pagina, zodat NL/EN-takken in HubSpot werken (altijd mee, ook zonder tracking).
     extra.hs_language = LANG;
+    // Alleen nieuwsbrief: fase 'subscriber' i.p.v. HubSpots standaard 'lead'. HubSpot zet de fase
+    // nooit terug, dus bestaande leads/klanten houden hun fase.
+    if (form.hasAttribute('data-hs-subscribe')) extra.lifecyclestage = 'subscriber';
     Object.keys(extra).forEach(function (k) {
       if (extra[k] && !seen[k]) fields.push({ name: k, value: extra[k] });
     });

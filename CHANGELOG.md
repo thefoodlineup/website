@@ -2,6 +2,10 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.45.0] - 2026-11-17
+
+- Nieuwsbriefformulier stuurt `lifecyclestage=subscriber` mee, zodat nieuwe aanmelders niet meer als 'lead' in HubSpot komen. Bestaande leads en klanten houden hun fase (HubSpot zet de fase niet terug).
+
 ## [1.44.0] - 2026-11-17
 
 - Formulieren sturen de taal van de pagina mee (`hs_language`: nl/en), zodat de Nederlandse en Engelse takken in HubSpot werken. Het veld is als verborgen veld toegevoegd aan de drie Web 2026-formulieren in HubSpot.
