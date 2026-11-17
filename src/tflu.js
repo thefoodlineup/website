@@ -2156,7 +2156,7 @@
       // 'Ook voor'-chips op eventtype-pagina's: lijst mag niet breder worden dan de kolom, anders scrolt hij niet op touch
       '.type-other_list-wrap{flex:1 1 0%;min-width:0;max-width:100%}',
       '.type-other_list-wrap>.w-dyn-list{min-width:0;max-width:100%}',
-      '.type-other_wrap .filter_list{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;scrollbar-width:none;touch-action:pan-x pan-y}',
+      '.type-other_wrap .filter_list{max-width:none;padding-right:20px;overflow-x:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;scrollbar-width:none;touch-action:pan-x pan-y}',
       '.type-other_wrap .filter_list .w-dyn-item{flex:0 0 auto}',
       '.footer_link:hover,.footer_link:focus-visible,.footer_legal-link:hover,.footer_legal-link:focus-visible,.footer_credit:hover,.footer_credit:focus-visible{color:var(--brand--yellow)}',
       // Megamenu: lijn alleen onder de tekst van 'Alle …' en de kaart-CTA (de pijl beweegt apart)
