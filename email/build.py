@@ -17,12 +17,12 @@ STYLE = """<style>
 .tf-btn a:hover{background:#d94a06!important}
 @media (max-width:600px){.tf-pad{padding-left:24px!important;padding-right:24px!important}.tf-h1{font-size:40px!important;line-height:44px!important}.tf-step td{display:block!important;width:100%!important}}
 @media (prefers-color-scheme:dark){
- .tf-bg{background:#14143a!important}.tf-card{background:#25245a!important}
+ .tf-bg{background:#14143a!important}.tf-card{background:#1d1c4d!important}
  .tf-txt,.tf-txt p,.tf-txt td,.tf-txt a{color:#ffffff!important}.tf-muted{color:#c6e6e4!important}
  .tf-box{background:#2f2e6b!important}.tf-h1{color:#ffffff!important}.tf-line{border-color:#3a3978!important}
  .tf-num,.tf-txt .tf-num{color:#f2560a!important}.tf-h1 span{color:#f2560a!important}
 }
-[data-ogsc] .tf-bg{background:#14143a!important}[data-ogsc] .tf-card{background:#25245a!important}
+[data-ogsc] .tf-bg{background:#14143a!important}[data-ogsc] .tf-card{background:#1d1c4d!important}
 [data-ogsc] .tf-txt,[data-ogsc] .tf-h1{color:#ffffff!important}[data-ogsc] .tf-box{background:#2f2e6b!important}
 </style>"""
 
@@ -157,6 +157,21 @@ MAILS = {
     + '<div style="height:28px;line-height:28px;">&nbsp;</div>'
     + p(f'Plan je een event? {link_button("Vraag een vrijblijvende offerte aan", SITE + "/offerte-aanvragen")}.', mb=24)
     + p("Smakelijke groet,<br><strong>Team The Food Line-up</strong>", mb=0)
+  )),
+ "behandeling": dict(
+  name="Web 2026 | In behandeling",
+  subject="We gaan voor je aan de slag!",
+  preview="Je persoonlijke voorstel komt eraan. We bellen je om het samen door te lopen.",
+  html=wrap("Aanvraag in behandeling", "Aanvraag? ", "Check!",
+    hi()
+    + p("Ons eventteam is voor je aan de slag met een voorstel dat helemaal aansluit bij jouw wensen. Je vindt het binnenkort in je inbox, en we bellen je graag om het samen door te lopen en je vragen te beantwoorden.")
+    + f'<p class="tf-txt" style="margin:8px 0 16px 0;font-family:{DISPLAY};font-size:22px;text-transform:uppercase;color:{NAVY};">Hungry for more?</p>'
+    + p("Kun je niet wachten op jouw persoonlijke line-up? Bekijk alvast hoe we andere events geniaal lekker maakten, of volg ons op LinkedIn en Instagram voor een kijkje achter de schermen.", mb=20)
+    + button("Bekijk onze cases", SITE + "/cases")
+    + '<div style="height:32px;line-height:32px;">&nbsp;</div>'
+    + contact_block()
+    + '<div style="height:24px;line-height:24px;">&nbsp;</div>'
+    + p("Tot snel!<br><strong>Team The Food Line-up</strong>", mb=0)
   )),
 }
 
