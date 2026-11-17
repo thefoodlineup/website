@@ -18,6 +18,7 @@ STYLE = """<style>
 @import url('https://fonts.googleapis.com/css2?family=Anton&family=Outfit:wght@400;600&display=swap');
 :root{color-scheme:light dark;supported-color-schemes:light dark}
 @media (max-width:620px){
+ .tf-outer{padding:16px 0 24px 0!important}
  .tf-pad{padding-left:24px!important;padding-right:24px!important}
  .tf-card{padding-top:32px!important;padding-bottom:32px!important}
  .tf-h1{font-size:36px!important;line-height:40px!important}
@@ -85,7 +86,7 @@ def wrap(eyebrow, h1_a, h1_b, body):
     return f'''{STYLE}
 {HOVER}
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" class="tf-bg" bgcolor="{LBS}" style="background:{LBS};">
-<tr><td align="center" style="padding:0;">
+<tr><td align="center" class="tf-outer" style="padding:40px 16px 48px 16px;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;">
 <tr><td bgcolor="{WHITE}" style="background:{WHITE};padding:20px 40px;border-bottom:1px solid #dfe9e8;" class="tf-pad tf-head">
 <a href="{SITE}"><img class="tf-logo-l" src="{LOGO}" width="104" height="73" alt="The Food Line-up" style="display:block;border:0;width:104px;height:auto;">
@@ -106,7 +107,7 @@ def footer():
 <a href="https://www.linkedin.com/company/10384742/" style="color:#ffffff;text-decoration:underline;">LinkedIn</a> &nbsp;&middot;&nbsp;
 <a href="https://www.instagram.com/thefoodlineup/" style="color:#ffffff;text-decoration:underline;">Instagram</a> &nbsp;&middot;&nbsp;
 <a href="{SITE}" style="color:#ffffff;text-decoration:underline;">thefoodlineup.nl</a></p>
-<p style="margin:0 0 10px 0;font-family:{BODY};font-size:12px;line-height:1.6;color:#c6e6e4;">{{{{ site_settings.company_name }}}} &middot; {{{{ site_settings.company_street_address_1 }}}}, {{{{ site_settings.company_zip }}}} {{{{ site_settings.company_city }}}}, {{{{ site_settings.company_state }}}} &middot; Eerste cateraar in Europa met het B Corp-certificaat</p>
+<p style="margin:0 0 10px 0;font-family:{BODY};font-size:12px;line-height:1.6;color:#c6e6e4;">{{{{ site_settings.company_name }}}} &middot; <a href="https://maps.google.com/?q=Danzigerkade+225B+Amsterdam" style="color:#c6e6e4;text-decoration:none;">{{{{ site_settings.company_street_address_1 }}}}, {{{{ site_settings.company_zip }}}} {{{{ site_settings.company_city }}}}<span style="display:none;"> {{{{ site_settings.company_state }}}}</span></a> &middot; Eerste cateraar in Europa met het B Corp-certificaat</p>
 <p style="margin:0;font-family:{BODY};font-size:12px;line-height:1.6;color:#c6e6e4;">Je ontvangt deze mail omdat je contact met ons hebt opgenomen via onze website. <a href="{{{{ unsubscribe_link }}}}" style="color:#ffffff;text-decoration:underline;">Afmelden of voorkeuren aanpassen</a></p>
 </td></tr>'''
 
