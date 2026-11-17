@@ -1,7 +1,10 @@
 """Bouwt de HTML voor de nieuwe TFLU-mails (Web 2026). Eén module per mail; footer komt uit HubSpot."""
 import json, sys
 
-LOGO = "https://19588880.fs1.hubspotusercontent-na1.net/hubfs/19588880/website-2026/mail/tflu-mail-logo.png"
+LOGO = "https://19588880.fs1.hubspotusercontent-na1.net/hubfs/19588880/website-2026/mail/tflu-mail-logo-navy.png"
+LOGO_DARK = "https://19588880.fs1.hubspotusercontent-na1.net/hubfs/19588880/website-2026/mail/tflu-mail-logo.png"
+ARR_W = "https://19588880.fs1.hubspotusercontent-na1.net/hubfs/19588880/website-2026/mail/tflu-mail-pijl-wit.png"
+ARR_N = "https://19588880.fs1.hubspotusercontent-na1.net/hubfs/19588880/website-2026/mail/tflu-mail-pijl-navy.png"
 WIEBER = "https://19588880.fs1.hubspotusercontent-na1.net/hubfs/19588880/website-2026/mail/tflu-mail-wieber.png"
 SITE = "https://www.thefoodlineup.nl"
 NAVY, ORANGE, LB, LBS, WHITE = "#25245a", "#f2560a", "#c6e6e4", "#eef6f5", "#ffffff"
@@ -14,15 +17,27 @@ def tok(prop, fb=""):
 STYLE = """<style>
 @import url('https://fonts.googleapis.com/css2?family=Anton&family=Outfit:wght@400;600&display=swap');
 :root{color-scheme:light dark;supported-color-schemes:light dark}
-.tf-btn a:hover{background:#d94a06!important}
-@media (max-width:600px){.tf-pad{padding-left:24px!important;padding-right:24px!important}.tf-h1{font-size:40px!important;line-height:44px!important}.tf-step td{display:block!important;width:100%!important}}
+.tf-btn a{background-image:linear-gradient(101.5deg,#25245a 50%,#f2560a 50%);background-size:260% 100%;background-position:100% 0;transition:background-position .25s cubic-bezier(.22,1,.36,1),color .25s cubic-bezier(.22,1,.36,1)}
+.tf-btn a:hover{background-color:#25245a!important;background-position:0 0!important}
+.tf-btn:hover td{background-color:#25245a!important}
+@media (max-width:620px){
+ .tf-pad{padding-left:24px!important;padding-right:24px!important}
+ .tf-card{padding-top:32px!important;padding-bottom:32px!important}
+ .tf-h1{font-size:36px!important;line-height:40px!important}
+ .tf-btn,.tf-btn a{display:block!important;width:100%!important;text-align:center!important;box-sizing:border-box!important}
+}
 @media (prefers-color-scheme:dark){
- .tf-bg{background:#14143a!important}.tf-card{background:#1d1c4d!important}
+ .tf-bg{background:#14143a!important}.tf-card,.tf-head{background:#1d1c4d!important}.tf-head{border-color:#3a3978!important}
+ .tf-logo-l{display:none!important}.tf-logo-d{display:block!important;max-height:none!important;width:104px!important;height:auto!important}
  .tf-txt,.tf-txt p,.tf-txt td,.tf-txt a{color:#ffffff!important}.tf-muted{color:#c6e6e4!important}
  .tf-box{background:#2f2e6b!important}.tf-h1{color:#ffffff!important}.tf-line{border-color:#3a3978!important}
- .tf-num,.tf-txt .tf-num{color:#f2560a!important}.tf-h1 span{color:#f2560a!important}
+ .tf-num,.tf-txt .tf-num{color:#f2560a!important}
+ .tf-btn a{background-image:linear-gradient(101.5deg,#ffffff 50%,#f2560a 50%)}
+ .tf-btn a:hover{background-color:#ffffff!important;color:#25245a!important}.tf-btn:hover td{background-color:#ffffff!important}
+ .tf-btn a:hover .tf-arr-w{display:none!important}.tf-btn a:hover .tf-arr-n{display:inline-block!important}
 }
-[data-ogsc] .tf-bg{background:#14143a!important}[data-ogsc] .tf-card{background:#1d1c4d!important}
+[data-ogsc] .tf-bg{background:#14143a!important}[data-ogsc] .tf-card,[data-ogsc] .tf-head{background:#1d1c4d!important}
+[data-ogsc] .tf-logo-l{display:none!important}[data-ogsc] .tf-logo-d{display:block!important;max-height:none!important;width:104px!important;height:auto!important}
 [data-ogsc] .tf-txt,[data-ogsc] .tf-h1{color:#ffffff!important}[data-ogsc] .tf-box{background:#2f2e6b!important}
 </style>"""
 
@@ -30,8 +45,10 @@ def p(text, size=16, color=NAVY, mb=16, weight=400):
     return f'<p style="margin:0 0 {mb}px 0;font-family:{BODY};font-size:{size}px;line-height:1.55;color:{color};font-weight:{weight};">{text}</p>'
 
 def button(label, href):
-    return f'''<table role="presentation" cellpadding="0" cellspacing="0" border="0" class="tf-btn"><tr><td bgcolor="{ORANGE}" style="border-radius:0;">
-<a href="{href}" style="display:inline-block;padding:15px 26px;font-family:{DISPLAY};font-size:17px;letter-spacing:.5px;text-transform:uppercase;color:#ffffff;text-decoration:none;background:{ORANGE};">{label}&nbsp;&rarr;</a></td></tr></table>'''
+    arrows = (f'<img class="tf-arr-w" src="{ARR_W}" width="18" height="18" alt="" style="display:inline-block;border:0;width:18px;height:18px;vertical-align:-2px;margin-left:10px;">'
+              f'<img class="tf-arr-n" src="{ARR_N}" width="18" height="18" alt="" style="display:none;mso-hide:all;border:0;width:18px;height:18px;vertical-align:-2px;margin-left:10px;">')
+    return f'''<table role="presentation" cellpadding="0" cellspacing="0" border="0" class="tf-btn"><tr><td bgcolor="{ORANGE}" align="center" style="background:{ORANGE};">
+<a href="{href}" style="display:inline-block;padding:12px 28px;font-family:{DISPLAY};font-size:20px;line-height:26px;text-transform:uppercase;color:#ffffff;text-decoration:none;background-color:{ORANGE};">{label}{arrows}</a></td></tr></table>'''
 
 def link_button(label, href):
     return f'<a href="{href}" style="font-family:{BODY};font-size:15px;font-weight:600;color:{NAVY};text-decoration:underline;" class="tf-txt">{label}</a>'
@@ -60,12 +77,13 @@ def wrap(eyebrow, h1_a, h1_b, body):
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" class="tf-bg" bgcolor="{LBS}" style="background:{LBS};">
 <tr><td align="center" style="padding:0;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;">
-<tr><td bgcolor="{NAVY}" style="background:{NAVY};padding:22px 40px 18px 40px;" class="tf-pad">
-<a href="{SITE}"><img src="{LOGO}" width="104" height="73" alt="The Food Line-up" style="display:block;border:0;width:104px;height:auto;"></a></td></tr>
+<tr><td bgcolor="{WHITE}" style="background:{WHITE};padding:20px 40px;border-bottom:1px solid #dfe9e8;" class="tf-pad tf-head">
+<a href="{SITE}"><img class="tf-logo-l" src="{LOGO}" width="104" height="73" alt="The Food Line-up" style="display:block;border:0;width:104px;height:auto;">
+<img class="tf-logo-d" src="{LOGO_DARK}" width="104" height="73" alt="The Food Line-up" style="display:none;mso-hide:all;max-height:0;width:0;border:0;"></a></td></tr>
 <tr><td class="tf-card tf-pad tf-txt" bgcolor="{WHITE}" style="background:{WHITE};padding:40px 40px 36px 40px;">
 <img src="{WIEBER}" width="28" height="11" alt="" style="display:block;border:0;margin:0 0 14px 0;">
 <p class="tf-muted" style="margin:0 0 10px 0;font-family:{BODY};font-size:12px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:{NAVY};opacity:.75;">{eyebrow}</p>
-<h1 class="tf-h1" style="margin:0 0 22px 0;font-family:{DISPLAY};font-weight:400;font-size:48px;line-height:52px;text-transform:uppercase;color:{NAVY};">{h1_a}<span style="color:{ORANGE};">{h1_b}</span></h1>
+<h1 class="tf-h1" style="margin:0 0 22px 0;font-family:{DISPLAY};font-weight:400;font-size:48px;line-height:52px;text-transform:uppercase;color:{NAVY};">{h1_a}{h1_b}</h1>
 {body}
 </td></tr>
 {footer()}
