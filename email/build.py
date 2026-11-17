@@ -106,7 +106,7 @@ def footer():
 <a href="https://www.linkedin.com/company/10384742/" style="color:#ffffff;text-decoration:underline;">LinkedIn</a> &nbsp;&middot;&nbsp;
 <a href="https://www.instagram.com/thefoodlineup/" style="color:#ffffff;text-decoration:underline;">Instagram</a> &nbsp;&middot;&nbsp;
 <a href="{SITE}" style="color:#ffffff;text-decoration:underline;">thefoodlineup.nl</a></p>
-<p style="margin:0 0 10px 0;font-family:{BODY};font-size:12px;line-height:1.6;color:#c6e6e4;">{{{{ site_settings.company_name }}}} &middot; {{{{ site_settings.company_street_address_1 }}}}, {{{{ site_settings.company_zip }}}} {{{{ site_settings.company_city }}}} &middot; Eerste cateraar in Europa met het B Corp-certificaat</p>
+<p style="margin:0 0 10px 0;font-family:{BODY};font-size:12px;line-height:1.6;color:#c6e6e4;">{{{{ site_settings.company_name }}}} &middot; {{{{ site_settings.company_street_address_1 }}}}, {{{{ site_settings.company_zip }}}} {{{{ site_settings.company_city }}}}, {{{{ site_settings.company_state }}}} &middot; Eerste cateraar in Europa met het B Corp-certificaat</p>
 <p style="margin:0;font-family:{BODY};font-size:12px;line-height:1.6;color:#c6e6e4;">Je ontvangt deze mail omdat je contact met ons hebt opgenomen via onze website. <a href="{{{{ unsubscribe_link }}}}" style="color:#ffffff;text-decoration:underline;">Afmelden of voorkeuren aanpassen</a></p>
 </td></tr>'''
 
@@ -207,6 +207,35 @@ if __name__ == "__main__":
     MAILS["nieuwsbrief"]["html"]=MAILS["nieuwsbrief"]["html"].replace("omdat je contact met ons hebt opgenomen via onze website","omdat je je hebt aangemeld voor onze nieuwsbrief")
     MAILS["chef"]["html"]=MAILS["chef"]["html"].replace("omdat je contact met ons hebt opgenomen via onze website","omdat je je via onze website hebt aangemeld voor ons chefs netwerk")
     json.dump(MAILS, open(sys.argv[1], "w"), ensure_ascii=False, indent=1)
+
+    # Coded e-mailtemplates voor HubSpot (HubL werkt hierin wel, in de HTML-module niet)
+    import os
+    os.makedirs("email/templates", exist_ok=True)
+    for k, m in MAILS.items():
+        pre = m["preview"]
+        i = m["html"].index("<table")
+        styles, body = m["html"][:i], m["html"][i:]
+        tpl = f"""<!--
+  templateType: email
+  isAvailableForNewContent: true
+  label: {m['name']}
+-->
+<!doctype html>
+<html lang="nl" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="supported-color-schemes" content="light dark">
+<title>{m['subject']}</title>
+{styles}</head>
+<body style="margin:0;padding:0;background:#eef6f5;">
+<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;font-size:1px;line-height:1px;color:#eef6f5;">{pre}&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;</div>
+{body}
+</body>
+</html>
+"""
+        open(f"email/templates/mail-{k}.html", "w").write(tpl)
     # lokale previews (licht en donker)
     for k, m in MAILS.items():
         doc = f'<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"></head><body style="margin:0;">{m["html"]}</body></html>'
