@@ -17,9 +17,6 @@ def tok(prop, fb=""):
 STYLE = """<style>
 @import url('https://fonts.googleapis.com/css2?family=Anton&family=Outfit:wght@400;600&display=swap');
 :root{color-scheme:light dark;supported-color-schemes:light dark}
-.tf-btn a{background-image:linear-gradient(101.5deg,#25245a 50%,#f2560a 50%);background-size:260% 100%;background-position:100% 0;transition:background-position .25s cubic-bezier(.22,1,.36,1),color .25s cubic-bezier(.22,1,.36,1)}
-.tf-btn a:hover{background-color:#25245a!important;background-position:0 0!important}
-.tf-btn:hover td{background-color:#25245a!important}
 @media (max-width:620px){
  .tf-pad{padding-left:24px!important;padding-right:24px!important}
  .tf-card{padding-top:32px!important;padding-bottom:32px!important}
@@ -32,13 +29,25 @@ STYLE = """<style>
  .tf-txt,.tf-txt p,.tf-txt td,.tf-txt a{color:#ffffff!important}.tf-muted{color:#c6e6e4!important}
  .tf-box{background:#2f2e6b!important}.tf-h1{color:#ffffff!important}.tf-line{border-color:#3a3978!important}
  .tf-num,.tf-txt .tf-num{color:#f2560a!important}
- .tf-btn a{background-image:linear-gradient(101.5deg,#ffffff 50%,#f2560a 50%)}
- .tf-btn a:hover{background-color:#ffffff!important;color:#25245a!important}.tf-btn:hover td{background-color:#ffffff!important}
- .tf-btn a:hover .tf-arr-w{display:none!important}.tf-btn a:hover .tf-arr-n{display:inline-block!important}
 }
 [data-ogsc] .tf-bg{background:#14143a!important}[data-ogsc] .tf-card,[data-ogsc] .tf-head{background:#1d1c4d!important}
 [data-ogsc] .tf-logo-l{display:none!important}[data-ogsc] .tf-logo-d{display:block!important;max-height:none!important;width:104px!important;height:auto!important}
 [data-ogsc] .tf-txt,[data-ogsc] .tf-h1{color:#ffffff!important}[data-ogsc] .tf-box{background:#2f2e6b!important}
+</style>"""
+
+HOVER = """<style>
+.tf-btn a{background-image:linear-gradient(101.5deg,#25245a 50%,#f2560a 50%);background-size:260% 100%;background-position:100% 0;background-repeat:no-repeat;transition:background-position .25s cubic-bezier(.22,1,.36,1),color .2s cubic-bezier(.22,1,.36,1),border-color .2s ease}
+.tf-btn img{transition:transform .2s cubic-bezier(.22,1,.36,1)}
+@media (hover:hover) and (pointer:fine){
+.tf-btn a:hover{background-position:0 0!important;border-color:#25245a!important;transition:background-position .4s cubic-bezier(.22,1,.36,1),color .25s cubic-bezier(.22,1,.36,1),border-color .25s ease}
+.tf-btn a:hover img{transform:translateX(4px);transition-duration:.25s}
+}
+@media (hover:hover) and (pointer:fine) and (prefers-color-scheme:dark){
+.tf-btn a{background-image:linear-gradient(101.5deg,#ffffff 50%,#f2560a 50%)!important}
+.tf-btn a:hover{color:#25245a!important;border-color:#ffffff!important}
+.tf-btn a:hover .tf-arr-w{display:none!important}.tf-btn a:hover .tf-arr-n{display:inline-block!important}
+}
+@media (hover:none){.tf-btn a:active{transform:scale(.97);transition:transform .1s ease}}
 </style>"""
 
 def p(text, size=16, color=NAVY, mb=16, weight=400):
@@ -48,7 +57,7 @@ def button(label, href):
     arrows = (f'<img class="tf-arr-w" src="{ARR_W}" width="18" height="18" alt="" style="display:inline-block;border:0;width:18px;height:18px;vertical-align:-2px;margin-left:10px;">'
               f'<img class="tf-arr-n" src="{ARR_N}" width="18" height="18" alt="" style="display:none;mso-hide:all;border:0;width:18px;height:18px;vertical-align:-2px;margin-left:10px;">')
     return f'''<table role="presentation" cellpadding="0" cellspacing="0" border="0" class="tf-btn"><tr><td bgcolor="{ORANGE}" align="center" style="background:{ORANGE};">
-<a href="{href}" style="display:inline-block;padding:12px 28px;font-family:{DISPLAY};font-size:20px;line-height:26px;text-transform:uppercase;color:#ffffff;text-decoration:none;background-color:{ORANGE};">{label}{arrows}</a></td></tr></table>'''
+<a href="{href}" style="display:inline-block;padding:13px 28px;border:2px solid {ORANGE};font-family:{DISPLAY};font-size:20px;line-height:26px;letter-spacing:.6px;text-transform:uppercase;color:#ffffff;text-decoration:none;background-color:{ORANGE};">{label}{arrows}</a></td></tr></table>'''
 
 def link_button(label, href):
     return f'<a href="{href}" style="font-family:{BODY};font-size:15px;font-weight:600;color:{NAVY};text-decoration:underline;" class="tf-txt">{label}</a>'
@@ -74,6 +83,7 @@ def contact_block():
 
 def wrap(eyebrow, h1_a, h1_b, body):
     return f'''{STYLE}
+{HOVER}
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" class="tf-bg" bgcolor="{LBS}" style="background:{LBS};">
 <tr><td align="center" style="padding:0;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;">
