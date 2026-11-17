@@ -23,6 +23,7 @@ STYLE = """<style>
  .tf-card{padding-top:32px!important;padding-bottom:32px!important}
  .tf-h1{font-size:36px!important;line-height:40px!important}
  .tf-btn,.tf-btn a{display:block!important;width:100%!important;text-align:center!important;box-sizing:border-box!important}
+ .tf-btn a{white-space:nowrap!important;font-size:18px!important;letter-spacing:.4px!important;padding-left:12px!important;padding-right:12px!important}
 }
 @media (prefers-color-scheme:dark){
  .tf-bg{background:#14143a!important}.tf-card,.tf-head{background:#1d1c4d!important}.tf-head{border-color:#3a3978!important}
@@ -58,7 +59,7 @@ def button(label, href):
     arrows = (f'<img class="tf-arr-w" src="{ARR_W}" width="18" height="18" alt="" style="display:inline-block;border:0;width:18px;height:18px;vertical-align:-2px;margin-left:10px;">'
               f'<img class="tf-arr-n" src="{ARR_N}" width="18" height="18" alt="" style="display:none;mso-hide:all;border:0;width:18px;height:18px;vertical-align:-2px;margin-left:10px;">')
     return f'''<table role="presentation" cellpadding="0" cellspacing="0" border="0" class="tf-btn"><tr><td bgcolor="{ORANGE}" align="center" style="background:{ORANGE};">
-<a href="{href}" style="display:inline-block;padding:13px 28px;border:2px solid {ORANGE};font-family:{DISPLAY};font-size:20px;line-height:26px;letter-spacing:.6px;text-transform:uppercase;color:#ffffff;text-decoration:none;background-color:{ORANGE};">{label}{arrows}</a></td></tr></table>'''
+<a href="{href}" class="tf-btn-a" style="display:inline-block;white-space:nowrap;padding:13px 28px;border:2px solid {ORANGE};font-family:{DISPLAY};font-size:20px;line-height:26px;letter-spacing:.6px;text-transform:uppercase;color:#ffffff;text-decoration:none;background-color:{ORANGE};">{label.replace(' ', '&nbsp;')}{arrows}</a></td></tr></table>'''
 
 def link_button(label, href):
     return f'<a href="{href}" style="font-family:{BODY};font-size:15px;font-weight:600;color:{NAVY};text-decoration:underline;" class="tf-txt">{label}</a>'
