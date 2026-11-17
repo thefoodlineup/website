@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.43.0
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.43.1
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -934,6 +934,12 @@
     var inp = form.querySelector('input[type="email"]');
     var mail = inp ? inp.value.trim() : '';
     $$('[data-done-email]', done).forEach(function (e) { e.textContent = mail; });
+    // Tot de nieuwe bevestigingsmail (met samenvatting) in HubSpot staat: geen samenvatting beloven.
+    $$('[data-done-mailline]', done).forEach(function (e) {
+      var t = e.firstChild;
+      if (t && t.nodeType === 3) t.nodeValue = tr('Je ontvangt een bevestiging op ', 'You\'ll receive a confirmation at ');
+      e.setAttribute('data-fallback', tr('Je ontvangt een bevestiging per mail.', 'You\'ll receive a confirmation by email.'));
+    });
     if (!mail) $$('[data-done-mailline][data-fallback]', done).forEach(function (e) { e.textContent = e.getAttribute('data-fallback'); });
   }
 

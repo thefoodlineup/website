@@ -2,6 +2,10 @@
 
 Alle wijzigingen per versie. Nieuwste bovenaan.
 
+## [1.43.1] - 2026-11-17
+
+- Bedankt-melding offerte en contact: 'Je ontvangt een bevestiging op [e-mail]' in plaats van 'een bevestiging met je aanvraag', tot de nieuwe bevestigingsmail met samenvatting in HubSpot staat.
+
 ## [1.43.0] - 2026-11-16
 
 - Spamfilter laag 1 op alle formulieren (offerte, contact, nieuwsbrief): onzichtbare honeypot, minimale invultijd (2 s) en echte interactie (toets, klik, tik of focus), maximaal 5 inzendingen per 10 minuten per browser. Bots krijgen de bedankt-melding, maar er gaat niets naar HubSpot en er telt geen conversie.
