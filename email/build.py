@@ -164,7 +164,7 @@ MAILS = {
              ("Proeven", "Past het? Dan plannen we een proeverij."),
              ("Op de line-up", "Daarna sta je in ons netwerk en kom je in aanmerking voor events.")])
     + p("Benieuwd met wie je straks in de keuken staat?", mb=20)
-    + button("Bekijk ons chef's netwerk", SITE + "/chefs-netwerk")
+    + button("Bekijk ons chefs netwerk", SITE + "/chefs-netwerk")
     + '<div style="height:32px;line-height:32px;">&nbsp;</div>'
     + contact_block()
     + '<div style="height:24px;line-height:24px;">&nbsp;</div>'
@@ -205,7 +205,7 @@ MAILS = {
 
 if __name__ == "__main__":
     MAILS["nieuwsbrief"]["html"]=MAILS["nieuwsbrief"]["html"].replace("omdat je contact met ons hebt opgenomen via onze website","omdat je je hebt aangemeld voor onze nieuwsbrief")
-    MAILS["chef"]["html"]=MAILS["chef"]["html"].replace("omdat je contact met ons hebt opgenomen via onze website","omdat je je via onze website hebt aangemeld voor ons chef's netwerk")
+    MAILS["chef"]["html"]=MAILS["chef"]["html"].replace("omdat je contact met ons hebt opgenomen via onze website","omdat je je via onze website hebt aangemeld voor ons chefs netwerk")
     json.dump(MAILS, open(sys.argv[1], "w"), ensure_ascii=False, indent=1)
     # lokale previews (licht en donker)
     for k, m in MAILS.items():
