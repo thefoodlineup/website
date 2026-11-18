@@ -1,0 +1,16 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//The Food Line-up//Events//NL
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:event-choucrouterie-2026@thefoodlineup.nl
+DTSTAMP:20261118T102925Z
+DTSTART;VALUE=DATE:20261127
+DTEND;VALUE=DATE:20261128
+SUMMARY:Choucroutediner bij de Choucrouterie
+LOCATION:Amstel 1\, Amsterdam
+DESCRIPTION:https://www.thefoodlineup.nl/event/choucrouterie-2026
+URL:https://www.thefoodlineup.nl/event/choucrouterie-2026
+END:VEVENT
+END:VCALENDAR
