@@ -4,7 +4,7 @@ Alle wijzigingen per versie. Nieuwste bovenaan.
 
 ## [1.46.0] - 2026-11-18
 
-- Eventpagina's (CMS 'Events'): knop 'Zet in je agenda' maakt een .ics (hele dag zonder einddatum, anders van start tot eind), 'Deel met je +1' opent op telefoon het deelmenu en kopieert op desktop de link. Lege menugangen, menukaart en links worden verborgen.
+- Eventpagina's (CMS 'Events'): knop 'Zet in je agenda' geeft op desktop de keuze Google Agenda, Outlook (Microsoft 365) of Apple/overige (.ics); op telefoon en tablet direct het .ics (hele dag zonder einddatum, anders van start tot eind). 'Deel met je +1' opent op telefoon het deelmenu en kopieert op desktop de link. Lege menugangen, menukaart en links worden verborgen.
 - Aanmelding via een eventformulier (`data-form="event"`) stuurt `tflu_event_signup` naar de dataLayer in plaats van `tflu_form_submit`, zodat het geen lead telt. 'Zet in je agenda' stuurt `tflu_event_calendar`.
 
 ## [1.45.0] - 2026-11-17

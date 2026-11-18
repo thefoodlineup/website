@@ -121,6 +121,11 @@ EV_LOGO = EV_FILES + "choucrouterie-2026-mail-logo.png"
 EV_ICS = EV_FILES + "choucrouterie-2026.ics"
 EV_PAGE = SITE + "/event/choucrouterie-2026"
 EV_ROUTE = "https://www.google.com/maps/search/?api=1&query=Amstel+1+Amsterdam"
+EV_GOOGLE = ("https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Choucroutediner%20bij%20de%20Choucrouterie"
+             "&amp;dates=20261127/20261128&amp;location=Amstel%201%2C%20Amsterdam&amp;details=" + "https%3A%2F%2Fwww.thefoodlineup.nl%2Fevent%2Fchoucrouterie-2026&amp;ctz=Europe/Amsterdam")
+EV_OUTLOOK = ("https://outlook.office.com/calendar/0/deeplink/compose?path=%2Fcalendar%2Faction%2Fcompose&amp;rru=addevent"
+              "&amp;subject=Choucroutediner%20bij%20de%20Choucrouterie&amp;startdt=2026-11-27&amp;enddt=2026-11-28&amp;allday=true"
+              "&amp;location=Amstel%201%2C%20Amsterdam&amp;body=https%3A%2F%2Fwww.thefoodlineup.nl%2Fevent%2Fchoucrouterie-2026")
 EV_MENU = [("Voorgerecht", "Plak paté van Brandt &amp; Levie"),
            ("Hoofdgerecht", "Elzasser zuurkool met aardappelpuree en rookworst van Brandt &amp; Levie")]
 
@@ -254,7 +259,8 @@ MAILS = {
     + ev_details()
     + SPACE(24)
     + button("Zet in je agenda", EV_ICS)
-    + SPACE(24)
+    + SPACE(12)
+    + p(f'Of voeg toe aan {link_button("Google Agenda", EV_GOOGLE)} &middot; {link_button("Outlook", EV_OUTLOOK)} &middot; {link_button("Apple / overige", EV_ICS)}', size=14, mb=24)
     + p("<strong>Neem je iemand mee?</strong> Stuur de uitnodiging door, dan meldt je +1 zich ook even aan: " + link_button("naar de aanmeldpagina", EV_PAGE) + ".", mb=28)
     + ev_menu()
     + SPACE(8)

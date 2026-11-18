@@ -2528,39 +2528,120 @@
       pad(d.getUTCHours()) + pad(d.getUTCMinutes()) + '00Z';
   }
   function icsText(s) { return String(s || '').replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/([,;])/g, '\\$1'); }
+  function isoDay(d) { return d.slice(0, 4) + '-' + d.slice(4, 6) + '-' + d.slice(6, 8); }
+  function eventCal(a) {
+    var start = parseEventDate(a.getAttribute('data-ics-start'));
+    if (!start) return null;
+    var end = parseEventDate(a.getAttribute('data-ics-end'));
+    var c = { title: a.getAttribute('data-ics-title') || document.title, loc: a.getAttribute('data-ics-location') || '', url: canonicalUrl() };
+    if (end && end > start) { c.allDay = false; c.start = start; c.end = end; }
+    else {
+      c.allDay = true;
+      c.day = amsDay(start);
+      var n = new Date(Date.UTC(+c.day.slice(0, 4), +c.day.slice(4, 6) - 1, +c.day.slice(6, 8) + 1));
+      c.next = n.getUTCFullYear() + pad(n.getUTCMonth() + 1) + pad(n.getUTCDate());
+    }
+    return c;
+  }
+  function calIcs(c) {
+    var lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//The Food Line-up//Events//NL', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH',
+      'BEGIN:VEVENT', 'UID:' + (location.pathname.replace(/[^a-z0-9]+/gi, '-') || 'event') + '@thefoodlineup.nl',
+      'DTSTAMP:' + icsUtc(new Date())];
+    if (c.allDay) lines.push('DTSTART;VALUE=DATE:' + c.day, 'DTEND;VALUE=DATE:' + c.next);
+    else lines.push('DTSTART:' + icsUtc(c.start), 'DTEND:' + icsUtc(c.end));
+    lines.push('SUMMARY:' + icsText(c.title));
+    if (c.loc) lines.push('LOCATION:' + icsText(c.loc));
+    lines.push('DESCRIPTION:' + icsText(c.url), 'URL:' + c.url, 'END:VEVENT', 'END:VCALENDAR');
+    return 'data:text/calendar;charset=utf-8,' + encodeURIComponent(lines.join('\r\n'));
+  }
+  function calGoogle(c) {
+    var dates = c.allDay ? c.day + '/' + c.next : icsUtc(c.start) + '/' + icsUtc(c.end);
+    return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + encodeURIComponent(c.title) +
+      '&dates=' + dates + '&location=' + encodeURIComponent(c.loc) + '&details=' + encodeURIComponent(c.url) + '&ctz=Europe/Amsterdam';
+  }
+  function calOutlook(c) {
+    var s = c.allDay ? isoDay(c.day) : c.start.toISOString();
+    var e = c.allDay ? isoDay(c.next) : c.end.toISOString();
+    return 'https://outlook.office.com/calendar/0/deeplink/compose?path=%2Fcalendar%2Faction%2Fcompose&rru=addevent&subject=' +
+      encodeURIComponent(c.title) + '&startdt=' + encodeURIComponent(s) + '&enddt=' + encodeURIComponent(e) +
+      (c.allDay ? '&allday=true' : '') + '&location=' + encodeURIComponent(c.loc) + '&body=' + encodeURIComponent(c.url);
+  }
+  var calCss = false;
+  function calStyles() {
+    if (calCss) return; calCss = true;
+    var s = document.createElement('style');
+    s.textContent = '.tflu-cal{flex-basis:100%;display:none;flex-direction:column;max-width:22rem;margin-top:.25rem;border:1px solid #b9bcd3;background:#fff}' +
+      '.tflu-cal.is-open{display:flex}' +
+      '.tflu-cal a{display:flex;align-items:center;justify-content:space-between;gap:1rem;min-height:3rem;padding:0 1rem;color:#25245A;font-weight:600;text-decoration:none;border-top:1px solid #e3e5ef}' +
+      '.tflu-cal a:first-child{border-top:0}' +
+      '.tflu-cal a::after{content:"\\2192";transition:transform .2s cubic-bezier(.22,1,.36,1)}' +
+      '@media (hover:hover) and (pointer:fine){.tflu-cal a:hover{background:#eef6f5}.tflu-cal a:hover::after{transform:translateX(4px)}}' +
+      '.tflu-cal a:focus-visible{outline:2px solid #F2560A;outline-offset:-2px}';
+    document.head.appendChild(s);
+  }
+  function calPush(title, type) {
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ event: 'tflu_event_calendar', event_name: title, calendar_type: type });
+  }
   function initEvent() {
+    var touch = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
     $$('[data-event-ics]').forEach(function (a) {
-      var start = parseEventDate(a.getAttribute('data-ics-start'));
-      if (!start) { a.style.display = 'none'; return; }
+      var c = eventCal(a);
+      if (!c) { a.style.display = 'none'; return; }
       a.setAttribute('role', 'button');
+      var file = (location.pathname.split('/').filter(Boolean).pop() || 'event') + '.ics';
+      // Telefoon/tablet: direct het .ics (iOS en Android tonen dan 'Voeg toe aan agenda').
+      // Desktop: keuze tussen Google Agenda, Outlook (Microsoft 365) en Apple/overige (.ics).
+      var menu = null;
+      if (!touch) {
+        calStyles();
+        menu = document.createElement('div');
+        menu.className = 'tflu-cal';
+        menu.id = 'tflu-cal-' + Math.random().toString(36).slice(2, 7);
+        menu.innerHTML = '<a target="_blank" rel="noopener" data-cal="google">Google Agenda</a>' +
+          '<a target="_blank" rel="noopener" data-cal="outlook">Outlook (Microsoft 365)</a>' +
+          '<a data-cal="ics">Apple Agenda of andere (.ics)</a>';
+        var links = menu.querySelectorAll('a');
+        links[0].href = calGoogle(c);
+        links[1].href = calOutlook(c);
+        links[2].href = calIcs(c);
+        links[2].setAttribute('download', file);
+        Array.prototype.forEach.call(links, function (l) {
+          l.addEventListener('click', function () {
+            calPush(c.title, l.getAttribute('data-cal'));
+            menu.classList.remove('is-open'); a.setAttribute('aria-expanded', 'false');
+          });
+        });
+        var host = a.parentNode;
+        host.style.flexWrap = 'wrap';
+        host.appendChild(menu);
+        a.setAttribute('aria-haspopup', 'true');
+        a.setAttribute('aria-expanded', 'false');
+        a.setAttribute('aria-controls', menu.id);
+        document.addEventListener('click', function (e) {
+          if (!menu.classList.contains('is-open') || a.contains(e.target) || menu.contains(e.target)) return;
+          menu.classList.remove('is-open'); a.setAttribute('aria-expanded', 'false');
+        });
+        document.addEventListener('keydown', function (e) {
+          if (e.key === 'Escape' && menu.classList.contains('is-open')) { menu.classList.remove('is-open'); a.setAttribute('aria-expanded', 'false'); a.focus(); }
+        });
+      }
       a.addEventListener('click', function (e) {
         e.preventDefault();
-        var url = canonicalUrl();
-        var end = parseEventDate(a.getAttribute('data-ics-end'));
-        var title = a.getAttribute('data-ics-title') || document.title;
-        var lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//The Food Line-up//Events//NL', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH',
-          'BEGIN:VEVENT', 'UID:' + (location.pathname.replace(/[^a-z0-9]+/gi, '-') || 'event') + '@thefoodlineup.nl',
-          'DTSTAMP:' + icsUtc(new Date())];
-        if (end && end > start) {
-          lines.push('DTSTART:' + icsUtc(start), 'DTEND:' + icsUtc(end));
-        } else {
-          var day = amsDay(start);
-          var next = new Date(Date.UTC(+day.slice(0, 4), +day.slice(4, 6) - 1, +day.slice(6, 8) + 1));
-          lines.push('DTSTART;VALUE=DATE:' + day, 'DTEND;VALUE=DATE:' + next.getUTCFullYear() + pad(next.getUTCMonth() + 1) + pad(next.getUTCDate()));
+        if (menu) {
+          var open = !menu.classList.contains('is-open');
+          menu.classList.toggle('is-open', open);
+          a.setAttribute('aria-expanded', open ? 'true' : 'false');
+          if (open) menu.querySelector('a').focus({ preventScroll: true });
+          return;
         }
-        lines.push('SUMMARY:' + icsText(title));
-        var loc = a.getAttribute('data-ics-location');
-        if (loc) lines.push('LOCATION:' + icsText(loc));
-        lines.push('DESCRIPTION:' + icsText(url), 'URL:' + url, 'END:VEVENT', 'END:VCALENDAR');
-        var body = lines.join('\r\n');
         var link = document.createElement('a');
-        link.href = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(body);
-        link.download = (location.pathname.split('/').filter(Boolean).pop() || 'event') + '.ics';
+        link.href = calIcs(c);
+        link.download = file;
         document.body.appendChild(link);
         link.click();
         link.remove();
-        window.dataLayer = window.dataLayer || [];
-        window.dataLayer.push({ event: 'tflu_event_calendar', event_name: title });
+        calPush(c.title, 'ics');
       });
     });
 
