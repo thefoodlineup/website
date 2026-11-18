@@ -2,7 +2,7 @@
  * The Food Line-up – website scripts
  * https://github.com/thefoodlineup/website
  *
- * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.44.0
+ * Geladen in Webflow via jsDelivr met een vaste versie (zie README). v1.46.0
  * Elke module zoekt zijn eigen data-attributen en doet niets als die niet op de pagina staan.
  */
 (function () {
@@ -998,7 +998,10 @@
       }
       if (blocked) return; // geen conversie voor tegengehouden inzendingen
       window.dataLayer = window.dataLayer || [];
-      window.dataLayer.push({ event: 'tflu_form_submit', form_name: form.getAttribute('data-form') || '' });
+      var fname = form.getAttribute('data-form') || '';
+      // Aanmelding voor een event (uitnodiging) is geen lead: eigen event, zodat GA4 hem apart telt.
+      if (fname === 'event') window.dataLayer.push({ event: 'tflu_event_signup', form_name: fname, event_name: document.title });
+      else window.dataLayer.push({ event: 'tflu_form_submit', form_name: fname });
     }).catch(function (err) {
       if (window.console) console.warn('[tflu] formulier niet verzonden', err);
       if (fail) fail.style.display = 'block';
@@ -2490,6 +2493,117 @@
   }
 
   /* ------------------------------------------------------------------
+   * Eventpagina (CMS 'Events')
+   * - a[data-event-ics]: download een .ics. Data uit data-ics-title/-start/-end/-location.
+   *   Zonder einddatum: hele dag op de startdatum (Amsterdamse tijd). Met einddatum: van start tot eind.
+   * - a[data-event-share]: telefoon/tablet het deelmenu, anders de link kopiëren ('Link gekopieerd').
+   * - [data-hide-empty]: menugang zonder gerecht verbergen; menukaart zonder titel verbergen;
+   *   links zonder adres verbergen.
+   * ------------------------------------------------------------------ */
+  function canonicalUrl() {
+    var c = document.querySelector('link[rel="canonical"]');
+    return (c && c.href) || location.href.split('#')[0].split('?')[0];
+  }
+  function parseEventDate(v) {
+    if (!v) return null;
+    var d = new Date(v);
+    return isNaN(d.getTime()) ? null : d;
+  }
+  function amsDay(d) {
+    // Kalenderdag in Amsterdam als YYYYMMDD
+    try {
+      var p = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Amsterdam', year: 'numeric', month: '2-digit', day: '2-digit' }).format(d);
+      return p.replace(/-/g, '');
+    } catch (e) {
+      return d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate());
+    }
+  }
+  function icsUtc(d) {
+    return d.getUTCFullYear() + pad(d.getUTCMonth() + 1) + pad(d.getUTCDate()) + 'T' +
+      pad(d.getUTCHours()) + pad(d.getUTCMinutes()) + '00Z';
+  }
+  function icsText(s) { return String(s || '').replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/([,;])/g, '\\$1'); }
+  function initEvent() {
+    $$('[data-event-ics]').forEach(function (a) {
+      var start = parseEventDate(a.getAttribute('data-ics-start'));
+      if (!start) { a.style.display = 'none'; return; }
+      a.setAttribute('role', 'button');
+      a.addEventListener('click', function (e) {
+        e.preventDefault();
+        var url = canonicalUrl();
+        var end = parseEventDate(a.getAttribute('data-ics-end'));
+        var title = a.getAttribute('data-ics-title') || document.title;
+        var lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//The Food Line-up//Events//NL', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH',
+          'BEGIN:VEVENT', 'UID:' + (location.pathname.replace(/[^a-z0-9]+/gi, '-') || 'event') + '@thefoodlineup.nl',
+          'DTSTAMP:' + icsUtc(new Date())];
+        if (end && end > start) {
+          lines.push('DTSTART:' + icsUtc(start), 'DTEND:' + icsUtc(end));
+        } else {
+          var day = amsDay(start);
+          var next = new Date(Date.UTC(+day.slice(0, 4), +day.slice(4, 6) - 1, +day.slice(6, 8) + 1));
+          lines.push('DTSTART;VALUE=DATE:' + day, 'DTEND;VALUE=DATE:' + next.getUTCFullYear() + pad(next.getUTCMonth() + 1) + pad(next.getUTCDate()));
+        }
+        lines.push('SUMMARY:' + icsText(title));
+        var loc = a.getAttribute('data-ics-location');
+        if (loc) lines.push('LOCATION:' + icsText(loc));
+        lines.push('DESCRIPTION:' + icsText(url), 'URL:' + url, 'END:VEVENT', 'END:VCALENDAR');
+        var body = lines.join('\r\n');
+        var link = document.createElement('a');
+        link.href = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(body);
+        link.download = (location.pathname.split('/').filter(Boolean).pop() || 'event') + '.ics';
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({ event: 'tflu_event_calendar', event_name: title });
+      });
+    });
+
+    $$('[data-event-share]').forEach(function (a) {
+      var url = canonicalUrl();
+      a.href = url;
+      a.setAttribute('role', 'button');
+      var span = a.querySelector('span') || a;
+      var label = span.textContent;
+      var touch = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+      a.addEventListener('click', function (e) {
+        e.preventDefault();
+        var t = document.querySelector('h1');
+        var title = (t && t.textContent.trim()) || document.title;
+        if (touch && navigator.share) {
+          navigator.share({ title: title, text: tr('Schuif je ook aan? Meld je hier aan:', 'Join us? Sign up here:'), url: url }).catch(function () {});
+          return;
+        }
+        var done = function () {
+          span.textContent = tr('Link gekopieerd', 'Link copied');
+          clearTimeout(a._copyT);
+          a._copyT = setTimeout(function () { span.textContent = label; }, 2000);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(done, function () {});
+        else {
+          var ta = document.createElement('textarea');
+          ta.value = url; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0';
+          document.body.appendChild(ta); ta.select();
+          try { document.execCommand('copy'); done(); } catch (err) {}
+          ta.remove();
+        }
+      });
+    });
+
+    function empty(el) { return !el || !el.textContent.trim() || el.classList.contains('w-dyn-bind-empty'); }
+    $$('[data-hide-empty]').forEach(function (el) {
+      if (empty(el.querySelector('.event-menu_dish'))) el.style.display = 'none';
+    });
+    $$('[data-event-menu]').forEach(function (el) {
+      if (empty(el.querySelector('.event-menu_title'))) el.style.display = 'none';
+      $$('a.contact_link', el).forEach(function (l) {
+        var h = l.getAttribute('href');
+        if (!h || h === '#') l.style.display = 'none';
+      });
+    });
+  }
+
+  /* ------------------------------------------------------------------
    * Story-meta   .story-hero_meta
    * - Geen datum ingevuld: het puntje tussen datum en leestijd verdwijnt.
    * - Geen leestijd ingevuld: schatting op basis van de artikeltekst
@@ -3119,6 +3233,7 @@
     initConsent();
     initSchema();
     initShare();
+    initEvent();
     initStoryMeta();
     initLineup();
     initAnchors();
