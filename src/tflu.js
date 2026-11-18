@@ -2506,6 +2506,11 @@
   }
   function parseEventDate(v) {
     if (!v) return null;
+    // Webflow zet een datumveld in een attribuut als 'november 27, 2026' (zonder tijd): dan 12:00 UTC,
+    // zodat de dag in elke tijdzone klopt.
+    var m = /^([a-z]+)\s+(\d{1,2}),\s*(\d{4})$/i.exec(String(v).trim());
+    var months = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
+    if (m && months.indexOf(m[1].toLowerCase()) > -1) return new Date(Date.UTC(+m[3], months.indexOf(m[1].toLowerCase()), +m[2], 12));
     var d = new Date(v);
     return isNaN(d.getTime()) ? null : d;
   }
