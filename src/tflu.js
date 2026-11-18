@@ -2601,6 +2601,9 @@
     });
     $$('[data-event-menu]').forEach(function (el) {
       if (empty(el.querySelector('.event-menu_title'))) el.style.display = 'none';
+      $$('.event-menu_item', el).forEach(function (it) {
+        if (empty(it.querySelector('.event-menu_dish'))) it.style.display = 'none';
+      });
       $$('a.contact_link', el).forEach(function (l) {
         var h = l.getAttribute('href');
         if (!h || h === '#') l.style.display = 'none';
