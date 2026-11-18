@@ -115,6 +115,46 @@ def footer():
 def hi():
     return p("Hi " + tok("firstname", "daar") + ",")
 
+# --- Events (Choucrouterie 2026) ---
+EV_FILES = "https://19588880.fs1.hubspotusercontent-na1.net/hubfs/19588880/website-2026/events/"
+EV_LOGO = EV_FILES + "choucrouterie-2026-mail-logo.png"
+EV_ICS = EV_FILES + "choucrouterie-2026.ics"
+EV_PAGE = SITE + "/event/choucrouterie-2026"
+EV_ROUTE = "https://www.google.com/maps/search/?api=1&query=Amstel+1+Amsterdam"
+EV_MENU = [("Voorgerecht", "Plak paté van Brandt &amp; Levie"),
+           ("Hoofdgerecht", "Elzasser zuurkool met aardappelpuree en rookworst van Brandt &amp; Levie")]
+
+def ev_logo():
+    return f'''<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:4px 0 24px 0;"><tr>
+<td bgcolor="#ffffff" style="background:#ffffff;padding:16px;border:1px solid #dfe9e8;">
+<img src="{EV_LOGO}" width="240" height="219" alt="De Choucrouterie, zuurkool pop-up met Brandt &amp; Levie" style="display:block;border:0;width:240px;height:auto;"></td></tr></table>'''
+
+def ev_details():
+    def row(label, value, last=False):
+        pb = "0" if last else "12px"
+        return (f'<tr><td valign="top" width="132" style="padding:0 12px {pb} 0;font-family:{BODY};font-size:13px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:{NAVY};" class="tf-txt">{label}</td>'
+                f'<td valign="top" style="padding:0 0 {pb} 0;font-family:{BODY};font-size:16px;line-height:1.45;color:{NAVY};" class="tf-txt">{value}</td></tr>')
+    rows = (row("Wanneer", "Vrijdag 27 november 2026")
+            + row("Waar", "Amstel 1, Amsterdam")
+            + row("Dieetwensen", tok("dieetwensen_of_allergieen", "Geen"), last=True))
+    return box(f'<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">{rows}</table>')
+
+def ev_menu():
+    rows = ""
+    for i, (course, dish) in enumerate(EV_MENU, 1):
+        rows += f'''<tr><td valign="top" width="44" class="tf-num" style="padding:0 0 16px 0;font-family:{DISPLAY};font-size:26px;line-height:28px;color:{ORANGE};">0{i}</td>
+<td valign="top" style="padding:0 0 16px 0;" class="tf-txt"><p style="margin:0 0 2px 0;font-family:{BODY};font-size:12px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:{NAVY};">{course}</p>
+<p style="margin:0;font-family:{BODY};font-size:15px;line-height:1.5;color:{NAVY};">{dish}</p></td></tr>'''
+    return (f'<p class="tf-txt" style="margin:0 0 16px 0;font-family:{DISPLAY};font-size:22px;text-transform:uppercase;color:{NAVY};">Op het menu</p>'
+            f'<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">{rows}</table>')
+
+def ev_cancel(title):
+    return f'''<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td class="tf-line" style="border-top:1px solid #dfe9e8;padding-top:22px;">
+<p class="tf-txt" style="margin:0 0 6px 0;font-family:{DISPLAY};font-size:20px;text-transform:uppercase;color:{NAVY};">{title}</p>
+<p class="tf-txt" style="margin:0;font-family:{BODY};font-size:15px;line-height:1.6;color:{NAVY};">Geen probleem, laat het ons even weten door op deze mail te antwoorden. Dan geven we je plek aan een ander.</p></td></tr></table>'''
+
+SPACE = lambda h: f'<div style="height:{h}px;line-height:{h}px;">&nbsp;</div>'
+
 MAILS = {
  "offerte": dict(
   name="Web 2026 | Bevestiging offerte",
@@ -203,10 +243,48 @@ MAILS = {
     + '<div style="height:24px;line-height:24px;">&nbsp;</div>'
     + p("Tot snel!<br><strong>Team The Food Line-up</strong>", mb=0)
   )),
+ "event-bevestiging": dict(
+  name="Events 2026 | Choucrouterie bevestiging",
+  subject="Je staat op de lijst!",
+  preview="Vrijdag 27 november schuif je aan bij de Choucrouterie.",
+  html=wrap("Aanmelding ontvangen", "Je staat op de ", "lijst!",
+    hi()
+    + p("Leuk dat je komt! Je staat op de lijst voor het choucroutediner op vrijdag 27 november bij de Choucrouterie, de zuurkool pop-up van Brandt &amp; Levie en The Food Line-up.", mb=20)
+    + ev_logo()
+    + ev_details()
+    + SPACE(24)
+    + button("Zet in je agenda", EV_ICS)
+    + SPACE(24)
+    + p("<strong>Neem je iemand mee?</strong> Stuur de uitnodiging door, dan meldt je +1 zich ook even aan: " + link_button("naar de aanmeldpagina", EV_PAGE) + ".", mb=28)
+    + ev_menu()
+    + SPACE(8)
+    + ev_cancel("Kun je toch niet?")
+    + SPACE(24)
+    + p("Tot de 27e!<br><strong>Team The Food Line-up</strong>", mb=0)
+  )),
+ "event-herinnering": dict(
+  name="Events 2026 | Choucrouterie herinnering",
+  subject="Morgen schuif je aan!",
+  preview="Vrijdag 27 november, Amstel 1. Wij houden een plekje voor je vrij.",
+  html=wrap("Herinnering &middot; morgen", "Morgen schuif je ", "aan!",
+    hi()
+    + p("Morgen is het zover: het choucroutediner bij de Choucrouterie. We hebben er zin in en houden een plekje voor je vrij.", mb=20)
+    + ev_details()
+    + SPACE(24)
+    + button("Plan je route", EV_ROUTE)
+    + SPACE(32)
+    + ev_menu()
+    + SPACE(8)
+    + ev_cancel("Kun je onverwacht niet?")
+    + SPACE(24)
+    + p("Tot morgen!<br><strong>Team The Food Line-up</strong>", mb=0)
+  )),
 }
 
 if __name__ == "__main__":
     MAILS["nieuwsbrief"]["html"]=MAILS["nieuwsbrief"]["html"].replace("omdat je contact met ons hebt opgenomen via onze website","omdat je je hebt aangemeld voor onze nieuwsbrief")
+    for k in ("event-bevestiging", "event-herinnering"):
+        MAILS[k]["html"]=MAILS[k]["html"].replace("omdat je contact met ons hebt opgenomen via onze website","omdat je je hebt aangemeld voor het choucroutediner op 27 november")
     MAILS["chef"]["html"]=MAILS["chef"]["html"].replace("omdat je contact met ons hebt opgenomen via onze website","omdat je je via onze website hebt aangemeld voor ons chefs netwerk")
     json.dump(MAILS, open(sys.argv[1], "w"), ensure_ascii=False, indent=1)
 
